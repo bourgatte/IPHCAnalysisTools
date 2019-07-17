@@ -48,7 +48,7 @@ $OutputDir="/home-pbs/$UserID/Test";
 #$OutputDir="~/";
 $CodeDir="../Code";
 $set="ControlSample_";
-$CMSSWRel="8_0_25";
+$CMSSWRel="8_0_26_patch1";
 $PileupVersion="V08-03-17";
 $tag="03-00-12";
 $TauReco="5_2_3_patch3_Dec_08_2012";
@@ -288,13 +288,13 @@ if( $ARGV[0] eq "--TauNtuple"){
    system(sprintf("echo \"git checkout svFit_2015Apr03\" >> Install_TauNtuple_$time")); 
    system(sprintf("echo \"cd $CMSSW_BASE/src\" >> Install_TauNtuple_$time")); 
 
-   system(sprintf("echo \"scram b -j 4\" >> Install_TauNtuple_$time")); 
+   system(sprintf("echo \"scram b -j 16\" >> Install_TauNtuple_$time")); 
    system(sprintf("echo \"cd $CMSSW_BASE/external/$SCRAM_ARCH\" >> Install_TauNtuple_$time")); 
    system(sprintf("echo \"git clone https://github.com/ikrav/RecoEgamma-ElectronIdentification.git data/RecoEgamma/ElectronIdentification/data\" >> Install_TauNtuple_$time")); 
    system(sprintf("echo \"cd data/RecoEgamma/ElectronIdentification/data\" >> Install_TauNtuple_$time")); 
    system(sprintf("echo \"git checkout egm_id_80X_v1\" >> Install_TauNtuple_$time")); 
    system(sprintf("echo \"cd $CMSSW_BASE/src\" >> Install_TauNtuple_$time")); 
-   system(sprintf("echo \"scram b -j 4\" >> Install_TauNtuple_$time")); 
+   system(sprintf("echo \"scram b -j 16\" >> Install_TauNtuple_$time")); 
     # print Instructions
     printf("\n\nInstructions:");
     printf("\nsource  Install_TauNtuple_$time to complete installation, compilation might take some time...  \n\n");

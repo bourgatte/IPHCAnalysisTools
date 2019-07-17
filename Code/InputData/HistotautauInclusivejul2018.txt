@@ -10,4 +10,5 @@ Histo: 70  831.76 MC_ttbar ttbar 2
 Histo: 71  35.85  MC_stop  tW  33
 Histo: 30  4150.28 MC_DY_eemumu Z#rightarrow2e/#mu#mu 51
 Histo: 33  2075.14 MC_DY_tautau Z#rightarrow#tau#tau 5
-
+Histo: 11  2.767578 MC_ggfH_tautau ggfH#rightarrow/#tau#tau 849
+Histo: 12  0.2371314 MC_vbfH_tautau vbfH#rightarrow#tau#tau 839

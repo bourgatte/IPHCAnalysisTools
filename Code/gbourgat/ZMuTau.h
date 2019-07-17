@@ -103,15 +103,19 @@ class ZMuTau : public Selection {
   std::vector<TH1D> NQCD;
   std::vector<TH1D> NWJets;
   std::vector<TH1D> NWJetsRelaxed;
-  std::vector<TH1D> MT_AHigh;
-  std::vector<TH1D> MT_BHigh;
-  std::vector<TH1D> MT_BLow;
-  std::vector<TH1D> TauTauVisMass_AHigh;
-  std::vector<TH1D> TauTauVisMass_BHigh;
-  std::vector<TH1D> TauTauVisMass_BLow;
+  std::vector<TH1D> MTAHigh;
+  std::vector<TH1D> MTBHigh;
+  std::vector<TH1D> MTBLow;
+  std::vector<TH1D> TauTauVisMassAHigh;
+  std::vector<TH1D> TauTauVisMassBHigh;
+  std::vector<TH1D> TauTauVisMassBLow;
+
+  std::vector<TH1D> METAHigh;
 
   std::vector<TH1D> MET;
   std::vector<TH1D> METphi;
+
+
   std::vector<TH1D> PUPPImet;
   std::vector<TH1D> PUPPImetphi;
   std::vector<TH1D> TransverseMass;

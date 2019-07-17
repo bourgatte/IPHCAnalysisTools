@@ -31,29 +31,61 @@ HEPMC:
 	cd ../../;  
 
 LHAPDF:
-	@tar xvfz lhapdf-5.9.1.tar.gz; \
-	cd lhapdf-5.9.1; \
+	@tar xvfz LHAPDF-6.2.1.tar.gz; \
+	cd LHAPDF-6.2.1; \
 	./configure --prefix=${BASE}/lhapdf/ --libdir=${BASE}/lhapdf/lib/; \
 	make; \
 	make install; \
-	cd ../lhapdf/share/lhapdf; \
-	mkdir PDFsets; \
-	cd PDFsets; \
-	../../../bin/lhapdf-getdata --repo=http://www.hepforge.org/archive/lhapdf/pdfsets/5.9.1 NNPDF23_nlo_as_0119.LHgrid; \
-	../../../bin/lhapdf-getdata --repo=http://www.hepforge.org/archive/lhapdf/pdfsets/5.9.1 NNPDF23_nnlo_as_0119.LHgrid; \
-	../../../bin/lhapdf-getdata --repo=http://www.hepforge.org/archive/lhapdf/pdfsets/5.9.1 MSTW2008lo68cl.LHgrid; \
-	../../../bin/lhapdf-getdata --repo=http://www.hepforge.org/archive/lhapdf/pdfsets/5.9.1 MSTW2008nlo68cl.LHgrid; \
-	../../../bin/lhapdf-getdata --repo=http://www.hepforge.org/archive/lhapdf/pdfsets/5.9.1 MSTW2008nnlo68cl.LHgrid; \
-	../../../bin/lhapdf-getdata --repo=http://www.hepforge.org/archive/lhapdf/pdfsets/5.9.1 MSTW2008lo90cl.LHgrid; \
-	../../../bin/lhapdf-getdata --repo=http://www.hepforge.org/archive/lhapdf/pdfsets/5.9.1 MSTW2008nlo90cl.LHgrid; \
-	../../../bin/lhapdf-getdata --repo=http://www.hepforge.org/archive/lhapdf/pdfsets/5.9.1 MSTW2008nnlo90cl.LHgrid; \
-	../../../bin/lhapdf-getdata --repo=http://www.hepforge.org/archive/lhapdf/pdfsets/5.9.1 CT10.LHgrid; \
-	../../../bin/lhapdf-getdata --repo=http://www.hepforge.org/archive/lhapdf/pdfsets/5.9.1 CT10nlo.LHgrid; \
-	../../../bin/lhapdf-getdata --repo=http://www.hepforge.org/archive/lhapdf/pdfsets/5.9.1 CT10nnlo.LHgrid; \
-	../../../bin/lhapdf-getdata --repo=http://www.hepforge.org/archive/lhapdf/pdfsets/5.9.1 cteq66.LHgrid; \
-	../../../bin/lhapdf-getdata --repo=http://www.hepforge.org/archive/lhapdf/pdfsets/5.9.1 cteq6mE.LHgrid; \
-	wget http://cern.ch/alcaraz/cteq6ll.LHgrid; \
-	cd ../../../../../;
+	cd ../lhapdf/share/LHAPDF; \
+	#mkdir PDFsets; \
+	#cd PDFsets; \
+	wget http://www.hepforge.org/archive/lhapdf/pdfsets/6.2.1/NNPDF30_nlo_as_0118.tar.gz -O -| tar -zxvf - -C "."; \
+	wget http://www.hepforge.org/archive/lhapdf/pdfsets/6.2.1/NNPDF23_nlo_as_0119.tar.gz -O -| tar -zxvf - -C "."; \
+	wget http://www.hepforge.org/archive/lhapdf/pdfsets/6.2.1/NNPDF23_nnlo_as_0119.tar.gz -O -| tar -zxvf - -C "."; \
+	wget http://www.hepforge.org/archive/lhapdf/pdfsets/6.2.1/MSTW2008lo68cl.tar.gz -O -| tar -zxvf - -C "."; \
+	wget http://www.hepforge.org/archive/lhapdf/pdfsets/6.2.1/MSTW2008nlo68cl.tar.gz -O -| tar -zxvf - -C "."; \
+	wget http://www.hepforge.org/archive/lhapdf/pdfsets/6.2.1/MSTW2008nnlo68cl.tar.gz -O -| tar -zxvf - -C "."; \
+	wget http://www.hepforge.org/archive/lhapdf/pdfsets/6.2.1/MSTW2008lo90cl.tar.gz -O -| tar -zxvf - -C "."; \
+	wget http://www.hepforge.org/archive/lhapdf/pdfsets/6.2.1/MSTW2008nlo90cl.tar.gz -O -| tar -zxvf - -C "."; \
+	wget http://www.hepforge.org/archive/lhapdf/pdfsets/6.2.1/MSTW2008nnlo90cl.tar.gz -O -| tar -zxvf - -C "."; \
+	wget http://www.hepforge.org/archive/lhapdf/pdfsets/6.2.1/CT10.tar.gz -O -| tar -zxvf - -C "."; \
+	wget http://www.hepforge.org/archive/lhapdf/pdfsets/6.2.1/CT10nlo.tar.gz -O -| tar -zxvf - -C "."; \
+	wget http://www.hepforge.org/archive/lhapdf/pdfsets/6.2.1/CT10nnlo.tar.gz -O -| tar -zxvf - -C "."; \
+	wget http://www.hepforge.org/archive/lhapdf/pdfsets/6.2.1/cteq66.tar.gz -O -| tar -zxvf - -C "."; \
+	
+	#wget http://www.hepforge.org/archive/lhapdf/pdfsets/6.2.1/cteq6mE.tar.gz -O -| tar -zxvf - -C "."; \
+
+	#wget http://www.hepforge.org/archive/lhapdf/pdfsets/5.9.1/NNPDF30_nlo_as_0118.LHgrid; \
+	#wget http://www.hepforge.org/archive/lhapdf/pdfsets/5.9.1/NNPDF23_nlo_as_0119.LHgrid; \
+	#wget http://www.hepforge.org/archive/lhapdf/pdfsets/5.9.1/NNPDF23_nnlo_as_0119.LHgrid; \
+	#wget http://www.hepforge.org/archive/lhapdf/pdfsets/5.9.1/MSTW2008lo68cl.LHgrid; \
+	#wget http://www.hepforge.org/archive/lhapdf/pdfsets/5.9.1/MSTW2008nlo68cl.LHgrid; \
+	#wget http://www.hepforge.org/archive/lhapdf/pdfsets/5.9.1/MSTW2008nnlo68cl.LHgrid; \
+	#wget http://www.hepforge.org/archive/lhapdf/pdfsets/5.9.1/MSTW2008lo90cl.LHgrid; \
+	#wget http://www.hepforge.org/archive/lhapdf/pdfsets/5.9.1/MSTW2008nlo90cl.LHgrid; \
+	#wget http://www.hepforge.org/archive/lhapdf/pdfsets/5.9.1/MSTW2008nnlo90cl.LHgrid; \
+	#wget http://www.hepforge.org/archive/lhapdf/pdfsets/5.9.1/CT10.LHgrid; \
+	#wget http://www.hepforge.org/archive/lhapdf/pdfsets/5.9.1/CT10nlo.LHgrid; \
+	#wget http://www.hepforge.org/archive/lhapdf/pdfsets/5.9.1/CT10nnlo.LHgrid; \
+	#wget http://www.hepforge.org/archive/lhapdf/pdfsets/5.9.1/cteq66.LHgrid; \
+	#wget http://www.hepforge.org/archive/lhapdf/pdfsets/5.9.1/cteq6mE.LHgrid; \
+	
+	#../../../bin/lhapdf-getdata --repo=http://www.hepforge.org/archive/lhapdf/pdfsets/5.9.1 NNPDF30_nlo_as_0118.LHgrid; \
+	#../../../bin/lhapdf-getdata --repo=http://www.hepforge.org/archive/lhapdf/pdfsets/5.9.1 NNPDF23_nlo_as_0119.LHgrid; \
+	#../../../bin/lhapdf-getdata --repo=http://www.hepforge.org/archive/lhapdf/pdfsets/5.9.1 NNPDF23_nnlo_as_0119.LHgrid; \
+	#../../../bin/lhapdf-getdata --repo=http://www.hepforge.org/archive/lhapdf/pdfsets/5.9.1 MSTW2008lo68cl.LHgrid; \
+	#../../../bin/lhapdf-getdata --repo=http://www.hepforge.org/archive/lhapdf/pdfsets/5.9.1 MSTW2008nlo68cl.LHgrid; \
+	#../../../bin/lhapdf-getdata --repo=http://www.hepforge.org/archive/lhapdf/pdfsets/5.9.1 MSTW2008nnlo68cl.LHgrid; \
+	#../../../bin/lhapdf-getdata --repo=http://www.hepforge.org/archive/lhapdf/pdfsets/5.9.1 MSTW2008lo90cl.LHgrid; \
+	#../../../bin/lhapdf-getdata --repo=http://www.hepforge.org/archive/lhapdf/pdfsets/5.9.1 MSTW2008nlo90cl.LHgrid; \
+	#../../../bin/lhapdf-getdata --repo=http://www.hepforge.org/archive/lhapdf/pdfsets/5.9.1 MSTW2008nnlo90cl.LHgrid; \
+	#../../../bin/lhapdf-getdata --repo=http://www.hepforge.org/archive/lhapdf/pdfsets/5.9.1 CT10.LHgrid; \
+	#../../../bin/lhapdf-getdata --repo=http://www.hepforge.org/archive/lhapdf/pdfsets/5.9.1 CT10nlo.LHgrid; \
+	#../../../bin/lhapdf-getdata --repo=http://www.hepforge.org/archive/lhapdf/pdfsets/5.9.1 CT10nnlo.LHgrid; \
+	#../../../bin/lhapdf-getdata --repo=http://www.hepforge.org/archive/lhapdf/pdfsets/5.9.1 cteq66.LHgrid; \
+	#../../../bin/lhapdf-getdata --repo=http://www.hepforge.org/archive/lhapdf/pdfsets/5.9.1 cteq6mE.LHgrid; \
+	#wget http://cern.ch/alcaraz/cteq6ll.LHgrid; \
+	cd ../../../../;
 
 PYTHIA8:
         @cd pythia8/176/; \
@@ -62,6 +94,6 @@ PYTHIA8:
 
 
 TAUOLA:
-	@cd tauola++/1.1.5/; \
+	@cd TAUOLA/; \
 	 ./configure --with-hepmc=${BASE}/hepmc/install/ --with-pythia8libs=${BASE}/pythia8/176/ --with-lhapdf=${BASE}/lhapdf --with-tau-spinner ; \
 	make all; make install; 

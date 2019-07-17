@@ -62,12 +62,13 @@ CINTTARGETS =
 ifdef USE_TauSpinner
 	SUBDIRS += TauSpiner/ CommonUtils/TauPolSoftware/TauDecaysInterface/
 	SHAREDLIBFLAGS +=	-L./TauSpiner/lhapdf/lib -lLHAPDF \
-				-L./TauSpiner/tauola++/1.1.5/lib -lTauolaCxxInterface -lTauolaFortran -lTauolaTauSpinner \
+				-L./TauSpiner/TAUOLA/lib -lTauolaCxxInterface -lTauolaFortran -lTauolaTauSpinner \
 				-L./TauSpiner/hepmc/install/lib -lHepMC
         SHAREDCXXFLAGS +=	-I./TauSpiner/hepmc/install/include \
-				-I./TauSpiner/tauola++/1.1.5/include/Tauola/ \
-				-I./TauSpiner/tauola++/1.1.5/include/TauSpinner/ \
-				-I./TauSpiner/tauola++/1.1.5/include/ \
+				-I./TauSpiner/TAUOLA/include/Tauola/ \
+				-I./TauSpiner/TAUOLA/include/TauSpinner/ \
+				-I./TauSpiner/TAUOLA/TauSpinner/examples/ \
+				-I./TauSpiner/TAUOLA/include/ \
 				-I./TauSpiner/lhapdf/include/ \
 				-I./TauSpiner/pythia8/176/include/
 	DEFS += -DUSE_TauSpinner=1
@@ -97,7 +98,7 @@ ifdef USE_lebihan
 endif
 
 ifdef USE_gbourgat
-	TARGETS += ZMuTau ZTauTau ZMuMu SVFitIPHC SingleMuSkim SkimNtupleDiTauHTrigger
+	TARGETS += ZMuTau ZTauTau HTauTau SVFitIPHC SingleMuSkim SkimNtupleDiTauHTrigger
 	DEFS += -DUSE_gbourgat=1
 endif
 

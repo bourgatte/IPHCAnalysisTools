@@ -1,5 +1,5 @@
-#ifndef ZTauTau_h
-#define ZTauTau_h
+#ifndef HTauTau_h
+#define HTauTau_h
 
 #include "Selection.h"
 #include <vector>
@@ -27,23 +27,23 @@
 #include "TauAnalysis/ClassicSVfit/interface/MeasuredTauLepton.h"
 #include "TauAnalysis/ClassicSVfit/interface/svFitHistogramAdapter.h"
 
-class ZTauTau : public Selection {
+class HTauTau : public Selection {
 
  public:
-  ZTauTau(TString Name_, TString id_);
-  virtual ~ZTauTau();
+  HTauTau(TString Name_, TString id_);
+  virtual ~HTauTau();
 
   virtual void  Configure();
   virtual void  Finish();
 
   enum cuts {Trigger=0,
-	     Id_and_Kin,
+	     Id_and_Kin=0, 
 	     NPairsFound,
 	     Tau1Isolation,
 	     Tau2Isolation,
 	     LeptonVeto,
-	     PairCharge,
-	     PairMass,
+	     PairCharge, 
+	     //PairMass, 
 	     //MTM,
 	     NCuts};
 
@@ -281,32 +281,40 @@ class ZTauTau : public Selection {
   std::vector<TH1D> IstauplusvisPhysical;
   std::vector<TH1D> IsPairPhysical;
   
-  std::vector<TH1D> ResolPullTauTauFroma1a1MeanEnergy;
-  std::vector<TH1D> ResolPullTauTauFroma1a1MZEnergy;
+  //std::vector<TH1D> ResolPullTauTauFroma1a1MeanEnergy;
+  //std::vector<TH1D> ResolPullTauTauFroma1a1MZEnergy;
   std::vector<TH1D> ResolPullTauTauFroma1a1MeanMomentum;
   std::vector<TH1D> ResolPullTauTauFroma1a1MZMomentum;
   
-  std::vector<TH1D> ResolPullTauminusFroma1a1MeanEnergy;
-  std::vector<TH1D> ResolPullTauminusFroma1a1MZEnergy;
+  //std::vector<TH1D> ResolPullTauminusFroma1a1MeanEnergy;
+  //std::vector<TH1D> ResolPullTauminusFroma1a1MZEnergy;
   std::vector<TH1D> ResolPullTauminusFroma1a1MeanMomentum;
   std::vector<TH1D> ResolPullTauminusFroma1a1MZMomentum;
 
-  std::vector<TH1D> ResolPullTauplusFroma1a1MeanEnergy;
-  std::vector<TH1D> ResolPullTauplusFroma1a1MZEnergy;
+  //std::vector<TH1D> ResolPullTauplusFroma1a1MeanEnergy;
+  //std::vector<TH1D> ResolPullTauplusFroma1a1MZEnergy;
   std::vector<TH1D> ResolPullTauplusFroma1a1MeanMomentum;
   std::vector<TH1D> ResolPullTauplusFroma1a1MZMomentum;
 
+  //std::vector<TH1D> ResolPullTauFroma1a1MeanEnergy;
+  //std::vector<TH1D> ResolPullTauFroma1a1MZEnergy;
+  std::vector<TH1D> ResolPullTauFroma1a1MeanMomentum;
+  std::vector<TH1D> ResolPullTauFroma1a1MZMomentum;
 
-  std::vector<TH1D> ResolPullTauminusFroma1XMeanEnergy;
+  //std::vector<TH1D> ResolPullTauminusFroma1XMeanEnergy;
   std::vector<TH1D> ResolPullTauminusFroma1XMeanMomentum;
-  std::vector<TH1D> ResolPullXminusFroma1XMeanEnergy;
+  //std::vector<TH1D> ResolPullXminusFroma1XMeanEnergy;
   std::vector<TH1D> ResolPullXminusFroma1XMeanMomentum;
 
-  std::vector<TH1D> ResolPullTauplusFroma1XMeanEnergy;
+  //std::vector<TH1D> ResolPullTauplusFroma1XMeanEnergy;
   std::vector<TH1D> ResolPullTauplusFroma1XMeanMomentum; 
-  std::vector<TH1D> ResolPullXplusFroma1XMeanEnergy;
+  //std::vector<TH1D> ResolPullXplusFroma1XMeanEnergy;
   std::vector<TH1D> ResolPullXplusFroma1XMeanMomentum;
 
+
+  std::vector<TH1D> ResolPullXVtxIna1a1;
+  std::vector<TH1D> ResolPullYVtxIna1a1;
+  std::vector<TH1D> ResolPullZVtxIna1a1;
 
 
   std::vector<TH1D> tauminusa1a1MomentumVis;                        
@@ -328,6 +336,24 @@ class ZTauTau : public Selection {
   std::vector<TH1D> tauminusa1XMomentumMean;
   std::vector<TH1D> tauplusa1XMomentumMean;
   std::vector<TH1D> InvariantMasstausa1XMean;
+
+
+  std::vector<TH1D> polarimetricAcopAngle;
+  std::vector<TH1D> polarimetricAcopAngleSVFit;
+  std::vector<TH1D> polarimetricAcopAngleTruth;
+  
+  std::vector<TH1D> polarimetricAcopAngle30;
+  std::vector<TH1D> polarimetricAcopAngle25;
+  std::vector<TH1D> polarimetricAcopAngle20;
+  std::vector<TH1D> polarimetricAcopAngle15;
+  std::vector<TH1D> polarimetricAcopAngle10;
+  std::vector<TH1D> polarimetricAcopAngle5;
+  
+  
+  
+  std::vector<TH1D> AcolAngle;
+  std::vector<TH1D> AcolAngleSVFit;
+  std::vector<TH1D> AcolAngleTruth;
 
   
 };

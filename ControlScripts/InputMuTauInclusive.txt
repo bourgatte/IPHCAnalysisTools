@@ -1,10 +1,10 @@
 Thin: False
 Skim: False
-HistoFile: InputData/Histo.txt
-Analysis: SimFit
+HistoFile: InputData/HistomutauInclusivejul2018.txt
+Analysis: ZMuTau
 UncertType: default
-SkimInfo: InputData/SkimSummaryTauFull13TeV.log
-Lumi: 35825.829
+SkimInfo: InputData/SummarySingleMuTauMay2019.log
+Lumi: 35862.45
 PlotStyle: style2
 
 

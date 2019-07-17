@@ -192,7 +192,7 @@ void  ZMuTau::Configure(){
   TauHPSDecayMode=HConfig.GetTH1D(Name+"_TauHPSDecayMode","Decay mode of the selected #tau candidate",11,-0.5,10.5," HPS Mode ","Events");
   QCDShape=HConfig.GetTH1D(Name+"_QCDShape","QCDShape",2,-0.5,1.5,"QCD Shape","");
 
-  TauTauVisMass=HConfig.GetTH1D(Name+"_TauTauVisMass","Visible invariant mass of a tau pair",40,0,150," M(#tau#tau), GeV","Events");
+  TauTauVisMass=HConfig.GetTH1D(Name+"_TauTauVisMass","Visible invariant mass of a tau pair",15,20,100," M(#tau#tau), GeV","Events");
   TauTauTruthMass=HConfig.GetTH1D(Name+"_TauTauTruthMass","Truth invariant mass of a tau pair",40,0,150," M(#tau#tau)_{truth}, GeV","Events");
 
   SVChi2=HConfig.GetTH1D(Name+"_SVChi2","SV  #chi^{2}",10,0,18,"#chi^{2}","Events");
@@ -202,14 +202,14 @@ void  ZMuTau::Configure(){
   NWJets=HConfig.GetTH1D(Name+"_NWJets","NWJets",4,0.5,4.5,"NWJets in ABCD","Events");
   NWJetsRelaxed=HConfig.GetTH1D(Name+"_NWJetsRelaxed","NWJetsRelaxed",2,0.5,2.5,"NWJetsRelaxed in Low and High MT","Events");
   NQCD=HConfig.GetTH1D(Name+"_NQCD","NQCD",4,0.5,4.5,"NQCD in ABCD","Events");
-  TauTauVisMass_AHigh=HConfig.GetTH1D(Name+"_TauTauVisMass_AHigh","TauTauVisMass_AHigh",40,0,150,"#tau_h#mu Visible Mass in AHigh","Events");
-  TauTauVisMass_BHigh=HConfig.GetTH1D(Name+"_TauTauVisMass_BHigh","TauTauVisMass_BHigh",40,0,150,"#tau_h#mu Visible Mass in BHigh","Events");
-  TauTauVisMass_BLow=HConfig.GetTH1D(Name+"_TauTauVisMass_BLow","TauTauVisMass_BLow",40,0,150,"#tau_h#mu Visible Mass in BLow","Events");
-  MT_AHigh=HConfig.GetTH1D(Name+"_MT_AHigh","MT_AHigh",20,0,40,"Transverse Mass in AHigh","Events");
-  MT_BHigh=HConfig.GetTH1D(Name+"_MT_BHigh","MT_BHigh",20,0,40,"Transverse Mass in BHigh","Events");
-  MT_BLow=HConfig.GetTH1D(Name+"_MT_BLow","MT_BLow",20,0,40,"Transverse Mass in BLow","Events");
+  TauTauVisMassAHigh=HConfig.GetTH1D(Name+"_TauTauVisMassAHigh","TauTauVisMass_AHigh",30,0,200,"#tau_{h}#mu Visible Mass in AHigh","Events");
+  TauTauVisMassBHigh=HConfig.GetTH1D(Name+"_TauTauVisMassBHigh","TauTauVisMass_BHigh",30,0,200,"#tau_{h}#mu Visible Mass in BHigh","Events");
+  TauTauVisMassBLow=HConfig.GetTH1D(Name+"_TauTauVisMassBLow","TauTauVisMass_BLow",30,0,200,"#tau_{h}#mu Visible Mass in BLow","Events");
+  MTAHigh=HConfig.GetTH1D(Name+"_MTAHigh","MTAHigh",20,70,120,"Transverse Mass in AHigh","Events");
+  MTBHigh=HConfig.GetTH1D(Name+"_MTBHigh","MTBHigh",20,70,120,"Transverse Mass in BHigh","Events");
+  MTBLow=HConfig.GetTH1D(Name+"_MTBLow","MTBLow",20,0,40,"Transverse Mass in BLow","Events");
 
-
+  METAHigh=HConfig.GetTH1D(Name+"_METAHigh","METAHigh",20,0,200,"Missing Transverse Energy in AHigh","Events");
 
   PVSVSignificance=HConfig.GetTH1D(Name+"_PVSVSignificance"," PV-SV significance for tau decay mode = 10",10,-0.5,5.5," pType","Events");
   dRTauTau=HConfig.GetTH1D(Name+"_dRTauTau","#Delta R",20,0.,4.," #Delta R","Events");
@@ -343,12 +343,14 @@ void  ZMuTau::Store_ExtraDist(){
   Extradist1d.push_back(&NQCD);
   Extradist1d.push_back(&NWJets);
   Extradist1d.push_back(&NWJetsRelaxed);
-  Extradist1d.push_back(&MT_AHigh);
-  Extradist1d.push_back(&MT_BHigh);
-  Extradist1d.push_back(&MT_BLow);
-  Extradist1d.push_back(&TauTauVisMass_AHigh);
-  Extradist1d.push_back(&TauTauVisMass_BHigh);
-  Extradist1d.push_back(&TauTauVisMass_BLow);
+  Extradist1d.push_back(&MTAHigh);
+  Extradist1d.push_back(&MTBHigh);
+  Extradist1d.push_back(&MTBLow);
+  Extradist1d.push_back(&TauTauVisMassAHigh);
+  Extradist1d.push_back(&TauTauVisMassBHigh);
+  Extradist1d.push_back(&TauTauVisMassBLow);
+
+  Extradist1d.push_back(&METAHigh);
 
   Extradist1d.push_back(&MET);
   Extradist1d.push_back(&METphi);
@@ -589,7 +591,7 @@ void  ZMuTau::doEvent(){ //  Method called on every event
   if(!Ntp->isData() && id!=DataMCType::QCD)w*=Ntp->MC_weight(); //generator weight
 
 
-  if(Ntp->GetMCID() == 20 ||Ntp->GetMCID() == 33||Ntp->GetMCID() == 30) w*=Ntp->stitch_weight();
+  w*=Ntp->stitch_weight();
 
   //  std::cout<<"zpt "<< zptw<<std::endl;
 
@@ -647,7 +649,7 @@ void  ZMuTau::doEvent(){ //  Method called on every event
     else if(Ntp->combreliso(Muon)<0.3 && Ntp->isMediumGoodTau(Tau) && Ntp->transverseMass(MuonP4.Pt(), MuonP4.Phi(), Ntp->MET(), Ntp->METphi())>70.){
       NWJetsRelaxed.at(t).Fill(2.,w);
     }
-  } 
+  }
   if(passAllBut(WJetsexclude_cuts)) {
     MuonP4 = Ntp->Daughters_P4(Muon);
     TauP4 = Ntp->TauP4_Corrected(Tau);
@@ -657,20 +659,20 @@ void  ZMuTau::doEvent(){ //  Method called on every event
       }
       if(Ntp->transverseMass(MuonP4.Pt(), MuonP4.Phi(), Ntp->MET(), Ntp->METphi())>70.){
 	NWJets.at(t).Fill(3.,w); //A High
-	MT_AHigh.at(t).Fill(Ntp->transverseMass(MuonP4.Pt(), MuonP4.Phi(), Ntp->MET(), Ntp->METphi()),w);
-	TauTauVisMass_AHigh.at(t).Fill((MuonP4+TauP4).M(),w);
+	//MTAHigh.at(t).Fill(Ntp->transverseMass(MuonP4.Pt(), MuonP4.Phi(), Ntp->MET(), Ntp->METphi()),w);
+	//TauTauVisMassAHigh.at(t).Fill((MuonP4+TauP4).M(),w);
       }
     }
     if(!pass.at(PairCharge)){
       if(Ntp->transverseMass(MuonP4.Pt(), MuonP4.Phi(), Ntp->MET(), Ntp->METphi())<40.){
 	NWJets.at(t).Fill(2.,w); //B Low
-	MT_BHigh.at(t).Fill(Ntp->transverseMass(MuonP4.Pt(), MuonP4.Phi(), Ntp->MET(), Ntp->METphi()),w);
-	TauTauVisMass_AHigh.at(t).Fill((MuonP4+TauP4).M(),w);
+	//MTBLow.at(t).Fill(Ntp->transverseMass(MuonP4.Pt(), MuonP4.Phi(), Ntp->MET(), Ntp->METphi()),w);
+	//TauTauVisMassBLow.at(t).Fill((MuonP4+TauP4).M(),w);
       }
       if(Ntp->transverseMass(MuonP4.Pt(), MuonP4.Phi(), Ntp->MET(), Ntp->METphi())>70.){
 	NWJets.at(t).Fill(4.,w); //B High
-	MT_BLow.at(t).Fill(Ntp->transverseMass(MuonP4.Pt(), MuonP4.Phi(), Ntp->MET(), Ntp->METphi()),w);
-	TauTauVisMass_AHigh.at(t).Fill((MuonP4+TauP4).M(),w);
+	//MTBHigh.at(t).Fill(Ntp->transverseMass(MuonP4.Pt(), MuonP4.Phi(), Ntp->MET(), Ntp->METphi()),w);
+	//TauTauVisMassBHigh.at(t).Fill((MuonP4+TauP4).M(),w);
       }
     }
   }
@@ -713,15 +715,43 @@ void  ZMuTau::doEvent(){ //  Method called on every event
 
   bool IsQCDEvent = false;
   //  if(passAllBut(exclude_cuts)){
-    if(!pass.at(PairCharge)){
-     	if(id == DataMCType::Data){
-	  QCDShape.at(t).Fill(1,w);
-	  t=HConfig.GetType(DataMCType::QCD);
-	  IsQCDEvent = true;
-	}
+  if(!pass.at(PairCharge)){
+    if(id == DataMCType::Data){
+      QCDShape.at(t).Fill(1,w);
+      t=HConfig.GetType(DataMCType::QCD);
+      IsQCDEvent = true;
     }
-    //  }
-  if(IsQCDEvent){    pass.at(PairCharge)= true;}
+  }
+  //  }
+  if(IsQCDEvent){    pass.at(PairCharge)= true;}  
+
+
+  if(passAllBut(WJetsexclude_cuts)) {
+    if(pass.at(PairCharge)) {
+      if(Ntp->transverseMass(MuonP4.Pt(), MuonP4.Phi(), Ntp->MET(), Ntp->METphi())>70.){ //A High
+	MTAHigh.at(t).Fill(Ntp->transverseMass(MuonP4.Pt(), MuonP4.Phi(), Ntp->MET(), Ntp->METphi()),w);
+	//cout<<"w:   "<<Ntp->transverseMass(MuonP4.Pt(), MuonP4.Phi(), Ntp->MET(), Ntp->METphi())<<endl;
+	TauTauVisMassAHigh.at(t).Fill((MuonP4+TauP4).M(),w);
+	  METAHigh.at(t).Fill(Ntp->MET(),w);
+    	}
+      }
+      if(!pass.at(PairCharge)){
+    	if(Ntp->transverseMass(MuonP4.Pt(), MuonP4.Phi(), Ntp->MET(), Ntp->METphi())<40.){ //B Low
+    	  MTBLow.at(t).Fill(Ntp->transverseMass(MuonP4.Pt(), MuonP4.Phi(), Ntp->MET(), Ntp->METphi()),w);
+    	  TauTauVisMassBLow.at(t).Fill((MuonP4+TauP4).M(),w);
+    	}
+    	if(Ntp->transverseMass(MuonP4.Pt(), MuonP4.Phi(), Ntp->MET(), Ntp->METphi())>70.){ //B High
+    	  MTBHigh.at(t).Fill(Ntp->transverseMass(MuonP4.Pt(), MuonP4.Phi(), Ntp->MET(), Ntp->METphi()),w);
+    	  TauTauVisMassBHigh.at(t).Fill((MuonP4+TauP4).M(),w);
+    	}
+      }
+    }
+
+
+
+
+
+  
      
 
   bool status=AnalysisCuts(t,w,wobs);  // boolean that say whether your event passed critera defined in pass vector. The whole vector must be true for status = true

@@ -22,7 +22,7 @@ TauSpinerInterface::~TauSpinerInterface(){
 #ifdef USE_TauSpinner
 void TauSpinerInterface::Initialize(){
   Tauolapp::Tauola::initialize();
-  string name="MSTW2008nnlo90cl.LHgrid";
+  string name="NNPDF30_nlo_as_0118";
   LHAPDF::initPDFSetByName(name);
   double CMSENE = 13000.0; // center of mass system energy.
                           // used in PDF calculation. For pp collisions only
@@ -31,9 +31,11 @@ void TauSpinerInterface::Initialize(){
   //Ipol - polarization of input sample
   //nonSM2 - nonstandard model calculations
   //nonSMN
-  int Ipol=2,nonSM2=0,nonSMN=0;
+  int Ipol=0,nonSM2=0,nonSMN=0;
 
   initialize_spinner(Ipp,Ipol,nonSM2,nonSMN,CMSENE);
+  setHiggsParametersTR(-1.0, 1.0, 0.0, 0.0); // Scalar Higgs (Even)
+  //setHiggsParametersTR(1.0, -1.0, 0.0, 0.0); // Pseudo-Scalar Higgs (Odd)
 }
 
 

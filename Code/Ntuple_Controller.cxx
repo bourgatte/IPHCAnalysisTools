@@ -227,31 +227,31 @@ void Ntuple_Controller::doMET(){
 Long64_t  Ntuple_Controller::GetMCID(){
 	Long64_t  DataMCTypeFromTupel = Ntp->DataMC_Type_idx;
 	// //customize your event ID here 
-	// // if(DataMCTypeFromTupel==10230533 or DataMCTypeFromTupel==10130533 or DataMCTypeFromTupel==10330533 or DataMCTypeFromTupel==10430533) return 10230533;
+	// if(DataMCTypeFromTupel==10230533 or DataMCTypeFromTupel==10130533 or DataMCTypeFromTupel==10330533 or DataMCTypeFromTupel==10430533) return 10230533;
 	
-	// //if(DataMCTypeFromTupel==10110133 ) return DataMCTypeFromTupel;
-	// //if(DataMCTypeFromTupel==10210233 ) return DataMCTypeFromTupel;
+	//if(DataMCTypeFromTupel==10110133 ) return DataMCTypeFromTupel;
+	//if(DataMCTypeFromTupel==10210233 ) return DataMCTypeFromTupel;
 	
-	// //if(DataMCTypeFromTupel==10110233 ) return DataMCTypeFromTupel;
-	// if(DataMCTypeFromTupel==10110333 ) return DataMCTypeFromTupel;
-	// if(DataMCTypeFromTupel==10110433 ) return DataMCTypeFromTupel;
-	// if(DataMCTypeFromTupel==10130533 ) return DataMCTypeFromTupel;
+	if(DataMCTypeFromTupel==10110233 ) return DataMCTypeFromTupel;
+	if(DataMCTypeFromTupel==10110333 ) return DataMCTypeFromTupel;
+	if(DataMCTypeFromTupel==10110433 ) return DataMCTypeFromTupel;
+	if(DataMCTypeFromTupel==10130533 ) return DataMCTypeFromTupel;
 
 	
-	// if(DataMCTypeFromTupel==10210333 ) return DataMCTypeFromTupel;
-	// if(DataMCTypeFromTupel==10210433 ) return DataMCTypeFromTupel;
-	// if(DataMCTypeFromTupel==10230533 ) return DataMCTypeFromTupel;
+	if(DataMCTypeFromTupel==10210333 ) return DataMCTypeFromTupel;
+	if(DataMCTypeFromTupel==10210433 ) return DataMCTypeFromTupel;
+	if(DataMCTypeFromTupel==10230533 ) return DataMCTypeFromTupel;
 	
-	// if(DataMCTypeFromTupel==10310333 ) return DataMCTypeFromTupel;
-	// if(DataMCTypeFromTupel==10330533 ) return DataMCTypeFromTupel;
+	if(DataMCTypeFromTupel==10310333 ) return DataMCTypeFromTupel;
+	if(DataMCTypeFromTupel==10330533 ) return DataMCTypeFromTupel;
 
 	
-	// if(DataMCTypeFromTupel==10410433 ) return DataMCTypeFromTupel;
-	// if(DataMCTypeFromTupel==10410333 ) return DataMCTypeFromTupel;
-	// if(DataMCTypeFromTupel==10430533 ) return DataMCTypeFromTupel;
+	if(DataMCTypeFromTupel==10410433 ) return DataMCTypeFromTupel;
+	if(DataMCTypeFromTupel==10410333 ) return DataMCTypeFromTupel;
+	if(DataMCTypeFromTupel==10430533 ) return DataMCTypeFromTupel;
 
 	
-	// if(DataMCTypeFromTupel==30530533 ) return DataMCTypeFromTupel;
+	if(DataMCTypeFromTupel==30530533 ) return DataMCTypeFromTupel;
 
 
 	
@@ -2320,7 +2320,7 @@ bool Ntuple_Controller::CheckDecayID(unsigned  int jak1, unsigned int jak2){
     // std::cout<<"NC: Ntp->MCSignalParticle_p4->size()  "<<Ntp->MCSignalParticle_p4->size()<<std::endl;
     // std::cout<<"NC: Ntp->MCSignalParticle_Tauidx->at(iz).size()  "<<Ntp->MCSignalParticle_Tauidx->at(iz).size()<<std::endl;
     // std::cout<<"  MCSignalParticle_pdgid->at(iz)  "<< Ntp-> MCSignalParticle_pdgid->at(iz) <<std::endl;
-    if(fabs(Ntp-> MCSignalParticle_pdgid->at(iz) )!=23) return false;
+    if(fabs(Ntp->MCSignalParticle_pdgid->at(iz) )!=25 && fabs(Ntp->MCSignalParticle_pdgid->at(iz) )!=23) return false;
     if(Ntp->MCSignalParticle_Tauidx->at(iz).size()!=0){
       //     std::cout<<" Ntp->MCTau_JAK-> "<< Ntp->MCTau_JAK->size()<<std::endl;
       if(Ntp->MCTau_JAK->at(0) == jak1 and Ntp->MCTau_JAK->at(1) ==jak2 ){ decayid = true;}
@@ -2490,74 +2490,138 @@ std::vector<TLorentzVector> Ntuple_Controller::GetTruthPionsFromA1(unsigned int 
         TLorentzVector SSPion1(0,0,0,0);
         TLorentzVector SSPion2(0,0,0,0);
         TLorentzVector OSPion(0,0,0,0);
-
+	
         std::vector<TLorentzVector>  output;
 
         bool DecayOK = false;
         unsigned int tauIndex;
+	
         for(unsigned int iz =0; iz<Ntp->MCSignalParticle_p4->size(); iz++){
+	  
           if(Ntp->MCSignalParticle_Tauidx->at(iz).size()!=0){
+	   
             if(Ntp->MCTau_JAK->at(0) == 5){tauIndex=0; DecayOK = true;}
             else if(  Ntp->MCTau_JAK->at(1) ==5 ){ tauIndex=1; DecayOK = true;}
 	    unsigned int NDec;
-	    if(DecayOK){
+	    if(DecayOK) {
+	      
               if(0<=tauIndex && tauIndex<NMCTaus()){ NDec = Ntp->MCTauandProd_p4->at(tauIndex).size();}
               else NDec= 0;
-              int nplus =0, nminus = 0;
+              int nplus =0, nminus = 0/*,nzero=0*/;
               for(unsigned int iProd =0; iProd < NDec; iProd++ ){
                 if( Ntp->MCTauandProd_pdgid->at(tauIndex).at(iProd)== 211) nplus++;
                 if( Ntp->MCTauandProd_pdgid->at(tauIndex).at(iProd)==-211) nminus++;
+		//if( Ntp->MCTauandProd_pdgid->at(tauIndex).at(iProd)==111) nzero++;
               }
 
               if(nplus == 1 && nminus==2){
+		
                 int nss=0;
                 for(unsigned int iProd1 =0; iProd1 < NDec; iProd1++ ){
+
                   if(Ntp->MCTauandProd_pdgid->at(tauIndex).at(iProd1)== 211){
+
                     OSPion = TLorentzVector(Ntp->MCTauandProd_p4->at(tauIndex).at(iProd1).at(1),Ntp->MCTauandProd_p4->at(tauIndex).at(iProd1).at(2), Ntp->MCTauandProd_p4->at(tauIndex).at(iProd1).at(3),Ntp->MCTauandProd_p4->at(tauIndex).at(iProd1).at(0));
                   }
 
                   if(Ntp->MCTauandProd_pdgid->at(tauIndex).at(iProd1)==-211 && nss ==0){
+
                     nss++;
                     SSPion1 = TLorentzVector(Ntp->MCTauandProd_p4->at(tauIndex).at(iProd1).at(1),Ntp->MCTauandProd_p4->at(tauIndex).at(iProd1).at(2), Ntp->MCTauandProd_p4->at(tauIndex).at(iProd1).at(3),Ntp->MCTauandProd_p4->at(tauIndex).at(iProd1).at(0));
                   }
                   //              std::cout<<" nss "<< nss << " iProd1 "<<iProd1<<std::endl;
                   if(Ntp->MCTauandProd_pdgid->at(tauIndex).at(iProd1)==-211 &&  nss == 1){
+	
                     SSPion2 = TLorentzVector(Ntp->MCTauandProd_p4->at(tauIndex).at(iProd1).at(1),Ntp->MCTauandProd_p4->at(tauIndex).at(iProd1).at(2), Ntp->MCTauandProd_p4->at(tauIndex).at(iProd1).at(3),Ntp->MCTauandProd_p4->at(tauIndex).at(iProd1).at(0));
                   }
                 }
               }
 
               if(nplus == 2 && nminus==1){
+		
                 int nss=0;
                 for(unsigned int iProd2 =0; iProd2 < NDec; iProd2++ ){
+
                   if(Ntp->MCTauandProd_pdgid->at(tauIndex).at(iProd2)== -211){
+
                     OSPion = TLorentzVector(Ntp->MCTauandProd_p4->at(tauIndex).at(iProd2).at(1),Ntp->MCTauandProd_p4->at(tauIndex).at(iProd2).at(2), Ntp->MCTauandProd_p4->at(tauIndex).at(iProd2).at(3),Ntp->MCTauandProd_p4->at(tauIndex).at(iProd2).at(0));
                   }
 
                   if(Ntp->MCTauandProd_pdgid->at(tauIndex).at(iProd2)==211 && nss ==0){
+
                     nss++;
                     SSPion1 = TLorentzVector(Ntp->MCTauandProd_p4->at(tauIndex).at(iProd2).at(1),Ntp->MCTauandProd_p4->at(tauIndex).at(iProd2).at(2), Ntp->MCTauandProd_p4->at(tauIndex).at(iProd2).at(3),Ntp->MCTauandProd_p4->at(tauIndex).at(iProd2).at(0));
                   }
                   if(Ntp->MCTauandProd_pdgid->at(tauIndex).at(iProd2)==211 && nss ==1){
+
                     SSPion2 = TLorentzVector(Ntp->MCTauandProd_p4->at(tauIndex).at(iProd2).at(1),Ntp->MCTauandProd_p4->at(tauIndex).at(iProd2).at(2), Ntp->MCTauandProd_p4->at(tauIndex).at(iProd2).at(3),Ntp->MCTauandProd_p4->at(tauIndex).at(iProd2).at(0));
                   }
                 }
               }
+	      
+	      // if(nminus == 1 && nzero==2){
+		
+              //   int nss=0;
+              //   for(unsigned int iProd2 =0; iProd2 < NDec; iProd2++ ){
+
+              //     if(Ntp->MCTauandProd_pdgid->at(tauIndex).at(iProd2)== -211){
+
+              //       OSPion = TLorentzVector(Ntp->MCTauandProd_p4->at(tauIndex).at(iProd2).at(1),Ntp->MCTauandProd_p4->at(tauIndex).at(iProd2).at(2), Ntp->MCTauandProd_p4->at(tauIndex).at(iProd2).at(3),Ntp->MCTauandProd_p4->at(tauIndex).at(iProd2).at(0));
+              //     }
+
+              //     if(Ntp->MCTauandProd_pdgid->at(tauIndex).at(iProd2)==111 && nss ==0){
+
+              //       nss++;
+              //       SSPion1 = TLorentzVector(Ntp->MCTauandProd_p4->at(tauIndex).at(iProd2).at(1),Ntp->MCTauandProd_p4->at(tauIndex).at(iProd2).at(2), Ntp->MCTauandProd_p4->at(tauIndex).at(iProd2).at(3),Ntp->MCTauandProd_p4->at(tauIndex).at(iProd2).at(0));
+              //     }
+              //     if(Ntp->MCTauandProd_pdgid->at(tauIndex).at(iProd2)==111 && nss ==1){
+
+              //       SSPion2 = TLorentzVector(Ntp->MCTauandProd_p4->at(tauIndex).at(iProd2).at(1),Ntp->MCTauandProd_p4->at(tauIndex).at(iProd2).at(2), Ntp->MCTauandProd_p4->at(tauIndex).at(iProd2).at(3),Ntp->MCTauandProd_p4->at(tauIndex).at(iProd2).at(0));
+              //     }
+              //   }
+              // }
+	      
+	      // if(nplus == 1 && nzero==2){
+		
+              //   int nss=0;
+              //   for(unsigned int iProd2 =0; iProd2 < NDec; iProd2++ ){
+
+              //     if(Ntp->MCTauandProd_pdgid->at(tauIndex).at(iProd2)== 211){
+
+              //       OSPion = TLorentzVector(Ntp->MCTauandProd_p4->at(tauIndex).at(iProd2).at(1),Ntp->MCTauandProd_p4->at(tauIndex).at(iProd2).at(2), Ntp->MCTauandProd_p4->at(tauIndex).at(iProd2).at(3),Ntp->MCTauandProd_p4->at(tauIndex).at(iProd2).at(0));
+              //     }
+
+              //     if(Ntp->MCTauandProd_pdgid->at(tauIndex).at(iProd2)==111 && nss ==0){
+
+              //       nss++;
+              //       SSPion1 = TLorentzVector(Ntp->MCTauandProd_p4->at(tauIndex).at(iProd2).at(1),Ntp->MCTauandProd_p4->at(tauIndex).at(iProd2).at(2), Ntp->MCTauandProd_p4->at(tauIndex).at(iProd2).at(3),Ntp->MCTauandProd_p4->at(tauIndex).at(iProd2).at(0));
+              //     }
+              //     if(Ntp->MCTauandProd_pdgid->at(tauIndex).at(iProd2)==111 && nss ==1){
+
+              //       SSPion2 = TLorentzVector(Ntp->MCTauandProd_p4->at(tauIndex).at(iProd2).at(1),Ntp->MCTauandProd_p4->at(tauIndex).at(iProd2).at(2), Ntp->MCTauandProd_p4->at(tauIndex).at(iProd2).at(3),Ntp->MCTauandProd_p4->at(tauIndex).at(iProd2).at(0));
+              //     }
+              //   }
+              // }
             }
 	    if((Ntp->MCTau_JAK->at(0)==Ntp->MCTau_JAK->at(1)) && (Ntp->MCTau_JAK->at(0)==5))
 	      {
+	
 		if(0<=number && number<NMCTaus()){ NDec = Ntp->MCTauandProd_p4->at(number).size();}
 		else NDec= 0;
-		int nplussame =0, nminussame = 0;
+		int nplussame =0, nminussame = 0/*,nzerosame=0*/;
 		for(unsigned int iProd =0; iProd < NDec; iProd++ ){
-
+		  
 		  if( Ntp->MCTauandProd_pdgid->at(number).at(iProd)== 211) nplussame++;
 		  if( Ntp->MCTauandProd_pdgid->at(number).at(iProd)==-211) nminussame++;
+		  //if( Ntp->MCTauandProd_pdgid->at(number).at(iProd)==111) nzerosame++;
+		 
 		}
-
-		if(nplussame == 1 && nminussame==2){
+		
+		if(nplussame == 1 && nminussame==2) {
+		  
 		  int nsssame=0;
 		  for(unsigned int iProd1 =0; iProd1 < NDec; iProd1++ ){
+
 		    if(Ntp->MCTauandProd_pdgid->at(number).at(iProd1)== 211){
 		    		      OSPion = TLorentzVector(Ntp->MCTauandProd_p4->at(number).at(iProd1).at(1),Ntp->MCTauandProd_p4->at(number).at(iProd1).at(2), Ntp->MCTauandProd_p4->at(number).at(iProd1).at(3),Ntp->MCTauandProd_p4->at(number).at(iProd1).at(0));
 		     		    }
@@ -2573,6 +2637,7 @@ std::vector<TLorentzVector> Ntuple_Controller::GetTruthPionsFromA1(unsigned int 
 		}
 
 		if(nplussame == 2 && nminussame==1){
+		  
 		  int nsssame=0;
 		  for(unsigned int iProd2 =0; iProd2 < NDec; iProd2++ ){
 		    if(Ntp->MCTauandProd_pdgid->at(number).at(iProd2)== -211){
@@ -2588,6 +2653,43 @@ std::vector<TLorentzVector> Ntuple_Controller::GetTruthPionsFromA1(unsigned int 
 		    		    }
 		  }
 		}
+		
+		// if(nzerosame == 2 && nminussame==1){
+		  
+		//   int nsssame=0;
+		//   for(unsigned int iProd2 =0; iProd2 < NDec; iProd2++ ){
+		//     if(Ntp->MCTauandProd_pdgid->at(number).at(iProd2)== -211){
+		//     		      OSPion = TLorentzVector(Ntp->MCTauandProd_p4->at(number).at(iProd2).at(1),Ntp->MCTauandProd_p4->at(number).at(iProd2).at(2), Ntp->MCTauandProd_p4->at(number).at(iProd2).at(3),Ntp->MCTauandProd_p4->at(number).at(iProd2).at(0));
+		//     		    }
+
+		//     if(Ntp->MCTauandProd_pdgid->at(number).at(iProd2)==111 && nsssame ==0){
+		//       nsssame++;
+		//  		      SSPion1 = TLorentzVector(Ntp->MCTauandProd_p4->at(number).at(iProd2).at(1),Ntp->MCTauandProd_p4->at(number).at(iProd2).at(2), Ntp->MCTauandProd_p4->at(number).at(iProd2).at(3),Ntp->MCTauandProd_p4->at(number).at(iProd2).at(0));
+		//     		    }
+		//     if(Ntp->MCTauandProd_pdgid->at(number).at(iProd2)==111 && nsssame ==1){
+		//     		      SSPion2 = TLorentzVector(Ntp->MCTauandProd_p4->at(number).at(iProd2).at(1),Ntp->MCTauandProd_p4->at(number).at(iProd2).at(2), Ntp->MCTauandProd_p4->at(number).at(iProd2).at(3),Ntp->MCTauandProd_p4->at(number).at(iProd2).at(0));
+		//     		    }
+		//   }
+		// }
+		
+		// if(nzerosame == 2 && nplussame==1){
+		  
+		//   int nsssame=0;
+		//   for(unsigned int iProd2 =0; iProd2 < NDec; iProd2++ ){
+		//     if(Ntp->MCTauandProd_pdgid->at(number).at(iProd2)== 211){
+		//     		      OSPion = TLorentzVector(Ntp->MCTauandProd_p4->at(number).at(iProd2).at(1),Ntp->MCTauandProd_p4->at(number).at(iProd2).at(2), Ntp->MCTauandProd_p4->at(number).at(iProd2).at(3),Ntp->MCTauandProd_p4->at(number).at(iProd2).at(0));
+		//     		    }
+
+		//     if(Ntp->MCTauandProd_pdgid->at(number).at(iProd2)==111 && nsssame ==0){
+		//       nsssame++;
+		//  		      SSPion1 = TLorentzVector(Ntp->MCTauandProd_p4->at(number).at(iProd2).at(1),Ntp->MCTauandProd_p4->at(number).at(iProd2).at(2), Ntp->MCTauandProd_p4->at(number).at(iProd2).at(3),Ntp->MCTauandProd_p4->at(number).at(iProd2).at(0));
+		//     		    }
+		//     if(Ntp->MCTauandProd_pdgid->at(number).at(iProd2)==111 && nsssame ==1){
+		//     		      SSPion2 = TLorentzVector(Ntp->MCTauandProd_p4->at(number).at(iProd2).at(1),Ntp->MCTauandProd_p4->at(number).at(iProd2).at(2), Ntp->MCTauandProd_p4->at(number).at(iProd2).at(3),Ntp->MCTauandProd_p4->at(number).at(iProd2).at(0));
+		//     		    }
+		//   }
+		// }
+		
 	      }
 	  }
 	}
@@ -2720,13 +2822,15 @@ TMatrixTSym<double> Ntuple_Controller::PFTau_TIP_secondaryVertex_cov(unsigned in
 
 
 double Ntuple_Controller::stitch_weight(){
-  if(GetMCID() == 33 or GetMCID() == 30 ){
+  if(GetMCID() == 33 || GetMCID() == 30 || GetMCID() == 10110333 || GetMCID() == 10110433|| GetMCID() == 10130533|| GetMCID() ==10210333|| GetMCID() == 10210433|| GetMCID() == 10230533|| GetMCID() ==10310333 || GetMCID() ==10330533 || GetMCID() ==10410433 || GetMCID() == 10410333|| GetMCID() == 10430533|| GetMCID() == 30530533){
     if(lheNOutPartons() >= 5) return 1.;
     if(lheNOutPartons()==0) return 1.5296701743;
     if(lheNOutPartons()==1) return 0.4931720511;
     if(lheNOutPartons()==2) return 0.503391311;
-    if(lheNOutPartons()==3) return 0.5267843245;
-    if(lheNOutPartons()==4) return 0.4250100447;
+    if(lheNOutPartons()==3) return 0.517605041259574;
+    if(lheNOutPartons()==4) return 0.42436253222127;
+//if(lheNOutPartons()==3) return 0.5267843245;
+    //if(lheNOutPartons()==4) return 0.4250100447;
 
     // if(lheNOutPartons()==0 || lheNOutPartons() > 5 ) return 1.;
     // if(lheNOutPartons()==1) return 0.78855280106;
@@ -2736,11 +2840,11 @@ double Ntuple_Controller::stitch_weight(){
   }
   if(GetMCID() == 20){
     if(lheNOutPartons() >= 5) return 1.;
-    if(lheNOutPartons()==0) return 25.4144948064;
-    if(lheNOutPartons()==1) return 6.8091967302;
-    if(lheNOutPartons()==2) return 3.8983265846;
-    if(lheNOutPartons()==3) return 1.9482755634;
-    if(lheNOutPartons()==4) return 2.1232718311;
+    if(lheNOutPartons()==0) return 25.4144948063724;
+    if(lheNOutPartons()==1) return 6.80919673019066;
+    if(lheNOutPartons()==2) return 2.09688449852003;
+    if(lheNOutPartons()==3) return 0.688086811704364;
+    if(lheNOutPartons()==4) return 0.689127024874269;
   }
   return 1;
 }
