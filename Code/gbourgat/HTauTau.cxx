@@ -1,4 +1,4 @@
-#include "ZTauTau.h"
+#include "HTauTau.h"
 #include "TLorentzVector.h"
 #include "Math/Vector4D.h"
 #include "Math/Vector3D.h"
@@ -14,7 +14,7 @@
 #include <iostream>
 #include "PDG_Var.h"
 #include "SkimConfig.h"
-
+#include "TauSpinerInterface.h"
 
 
 #include "SimpleFits/FitSoftware/interface/PDGInfo.h"
@@ -30,10 +30,11 @@
 #include "Objects.h"
 #include "TauAnalysis/ClassicSVfit/interface/MeasuredTauLepton.h"
 #include "TauPolSoftware/TauDecaysInterface/interface/fonction_a1.h"
+#include "TauPolSoftware/TauDecaysInterface/interface/SCalculator.h"
 
 
 
-ZTauTau::ZTauTau(TString Name_, TString id_):
+HTauTau::HTauTau(TString Name_, TString id_):
   Selection(Name_,id_),
   DataMC_Corr(true,true,false),
   tauTrgSF("tight")
@@ -42,7 +43,7 @@ ZTauTau::ZTauTau(TString Name_, TString id_):
   selMuon_IsoDummy = 999.;
 }
 
-ZTauTau::~ZTauTau(){
+HTauTau::~HTauTau(){
   for(unsigned int j=0; j<Npassed.size(); j++){
     Logger(Logger::Info) << "Selection Summary before: "
 			 << Npassed.at(j).GetBinContent(1)     << " +/- " << Npassed.at(j).GetBinError(1)     << " after: "
@@ -51,7 +52,7 @@ ZTauTau::~ZTauTau(){
   Logger(Logger::Info) << "complete." << std::endl;
 }
 
-void  ZTauTau::Configure(){
+void  HTauTau::Configure(){
   // Setup Cut Values
   for(int i=0; i<NCuts;i++){
     cut.push_back(0);
@@ -64,7 +65,7 @@ void  ZTauTau::Configure(){
     if(i==Tau2Isolation)       cut.at(Tau2Isolation)=1.;
     if(i==LeptonVeto)          cut.at(LeptonVeto)=0.;
     if(i==PairCharge)          cut.at(PairCharge)=1.;
-    if(i==PairMass)            cut.at(PairMass)=100.;
+    //if(i==PairMass)            cut.at(PairMass)=1000.;
     //if(i==MTM)                 cut.at(MTM)=40;
     
   }
@@ -129,12 +130,12 @@ void  ZTauTau::Configure(){
       Nminus1.push_back(HConfig.GetTH1D(Name+c+"_Nminus1_PairCharge_",htitle,2,-0.5,1.5,hlabel,"Events"));
       Nminus0.push_back(HConfig.GetTH1D(Name+c+"_Nminus0_PairCharge_",htitle,2,-0.5,1.5,hlabel,"Events"));
     }
-    else if(i==PairMass){
-      title.at(i)="Pair Visible Mass";
-      hlabel="M(tau-tau)";
-      Nminus1.push_back(HConfig.GetTH1D(Name+c+"_Nminus1_PairMass_",htitle,30,0,150,hlabel,"Events"));
-      Nminus0.push_back(HConfig.GetTH1D(Name+c+"_Nminus0_PairMass_",htitle,30,0,150,hlabel,"Events"));
-    }
+    // else if(i==PairMass){
+    //   title.at(i)="Pair Visible Mass";
+    //   hlabel="M(tau-tau)";
+    //   Nminus1.push_back(HConfig.GetTH1D(Name+c+"_Nminus1_PairMass_",htitle,30,0,150,hlabel,"Events"));
+    //   Nminus0.push_back(HConfig.GetTH1D(Name+c+"_Nminus0_PairMass_",htitle,30,0,150,hlabel,"Events"));
+    // }
 
     /* else if(i==MTM){
        title.at(i)="Missing Transverse Mass";
@@ -188,7 +189,7 @@ void  ZTauTau::Configure(){
   
   QCDShape=HConfig.GetTH1D(Name+"_QCDShape","QCDShape",2,-0.5,1.5,"QCD Shape","");
 
-  TauTauVisMass=HConfig.GetTH1D(Name+"_TauTauVisMass","Visible invariant mass of a tau pair",40,0,150," M(#tau#tau)_{vis}, GeV","Events");
+  TauTauVisMass=HConfig.GetTH1D(Name+"_TauTauVisMass","Visible invariant mass of a tau pair",40,0,200," M(#tau#tau)_{vis}, GeV","Events");
   TauTauTruthMass=HConfig.GetTH1D(Name+"_TauTauTruthMass","Truth invariant mass of a tau pair",40,0,150," M(#tau#tau)_{truth}, GeV","Events");
   //TauTauFullMass=HConfig.GetTH1D(Name+"_TauTauFullMass","Full invariant mass of a tau pair",40,0,150," M(#tau#tau)_{full}, GeV","Events");
 
@@ -376,37 +377,45 @@ void  ZTauTau::Configure(){
   IstauplusvisPhysical=HConfig.GetTH1D(Name+"_IstauplusvisPhysical","IstauplusvisPhysical",2,-0.5,1.5,"","Events");
   IsPairPhysical=HConfig.GetTH1D(Name+"_IsPairPhysical","IsPairPhysical",2,-0.5,1.5,"","Events");
   
-  ResolPullTauTauFroma1a1MeanEnergy=HConfig.GetTH1D(Name+"_ResolPullTauTauFroma1a1MeanEnergy","ResolPullTauTauFroma1a1MeanEnergy",30,-1,1,"","Events");
-  ResolPullTauTauFroma1a1MZEnergy=HConfig.GetTH1D(Name+"_ResolPullTauTauFroma1a1MZEnergy","ResolPullTauTauFroma1a1MZEnergy",30,-1,1,"","Events");
+  //ResolPullTauTauFroma1a1MeanEnergy=HConfig.GetTH1D(Name+"_ResolPullTauTauFroma1a1MeanEnergy","ResolPullTauTauFroma1a1MeanEnergy",30,-1,1,"","Events");
+  //ResolPullTauTauFroma1a1MZEnergy=HConfig.GetTH1D(Name+"_ResolPullTauTauFroma1a1MZEnergy","ResolPullTauTauFroma1a1MZEnergy",30,-1,1,"","Events");
   ResolPullTauTauFroma1a1MeanMomentum=HConfig.GetTH1D(Name+"_ResolPullTauTauFroma1a1MeanMomentum","ResolPullTauTauFroma1a1MeanMomentum",30,-1,1,"","Events");
   ResolPullTauTauFroma1a1MZMomentum=HConfig.GetTH1D(Name+"_ResolPullTauTauFroma1a1MZMomentum","ResolPullTauTauFroma1a1MZMomentum",30,-1,1,"","Events");
 
-  ResolPullTauminusFroma1a1MeanEnergy=HConfig.GetTH1D(Name+"_ResolPullTauminusFroma1a1MeanEnergy","ResolPullTauminusFroma1a1MeanEnergy",30,-1,1,"","Events");
-  ResolPullTauminusFroma1a1MZEnergy=HConfig.GetTH1D(Name+"_ResolPullTauminusFroma1a1MZEnergy","ResolPullTauminusFroma1a1MZEnergy",30,-1,1,"","Events");
+  //ResolPullTauminusFroma1a1MeanEnergy=HConfig.GetTH1D(Name+"_ResolPullTauminusFroma1a1MeanEnergy","ResolPullTauminusFroma1a1MeanEnergy",30,-1,1,"","Events");
+  //ResolPullTauminusFroma1a1MZEnergy=HConfig.GetTH1D(Name+"_ResolPullTauminusFroma1a1MZEnergy","ResolPullTauminusFroma1a1MZEnergy",30,-1,1,"","Events");
   ResolPullTauminusFroma1a1MeanMomentum=HConfig.GetTH1D(Name+"_ResolPullTauminusFroma1a1MeanMomentum","ResolPullTauminusFroma1a1MeanMomentum",30,-1,1,"","Events");
   ResolPullTauminusFroma1a1MZMomentum=HConfig.GetTH1D(Name+"_ResolPullTauminusFroma1a1MZMomentum","ResolPullTauminusFroma1a1MZMomentum",30,-1,1,"","Events");
 
 
-  ResolPullTauplusFroma1a1MeanEnergy=HConfig.GetTH1D(Name+"_ResolPullTauplusFroma1a1MeanEnergy","ResolPullTauplusFroma1a1MeanEnergy",30,-1,1,"","Events");
-  ResolPullTauplusFroma1a1MZEnergy=HConfig.GetTH1D(Name+"_ResolPullTauplusFroma1a1MZEnergy","ResolPullTauplusFroma1a1MZEnergy",30,-1,1,"","Events");
+  //ResolPullTauplusFroma1a1MeanEnergy=HConfig.GetTH1D(Name+"_ResolPullTauplusFroma1a1MeanEnergy","ResolPullTauplusFroma1a1MeanEnergy",30,-1,1,"","Events");
+  //ResolPullTauplusFroma1a1MZEnergy=HConfig.GetTH1D(Name+"_ResolPullTauplusFroma1a1MZEnergy","ResolPullTauplusFroma1a1MZEnergy",30,-1,1,"","Events");
   ResolPullTauplusFroma1a1MeanMomentum=HConfig.GetTH1D(Name+"_ResolPullTauplusFroma1a1MeanMomentum","ResolPullTauplusFroma1a1MeanMomentum",30,-1,1,"","Events");
   ResolPullTauplusFroma1a1MZMomentum=HConfig.GetTH1D(Name+"_ResolPullTauplusFroma1a1MZMomentum","ResolPullTauplusFroma1a1MZMomentum",30,-1,1,"","Events");
 
 
+  //ResolPullTauFroma1a1MeanEnergy=HConfig.GetTH1D(Name+"_ResolPullTauFroma1a1MeanEnergy","ResolPullTauFroma1a1MeanEnergy",30,-1,1,"","Events");
+  //ResolPullTauFroma1a1MZEnergy=HConfig.GetTH1D(Name+"_ResolPullTauFroma1a1MZEnergy","ResolPullTauFroma1a1MZEnergy",30,-1,1,"","Events");
+  ResolPullTauFroma1a1MeanMomentum=HConfig.GetTH1D(Name+"_ResolPullTauFroma1a1MeanMomentum","ResolPullTauFroma1a1MeanMomentum",30,-1,1,"","Events");
+  ResolPullTauFroma1a1MZMomentum=HConfig.GetTH1D(Name+"_ResolPullTauFroma1a1MZMomentum","ResolPullTauFroma1a1MZMomentum",30,-1,1,"","Events");
 
-  ResolPullTauminusFroma1XMeanEnergy=HConfig.GetTH1D(Name+"_ResolPullTauminusFroma1XMeanEnergy","ResolPullTauminusFroma1XMeanEnergy",30,-1,1,"","Events");
+
+  //ResolPullTauminusFroma1XMeanEnergy=HConfig.GetTH1D(Name+"_ResolPullTauminusFroma1XMeanEnergy","ResolPullTauminusFroma1XMeanEnergy",30,-1,1,"","Events");
   ResolPullTauminusFroma1XMeanMomentum=HConfig.GetTH1D(Name+"_ResolPullTauminusFroma1XMeanMomentum","ResolPullTauminusFroma1XMeanMomentum",30,-1,1,"","Events");
-  ResolPullXminusFroma1XMeanEnergy=HConfig.GetTH1D(Name+"_ResolPullXminusFroma1XMeanEnergy","ResolPullXminusFroma1XMeanEnergy",30,-1,1,"","Events");
+  //ResolPullXminusFroma1XMeanEnergy=HConfig.GetTH1D(Name+"_ResolPullXminusFroma1XMeanEnergy","ResolPullXminusFroma1XMeanEnergy",30,-1,1,"","Events");
   ResolPullXminusFroma1XMeanMomentum=HConfig.GetTH1D(Name+"_ResolPullXminusFroma1XMeanMomentum","ResolPullXminusFroma1XMeanMomentum",30,-1,1,"","Events");
 
 
-  ResolPullTauplusFroma1XMeanEnergy=HConfig.GetTH1D(Name+"_ResolPullTauplusFroma1XMeanEnergy","ResolPullTauplusFroma1XMeanEnergy",30,-1,1,"","Events");
+  //ResolPullTauplusFroma1XMeanEnergy=HConfig.GetTH1D(Name+"_ResolPullTauplusFroma1XMeanEnergy","ResolPullTauplusFroma1XMeanEnergy",30,-1,1,"","Events");
   ResolPullTauplusFroma1XMeanMomentum=HConfig.GetTH1D(Name+"_ResolPullTauplusFroma1XMeanMomentum","ResolPullTauplusFroma1XMeanMomentum",30,-1,1,"","Events");
-  ResolPullXplusFroma1XMeanEnergy=HConfig.GetTH1D(Name+"_ResolPullXplusFroma1XMeanEnergy","ResolPullXplusFroma1XMeanEnergy",30,-1,1,"","Events");
+  //ResolPullXplusFroma1XMeanEnergy=HConfig.GetTH1D(Name+"_ResolPullXplusFroma1XMeanEnergy","ResolPullXplusFroma1XMeanEnergy",30,-1,1,"","Events");
   ResolPullXplusFroma1XMeanMomentum=HConfig.GetTH1D(Name+"_ResolPullXplusFroma1XMeanMomentum","ResolPullXplusFroma1XMeanMomentum",30,-1,1,"","Events");
 
 
-
+  ResolPullXVtxIna1a1=HConfig.GetTH1D(Name+"_ResolPullXVtxIna1a1","ResolPullXVtxIna1a1",30,-1,1,"","Events");
+  ResolPullYVtxIna1a1=HConfig.GetTH1D(Name+"_ResolPullYVtxIna1a1","ResolPullYVtxIna1a1",30,-1,1,"","Events");
+  ResolPullZVtxIna1a1=HConfig.GetTH1D(Name+"_ResolPullZVtxIna1a1","ResolPullZVtxIna1a1",30,-1,1,"","Events");
+  
   tauminusa1a1MomentumVis=HConfig.GetTH1D(Name+"_tauminusa1a1MomentumVis","tauminusa1a1MomentumVis",15,20,200,"","Events");                             
   tauplusa1a1MomentumVis=HConfig.GetTH1D(Name+"_tauplusa1a1MomentumVis","tauplusa1a1MomentumVis",15,20,200,"","Events");
   InvariantMasstausa1a1Vis=HConfig.GetTH1D(Name+"_InvariantMasstausa1a1Vis","InvariantMasstausa1a1Vis",15,20,110,"","Events");
@@ -427,6 +436,22 @@ void  ZTauTau::Configure(){
   tauplusa1XMomentumMean=HConfig.GetTH1D(Name+"_tauplusa1XMomentumMean","tauplusa1XMomentumMean",15,0,200,"","Events");
   InvariantMasstausa1XMean=HConfig.GetTH1D(Name+"_InvariantMasstausa1XMean","InvariantMasstausa1XMean",15,20,160,"","Events");
 
+
+  polarimetricAcopAngle=HConfig.GetTH1D(Name+"_polarimetricAcopAngle","polarimetricAcopAngle",60,0.,2*TMath::Pi(),"","Events");
+  polarimetricAcopAngleSVFit=HConfig.GetTH1D(Name+"_polarimetricAcopAngleSVFit","polarimetricAcopAngleSVFit",60,0.,2*TMath::Pi(),"","Events");
+  polarimetricAcopAngleTruth=HConfig.GetTH1D(Name+"_polarimetricAcopAngleTruth","polarimetricAcopAngleTruth",60,0,2*TMath::Pi(),"","Events");
+
+  polarimetricAcopAngle30=HConfig.GetTH1D(Name+"_polarimetricAcopAngle30","polarimetricAcopAngle30",60,0.,2*TMath::Pi(),"","Events");
+  polarimetricAcopAngle25=HConfig.GetTH1D(Name+"_polarimetricAcopAngle25","polarimetricAcopAngle25",60,0.,2*TMath::Pi(),"","Events");
+  polarimetricAcopAngle20=HConfig.GetTH1D(Name+"_polarimetricAcopAngle20","polarimetricAcopAngle20",60,0.,2*TMath::Pi(),"","Events");
+  polarimetricAcopAngle15=HConfig.GetTH1D(Name+"_polarimetricAcopAngle15","polarimetricAcopAngle15",60,0.,2*TMath::Pi(),"","Events");
+  polarimetricAcopAngle10=HConfig.GetTH1D(Name+"_polarimetricAcopAngle10","polarimetricAcopAngle10",60,0.,2*TMath::Pi(),"","Events");
+  polarimetricAcopAngle5=HConfig.GetTH1D(Name+"_polarimetricAcopAngle5","polarimetricAcopAngle5",60,0.,2*TMath::Pi(),"","Events");
+  
+  
+  AcolAngle=HConfig.GetTH1D(Name+"_AcolAngle","AcolAngle",60,2.5,3.16,"","Events");
+  AcolAngleSVFit=HConfig.GetTH1D(Name+"_AcolAngleSVFit","AcolAngleSVFit",60,2.5,3.16,"","Events");
+  AcolAngleTruth=HConfig.GetTH1D(Name+"_AcolAngleTruth","AcolAngleTruth",60,2.5,3.16,"","Events");
   
   Selection::ConfigureHistograms();   //   do not remove
   HConfig.GetHistoInfo(types,CrossSectionandAcceptance,legend,colour);  // do not remove
@@ -434,7 +459,7 @@ void  ZTauTau::Configure(){
 
  
 
-void  ZTauTau::Store_ExtraDist(){
+void  HTauTau::Store_ExtraDist(){
 
   //every new histo should be addedd to Extradist1d vector, just push it back;
   Extradist1d.push_back(&Tau1PT);
@@ -650,31 +675,40 @@ void  ZTauTau::Store_ExtraDist(){
   Extradist1d.push_back(&IstauplusvisPhysical);
   Extradist1d.push_back(&IsPairPhysical);
 
-  Extradist1d.push_back(&ResolPullTauTauFroma1a1MeanEnergy);
-  Extradist1d.push_back(&ResolPullTauTauFroma1a1MZEnergy);
+  //Extradist1d.push_back(&ResolPullTauTauFroma1a1MeanEnergy);
+  //Extradist1d.push_back(&ResolPullTauTauFroma1a1MZEnergy);
   Extradist1d.push_back(&ResolPullTauTauFroma1a1MeanMomentum);
   Extradist1d.push_back(&ResolPullTauTauFroma1a1MZMomentum);
 
-  Extradist1d.push_back(&ResolPullTauminusFroma1a1MeanEnergy);
-  Extradist1d.push_back(&ResolPullTauminusFroma1a1MZEnergy);
+  //Extradist1d.push_back(&ResolPullTauminusFroma1a1MeanEnergy);
+  //Extradist1d.push_back(&ResolPullTauminusFroma1a1MZEnergy);
   Extradist1d.push_back(&ResolPullTauminusFroma1a1MeanMomentum);
   Extradist1d.push_back(&ResolPullTauminusFroma1a1MZMomentum);
 
-  Extradist1d.push_back(&ResolPullTauplusFroma1a1MeanEnergy);
-  Extradist1d.push_back(&ResolPullTauplusFroma1a1MZEnergy);
+  //Extradist1d.push_back(&ResolPullTauplusFroma1a1MeanEnergy);
+  //Extradist1d.push_back(&ResolPullTauplusFroma1a1MZEnergy);
   Extradist1d.push_back(&ResolPullTauplusFroma1a1MeanMomentum);
   Extradist1d.push_back(&ResolPullTauplusFroma1a1MZMomentum);
 
+  //Extradist1d.push_back(&ResolPullTauFroma1a1MeanEnergy);
+  //Extradist1d.push_back(&ResolPullTauFroma1a1MZEnergy);
+  Extradist1d.push_back(&ResolPullTauFroma1a1MeanMomentum);
+  Extradist1d.push_back(&ResolPullTauFroma1a1MZMomentum);
 
-  Extradist1d.push_back(&ResolPullTauminusFroma1XMeanEnergy);
+  //Extradist1d.push_back(&ResolPullTauminusFroma1XMeanEnergy);
   Extradist1d.push_back(&ResolPullTauminusFroma1XMeanMomentum);
-  Extradist1d.push_back(&ResolPullXminusFroma1XMeanEnergy);
+  //Extradist1d.push_back(&ResolPullXminusFroma1XMeanEnergy);
   Extradist1d.push_back(&ResolPullXminusFroma1XMeanMomentum);
 
-  Extradist1d.push_back(&ResolPullTauplusFroma1XMeanEnergy);
+  //Extradist1d.push_back(&ResolPullTauplusFroma1XMeanEnergy);
   Extradist1d.push_back(&ResolPullTauplusFroma1XMeanMomentum); 
-  Extradist1d.push_back(&ResolPullXplusFroma1XMeanEnergy);
+  //Extradist1d.push_back(&ResolPullXplusFroma1XMeanEnergy);
   Extradist1d.push_back(&ResolPullXplusFroma1XMeanMomentum);
+
+
+  Extradist1d.push_back(&ResolPullXVtxIna1a1);
+  Extradist1d.push_back(&ResolPullYVtxIna1a1);
+  Extradist1d.push_back(&ResolPullZVtxIna1a1);
 
 
   Extradist1d.push_back(&tauminusa1a1MomentumVis);                        
@@ -697,11 +731,25 @@ void  ZTauTau::Store_ExtraDist(){
   Extradist1d.push_back(&tauplusa1XMomentumMean);
   Extradist1d.push_back(&InvariantMasstausa1XMean);
 
+  
+  Extradist1d.push_back(&polarimetricAcopAngle);
+  Extradist1d.push_back(&polarimetricAcopAngleSVFit);
+  Extradist1d.push_back(&polarimetricAcopAngleTruth);
+  Extradist1d.push_back(&polarimetricAcopAngle30);
+  Extradist1d.push_back(&polarimetricAcopAngle25);
+  Extradist1d.push_back(&polarimetricAcopAngle20);
+  Extradist1d.push_back(&polarimetricAcopAngle15);
+  Extradist1d.push_back(&polarimetricAcopAngle10);
+  Extradist1d.push_back(&polarimetricAcopAngle5);
+
+  Extradist1d.push_back(&AcolAngle);
+  Extradist1d.push_back(&AcolAngleSVFit);
+  Extradist1d.push_back(&AcolAngleTruth);
 
 }
 
-void  ZTauTau::doEvent()  { //  Method called on every event
-
+void  HTauTau::doEvent()  { //  Method called on every event
+ 
   unsigned int t;                // sample type, you may manage in your further analysis, if needed
   int id(Ntp->GetMCID());  //read event ID of a sample
   if(!HConfig.GetHisto(Ntp->isData(),id,t)){ Logger(Logger::Error) << "failed to find id" <<std::endl; return;}  //  gives a warning if list of samples in Histo.txt  and SkimSummary.log do not coincide 
@@ -745,13 +793,13 @@ void  ZTauTau::doEvent()  { //  Method called on every event
   for(unsigned int itrig = 0; itrig < TriggerIndexVector.size(); itrig++){
     if(Ntp->TriggerAccept(TriggerIndexVector.at(itrig))){
       trig=1;
-    }
+      }
   }
   for(unsigned int iDaughter=0;   iDaughter  <  Ntp->NDaughters() ;iDaughter++ ) {
     if(Ntp->CHECK_BIT(Ntp->Daughters_trgMatched(iDaughter),29) || Ntp->CHECK_BIT(Ntp->Daughters_trgMatched(iDaughter),27))
-      {
-	TauIndex.push_back(iDaughter);
-      }
+    {
+  	TauIndex.push_back(iDaughter);
+  	}
   }
   if(trig && TauIndex.size()>1)value.at(Trigger)=1;
   pass.at(Trigger)=(value.at(Trigger)==cut.at(Trigger));
@@ -759,12 +807,13 @@ void  ZTauTau::doEvent()  { //  Method called on every event
   int goodTau_counter=0;
   std::vector<int> thirdLeptonCounter;
   std::vector<int> goodTausIndex;
-  for(unsigned int iDaughter=0;   iDaughter  < TauIndex.size()  ;iDaughter++ ) {
+  for(unsigned int iDaughter=0; iDaughter<TauIndex.size(); iDaughter++ ) {
     if(Ntp->tauBaselineSelection(iDaughter,36., 2.1, 0,0)){
       goodTausIndex.push_back(TauIndex.at(iDaughter));
       goodTau_counter++;
     }
   }
+
   unsigned int Tau1= -1;
   unsigned int Tau2= -1;
   std::vector<int>  Sorted;
@@ -804,8 +853,6 @@ void  ZTauTau::doEvent()  { //  Method called on every event
       value.at(Tau2Isolation)=0;
       value.at(Tau2Isolation) = (Ntp->isIsolatedTau(Tau2,"Tight"));
       pass.at(Tau2Isolation) = value.at(Tau2Isolation);
-
-      
       value.at(LeptonVeto)=0;
       for(unsigned int iDaughter=0;   iDaughter  <  Ntp->NDaughters() ;iDaughter++ ) {  // loop over all daughters in the event
 	if((iDaughter!=Tau1)&&(iDaughter!=Tau2)){
@@ -820,12 +867,12 @@ void  ZTauTau::doEvent()  { //  Method called on every event
       isOS=((Ntp->Daughters_charge(Tau1)/abs(Ntp->Daughters_charge(Tau1))) != (Ntp->Daughters_charge(Tau2)/abs(Ntp->Daughters_charge(Tau2))));
       if(isOS)value.at(PairCharge) = 1;
       pass.at(PairCharge) = value.at(PairCharge);
-      value.at(PairMass) = 999.;
-      //value.at(MTM) = 999.;
-      //value.at(MTM) = .;
-      value.at(PairMass)=(Ntp->Daughters_P4(Tau1)+Ntp->Daughters_P4(Tau2)).M();
-      pass.at(PairMass) = (value.at(PairMass) < cut.at(PairMass));
-      //pass.at(MTM) = (value.at(MTM) <= cut.at(MTM));
+      //     value.at(PairMass) = 999.;
+      //     //value.at(MTM) = 999.;
+      //     //value.at(MTM) = .;
+      //     value.at(PairMass)=(Ntp->Daughters_P4(Tau1)+Ntp->Daughters_P4(Tau2)).M();
+      //     pass.at(PairMass) = (value.at(PairMass) < cut.at(PairMass));
+      //     //pass.at(MTM) = (value.at(MTM) <= cut.at(MTM));
     }
   // Here you can defined different type of weights you want to apply to events.
   double wobs=1;
@@ -834,16 +881,17 @@ void  ZTauTau::doEvent()  { //  Method called on every event
     //    w *= reweight.weight(2016,26,Ntp->PUNumInteractions());
     w *= reweight.PUweightHTT(Ntp->npu());
     //std::cout<<" pu weigh HTT  "<< reweight.PUweightHTT(Ntp->npu())<<std::endl;
-    if(!Ntp->isData() && pass.at(NPairsFound) ){
+    if(!Ntp->isData() &&PairsIndexTemp.size()>0/* pass.at(NPairsFound)*/ ){
       double w1 = tauTrgSF.getSF(Ntp->TauP4_Corrected(Tau1).Pt(),  Ntp->decayMode(Tau1)) ;  //from Luca
       double w2 = tauTrgSF.getSF(Ntp->TauP4_Corrected(Tau2).Pt(),  Ntp->decayMode(Tau2)) ;
       w*=w1;
       w*=w2;
     }
-    if(!Ntp->isData() && pass.at(NPairsFound) && (id==33 || id == 10110333 || id == 10110433|| id == 10130533|| id ==10210333|| id == 10210433|| id == 10230533|| id ==10310333 || id ==10330533 || id ==10410433 || id == 10410333|| id == 10430533|| id == 30530533)){
+    if(!Ntp->isData() && pass.at(NPairsFound) && (id==33 || id == 10110333 || id == 10110433|| id == 10130533|| id ==10210333|| id == 10210433|| id == 10230533|| id ==10310333 || id ==10330533 || id ==10410433 || id == 10410333|| id == 10430533|| id == 30530533 || id ==11 || id ==12)){
       w *= 0.95*0.95;
     }
   }
+
   TLorentzVector genMomentum(0,0,0,0);
   if(id==33 || id == 10110333 || id == 10110433|| id == 10130533|| id ==10210333|| id == 10210433|| id == 10230533|| id ==10310333 || id ==10330533 || id ==10410433 || id == 10410333|| id == 10430533|| id == 30530533){
     for(unsigned int imc=0; imc < Ntp->NGenParts(); imc++){
@@ -880,7 +928,7 @@ void  ZTauTau::doEvent()  { //  Method called on every event
   double wAgainstElectron1(1);
   double wAgainstMuon2(1);
   double wAgainstElectron2(1);
-  if(id == 33){
+  if(id == 33  || id == 10110333 || id == 10110433|| id == 10130533|| id ==10210333|| id == 10210433|| id == 10230533|| id ==10310333 || id ==10330533 || id ==10410433 || id == 10410333|| id == 10430533|| id == 30530533 ||id==11 || id==12){
     if(pass.at(NPairsFound)){
       int matchedIndex1(-1);
       int matchedIndex2(-1);
@@ -941,8 +989,9 @@ void  ZTauTau::doEvent()  { //  Method called on every event
   exclude_cuts.push_back(Tau1Isolation);
   exclude_cuts.push_back(Tau2Isolation);
   exclude_cuts.push_back(PairCharge);
-  classic_svFit::LorentzVector tau1P4;
-  classic_svFit::LorentzVector tau2P4;
+   classic_svFit::LorentzVector tau1P4;
+   classic_svFit::LorentzVector tau2P4;
+
   TLorentzVector Tau1P4;
   TLorentzVector Tau2P4;
   if(passAllBut(exclude_cuts)){
@@ -969,72 +1018,72 @@ void  ZTauTau::doEvent()  { //  Method called on every event
   // std::cout<<" before  " << pass.at(TriggerOk) << "    " <<   pass.at(PrimeVtx) << "    " <<  pass.at(NPairsFound)<< "    " <<   pass.at(FirstTauIsolation) << "    " <<  pass.at(SecondTauIsolation) << "    " <<  pass.at(nGoodMuons) << "    " <<  pass.at(PairCharge) << "  passAllBut  " << passAllBut(exclude_cuts) <<std::endl;
 
   if(passAllBut(exclude_cuts)){
-    //    for(unsigned int ia=0; ia<pass.size(); ia++){         std::cout<<" ia  "<< ia <<  "   pass  " <<pass.at(ia) << std::endl;    }
-    // if(pass.at(FirstTauIsolation) && pass.at(SecondTauIsolation)){
-    //   if(pass.at(PairCharge)){
-    // 	NQCD.at(t).Fill(1.,w); //A
-    //   }  
-    //   if(!pass.at(PairCharge)){
-    // 	NQCD.at(t).Fill(2.,w); //B
-    //   }
-    //   if(Ntp->isIsolatedTau(TauIndex_1,"Medium") && Ntp->isIsolatedTau(TauIndex_2,"Loose")){
-    // 	if(pass.at(PairCharge)){
-    // 	  NQCD.at(t).Fill(3.,w); //С
-    // 	}
-    // 	if(!pass.at(PairCharge)){
-    // 	  NQCD.at(t).Fill(4.,w); //В
-    // 	}
-    //   }
-    // }
-    if(pass.at(PairCharge)){
-      if(pass.at(Tau1Isolation) && pass.at(Tau2Isolation) ){
-	NQCD.at(t).Fill(1.,w); //A
+    // for(unsigned int ia=0; ia<pass.size(); ia++){         std::cout<<" ia  "<< ia <<  "   pass  " <<pass.at(ia) << std::endl;    }
+    if(pass.at(FirstTauIsolation) && pass.at(SecondTauIsolation)){
+      if(pass.at(PairCharge)){
+    	NQCD.at(t).Fill(1.,w); //A
+      }  
+      if(!pass.at(PairCharge)){
+    	NQCD.at(t).Fill(2.,w); //B
       }
-      if((Ntp->isIsolatedTau(Tau1,"Medium") && !Ntp->isIsolatedTau(Tau2,"Tight") && Ntp->isIsolatedTau(Tau2,"Loose")) || (Ntp->isIsolatedTau(Tau2,"Medium") && !Ntp->isIsolatedTau(Tau1,"Tight") && Ntp->isIsolatedTau(Tau1,"Loose"))){
-	NQCD.at(t).Fill(2.,w); //B
-	//TauTauFullMass_B.at(t).Fill((tau1P4+tau2P4).M(),w);
+      if(Ntp->isIsolatedTau(TauIndex_1,"Medium") && Ntp->isIsolatedTau(TauIndex_2,"Loose")){
+    	if(pass.at(PairCharge)){
+    	  NQCD.at(t).Fill(3.,w); //С
+    	}
+    	if(!pass.at(PairCharge)){
+    	  NQCD.at(t).Fill(4.,w); //В
+    	}
       }
     }
-    if(!pass.at(PairCharge)){
-      if(pass.at(Tau1Isolation) && pass.at(Tau2Isolation)){
-	NQCD.at(t).Fill(3.,w); //C
-	//TauTauFullMass_C.at(t).Fill((tau1P4+tau2P4).M(),w);
+    if(pass.at(PairCharge)) {
+      if(pass.at(Tau1Isolation) && pass.at(Tau2Isolation) ){
+    	NQCD.at(t).Fill(1.,w); //A
       }
       if((Ntp->isIsolatedTau(Tau1,"Medium") && !Ntp->isIsolatedTau(Tau2,"Tight") && Ntp->isIsolatedTau(Tau2,"Loose")) || (Ntp->isIsolatedTau(Tau2,"Medium") && !Ntp->isIsolatedTau(Tau1,"Tight") && Ntp->isIsolatedTau(Tau1,"Loose"))){
-	NQCD.at(t).Fill(4.,w); //D
-	//TauTauFullMass_D.at(t).Fill((tau1P4+tau2P4).M(),w);
+    	NQCD.at(t).Fill(2.,w); //B
+    	//TauTauFullMass_B.at(t).Fill((tau1P4+tau2P4).M(),w);
+      }
+    }
+    if(!pass.at(PairCharge)) {
+      if(pass.at(Tau1Isolation) && pass.at(Tau2Isolation)){
+    	NQCD.at(t).Fill(3.,w); //C
+    	//TauTauFullMass_C.at(t).Fill((tau1P4+tau2P4).M(),w);
+      }
+      if((Ntp->isIsolatedTau(Tau1,"Medium") && !Ntp->isIsolatedTau(Tau2,"Tight") && Ntp->isIsolatedTau(Tau2,"Loose")) || (Ntp->isIsolatedTau(Tau2,"Medium") && !Ntp->isIsolatedTau(Tau1,"Tight") && Ntp->isIsolatedTau(Tau1,"Loose"))){
+    	NQCD.at(t).Fill(4.,w); //D
+    	//TauTauFullMass_D.at(t).Fill((tau1P4+tau2P4).M(),w);
       }
     }
   }
+
   bool IsQCDEvent = false;
   if(passAllBut(exclude_cuts)){
     if(pass.at(PairCharge)){
       if((Ntp->isIsolatedTau(Tau1,"Medium") && !Ntp->isIsolatedTau(Tau2,"Tight") && Ntp->isIsolatedTau(Tau2,"Loose")) || (Ntp->isIsolatedTau(Tau2,"Medium") && !Ntp->isIsolatedTau(Tau1,"Tight") && Ntp->isIsolatedTau(Tau1,"Loose"))){
-	if(id == DataMCType::Data){
-	  QCDShape.at(t).Fill(1,w);
-	  t=HConfig.GetType(DataMCType::QCD);
-	  IsQCDEvent = true;
-	}
+  	if(id == DataMCType::Data){
+  	  QCDShape.at(t).Fill(1,w);
+  	  t=HConfig.GetType(DataMCType::QCD);
+  	  IsQCDEvent = true;
+  	}
       }
     }
   }
 
   if(IsQCDEvent){ pass.at(PairCharge)= true;pass.at(Tau2Isolation)= true;pass.at(Tau1Isolation)=true;}
-  /*
-    std::vector<unsigned int> exclude_cuts_ForTauIso;
-    exclude_cuts_ForTauIso.push_back(Tau1Isolation);
-    exclude_cuts_ForTauIso.push_back(Tau2Isolation);
-    if(passAllBut(exclude_cuts_ForTauIso)) {
-    if(Ntp->isIsolatedTau(Tau1,"Loose"))Tau1isolation.at(t).Fill(1.);
-    if(Ntp->isIsolatedTau(Tau1,"Medium"))Tau1isolation.at(t).Fill(2.);
-    if(Ntp->isIsolatedTau(Tau1,"Tight"))Tau1isolation.at(t).Fill(3.);
-    if(Ntp->isIsolatedTau(Tau1,"VTight"))Tau1isolation.at(t).Fill(4.);
-    if(Ntp->isIsolatedTau(Tau2,"Loose"))Tau2isolation.at(t).Fill(1.);
-    if(Ntp->isIsolatedTau(Tau2,"Medium"))Tau2isolation.at(t).Fill(2.);
-    if(Ntp->isIsolatedTau(Tau2,"Tight"))Tau2isolation.at(t).Fill(3.);
-    if(Ntp->isIsolatedTau(Tau2,"VTight"))Tau2isolation.at(t).Fill(4.);
-    }
-  */
+  
+    // std::vector<unsigned int> exclude_cuts_ForTauIso;
+    // exclude_cuts_ForTauIso.push_back(Tau1Isolation);
+    // exclude_cuts_ForTauIso.push_back(Tau2Isolation);
+    // if(passAllBut(exclude_cuts_ForTauIso)) {
+    // if(Ntp->isIsolatedTau(Tau1,"Loose"))Tau1isolation.at(t).Fill(1.);
+    // if(Ntp->isIsolatedTau(Tau1,"Medium"))Tau1isolation.at(t).Fill(2.);
+    // if(Ntp->isIsolatedTau(Tau1,"Tight"))Tau1isolation.at(t).Fill(3.);
+    // if(Ntp->isIsolatedTau(Tau1,"VTight"))Tau1isolation.at(t).Fill(4.);
+    // if(Ntp->isIsolatedTau(Tau2,"Loose"))Tau2isolation.at(t).Fill(1.);
+    // if(Ntp->isIsolatedTau(Tau2,"Medium"))Tau2isolation.at(t).Fill(2.);
+    // if(Ntp->isIsolatedTau(Tau2,"Tight"))Tau2isolation.at(t).Fill(3.);
+    // if(Ntp->isIsolatedTau(Tau2,"VTight"))Tau2isolation.at(t).Fill(4.);
+    // }
   bool status=AnalysisCuts(t,w,wobs);  // boolean that say whether your event passed critera defined in pass vector. The whole vector must be true for status = true
   ///////////////////////////////////////////////////////////
   // Analyse events which passed selection
@@ -1050,7 +1099,7 @@ void  ZTauTau::doEvent()  { //  Method called on every event
     
     std::vector<int> thirdLepton;
 
-    //---------  svfit ---------------------
+    // //---------  svfit ---------------------
     std::vector<classic_svFit::MeasuredTauLepton> measuredTauLeptons;
     classic_svFit::MeasuredTauLepton lep1(1, Tau1P4.Pt(), Tau1P4.Eta(),  Tau1P4.Phi(), Tau1P4.M());
     classic_svFit::MeasuredTauLepton lep2(1, Tau2P4.Pt(), Tau2P4.Eta(),  Tau2P4.Phi(), Tau2P4.M());
@@ -1080,14 +1129,12 @@ void  ZTauTau::doEvent()  { //  Method called on every event
     tau1P4 = static_cast<classic_svFit::TauTauHistogramAdapter*>(svfitAlgo2.getHistogramAdapter())->GetFittedTau1LV();
     tau2P4 = static_cast<classic_svFit::TauTauHistogramAdapter*>(svfitAlgo2.getHistogramAdapter())->GetFittedTau2LV();
 
-    //---------  svfit ---------------------
+    // //---------  svfit ---------------------
 
 
-    //    TLorentzVector taunew(tau1P4.Px(), );
+    //svfTau1E.at(t).Fill(tau1P4.E(),w);
+    //svfTau2E.at(t).Fill(tau2P4.E(),w);
 
-    // svfTau1E.at(t).Fill(tau1P4.E(),w);
-    // svfTau2E.at(t).Fill(tau2P4.E(),w);
-    
     Tau1PT.at(t).Fill(Tau1P4.Pt(),w);
     Tau1E.at(t).Fill(Tau1P4.E(),w);
     Tau1Mass.at(t).Fill(Tau1P4.M(),w);
@@ -1155,14 +1202,15 @@ void  ZTauTau::doEvent()  { //  Method called on every event
 
     NbJets.at(t).Fill(jets_counter,w);
     
-    ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>> Tauplussvfit;
-    ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>> Tauminussvfit;
+    ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > Tauplussvfit;
+    ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > Tauminussvfit;
+
     TLorentzVector Tauplusvis;
     TLorentzVector Tauminusvis;
     TLorentzVector Pi0RECO;
     TLorentzVector Tauplustruth;
     TLorentzVector Tauminustruth;
-    unsigned int Tauplus= 0;
+    unsigned int Tauplus=0;
     unsigned int Tauminus=0;
 
     if(Ntp->Daughters_charge(Tau1)>0)
@@ -1177,14 +1225,13 @@ void  ZTauTau::doEvent()  { //  Method called on every event
     else
       {
 	Tauplussvfit=tau2P4;
-	Tauminussvfit=tau1P4;
+        Tauminussvfit=tau1P4;
 	Tauplusvis=Tau2P4;
 	Tauminusvis=Tau1P4;
 	Tauplus=Tau2;
 	Tauminus=Tau1;
-	
       }
-    
+
     
     // TVector3 Tauplus3Dsvfit(Tauplussvfit.X(),Tauplussvfit.Y(),Tauplussvfit.Z());
     // TVector3 Tauminus3Dsvfit(Tauminussvfit.X(),Tauminussvfit.Y(),Tauminussvfit.Z());
@@ -1252,15 +1299,6 @@ void  ZTauTau::doEvent()  { //  Method called on every event
     }
     if(id==DataMCType::QCD || id==DataMCType::Data)NewPhiQCD.at(t).Fill(Ntp->DeltaPhi(xyprotonvis.Phi(),xytauplusvis.Phi()),w);				
 
-    /*
-      if(Ntp->decayMode(Tau1)==0 && Ntp->decayMode(Tau2)==0 ){PhiDatavispipi.at(t).Fill(Ntp->DeltaPhi(xyprotonvis.Phi(),xytauplusvis.Phi()),w);}
-      if((Ntp->decayMode(Tau1)==0 && Ntp->decayMode(Tau2)==1) || (Ntp->decayMode(Tau2)==0 && Ntp->decayMode(Tau1)==1)){PhiDatavispirho.at(t).Fill(Ntp->DeltaPhi(xyprotonvis.Phi(),xytauplusvis.Phi()),w);}
-      if((Ntp->decayMode(Tau1)==0 && Ntp->decayMode(Tau2)==10) || (Ntp->decayMode(Tau2)==0 && Ntp->decayMode(Tau1)==10)){PhiDatavispia1.at(t).Fill(Ntp->DeltaPhi(xyprotonvis.Phi(),xytauplusvis.Phi()),w);}
-      if(Ntp->decayMode(Tau1)==1 && Ntp->decayMode(Tau2)==1 ){PhiDatavisrhorho.at(t).Fill(Ntp->DeltaPhi(xyprotonvis.Phi(),xytauplusvis.Phi()),w);}
-      if((Ntp->decayMode(Tau1)==1 && Ntp->decayMode(Tau2)==10) || (Ntp->decayMode(Tau2)==1 && Ntp->decayMode(Tau1)==10)){PhiDatavisrhoa1.at(t).Fill(Ntp->DeltaPhi(xyprotonvis.Phi(),xytauplusvis.Phi()),w);}
-      if(Ntp->decayMode(Tau1)==10 && Ntp->decayMode(Tau2)==10 ){PhiDatavisa1a1.at(t).Fill(Ntp->DeltaPhi(xyprotonvis.Phi(),xytauplusvis.Phi()),w);}*/
-
-    
     TVector3 tauPrimaryVertex , TauminusSecondaryVertex , TauplusSecondaryVertex;
     TVector3 TauminusDirection , TauplusDirection;
     double thetaGJ_Tauminus , thetaGJ_Tauplus;
@@ -1282,9 +1320,9 @@ void  ZTauTau::doEvent()  { //  Method called on every event
     if((a1minus && !a1plus ) ||( !a1minus && a1plus)) a1X=true;  //a1-X
     if(a1minus && a1plus ) a1a1=true;  //a1-a1
 
-    if(a1a1 && id==30530533)
+    if(a1a1 && (id==11 || id==12))
       {
-
+	
 	tauPrimaryVertex = Ntp->PVtx();
 	TauminusSecondaryVertex = Ntp->PFTau_secondaryVertex_pos(Tauminus);
 	TauplusSecondaryVertex = Ntp->PFTau_secondaryVertex_pos(Tauplus);
@@ -1299,7 +1337,7 @@ void  ZTauTau::doEvent()  { //  Method called on every event
 	
 	IsPairPhysical.at(t).Fill(isPlusReal && isMinusReal,w);
 
-	solutions=tauPairMomentumSolutions(TauminusDirection, a1LV_Tauminus, isPlusReal, TauplusDirection, a1LV_Tauplus, isMinusReal);
+	solutions=tauPairMomentumSolutions(TauminusDirection, a1LV_Tauminus, isMinusReal, TauplusDirection, a1LV_Tauplus, isPlusReal);
 	TauminusSmall = solutions.at(0); 
 	TauminusLarge = solutions.at(1); 
 	TauminusMean = solutions.at(2); 
@@ -1322,15 +1360,16 @@ void  ZTauTau::doEvent()  { //  Method called on every event
 	    tauminusa1a1MomentumPairConstraint.at(t).Fill(TauminusPairConstraint.P(),w);           
 	    tauplusa1a1MomentumPairConstraint.at(t).Fill(TauplusPairConstraint.P(),w);
 	    InvariantMasstausa1a1PairConstraint.at(t).Fill( (TauminusPairConstraint + TauplusPairConstraint).M() ,w);
-	  
+
 	    double widthSolutions_Tauminus = fabs(TauminusLarge.P() - TauminusSmall.P());
 	    double widthSolutions_Tauplus = fabs(TauplusLarge.P() - TauplusSmall.P());
+
 
 	    ZMean=TauminusMean+TauplusMean;
 	    ZPairConstraint= TauplusPairConstraint+TauminusPairConstraint;
 	  }
       }
-    if(a1X && (id==10130533 || id==10230533 || id==10330533|| id==10430533))
+    if(a1X && (id==11 || id==12))
       {
 
 	isPlusReal=false;
@@ -1389,30 +1428,9 @@ void  ZTauTau::doEvent()  { //  Method called on every event
 	      }
 	  }
 	InvariantMasstausa1XVis.at(t).Fill((Tauminusvis + Tauplusvis).M(),w);
-	
-
-
-	// if(piminus)
-	//   {
-	//     piLV_Tauminus = Ntp->PFTau_PionsP4(Tauminus,0);
-	//   }
-	// if(piplus)
-	//   {
-	//     piLV_Tauplus = Ntp->PFTau_PionsP4(Tauplus,0);
-	//   }
-	// if(rhominus)
-	//   {
-	//     rhoLV_Tauminus = Ntp->PFTau_PionsP4(Tauminus,0)+ Ntp->PFTau_PionsP4(Tauminus,1);
-	//   }
-	// if(rhoplus)
-	//   {
-	//     rhoLV_Tauplus = Ntp->PFTau_PionsP4(Tauplus,0)+ Ntp->PFTau_PionsP4(Tauplus,1);
-	//   }
-	
-		    
 
       }
-    if(id == 10110333 || id == 10110433|| id == 10130533|| id ==10210333|| id == 10210433|| id == 10230533|| id ==10310333 || id ==10330533 || id ==10410433 || id == 10410333|| id == 10430533|| id == 30530533)
+    if(id ==11 || id == 12)
       {
 	TLorentzVector Tau1Truth; 
 	TLorentzVector Tau2Truth;
@@ -1421,33 +1439,37 @@ void  ZTauTau::doEvent()  { //  Method called on every event
 	std::vector<TLorentzVector> Pions1;
 	std::vector<TLorentzVector> Pions2;
 	bool decay=0;
+	
 	if(Ntp->CheckDecayID(1,3)){
+	
 	  Tau1Truth=Ntp->GetTruthTauLV(1,0);
 	  Tau2Truth=Ntp->GetTruthTauLV(3,1);
 	  TruthDecayFromTau1=Ntp->GetTruthTauProductLV(1,11,0);
-	  TruthDecayFromTau2=Ntp->GetTruthTauProductLV(3,211,1);decay=1;if(TruthDecayFromTau1==TruthDecayFromTau2)cout<<"1 3"<<endl;
-	  
+	  TruthDecayFromTau2=Ntp->GetTruthTauProductLV(3,211,1);decay=1;
+	  if(TruthDecayFromTau1==TruthDecayFromTau2)cout<<"Same decay particle 1-3"<<endl;
 	}
 	if(Ntp->CheckDecayID(1,4)){
+	
 	  Tau1Truth=Ntp->GetTruthTauLV(1,0);
 	  Tau2Truth=Ntp->GetTruthTauLV(4,1);
 	  TruthDecayFromTau1=Ntp->GetTruthTauProductLV(1,11,0);
 	  Pions2=Ntp->GetTruthPionsFromRho(1);
-	  TruthDecayFromTau2=Pions2.at(0)+Pions2.at(1);decay=1;if(TruthDecayFromTau1==TruthDecayFromTau2)cout<<"1 4"<<endl;
+	  TruthDecayFromTau2=Pions2.at(0)+Pions2.at(1);decay=1;
 	  if((sqrt((Tau1P4.Eta()-Tau1Truth.Eta())*(Tau1P4.Eta()-Tau1Truth.Eta())+(Tau1P4.Phi()-Tau1Truth.Phi())*(Tau1P4.Phi()-Tau1Truth.Phi())))<0.5 && (sqrt((Tau2P4.Eta()-Tau2Truth.Eta())*(Tau2P4.Eta()-Tau2Truth.Eta())+(Tau2P4.Phi()-Tau2Truth.Phi())*(Tau2P4.Phi()-Tau2Truth.Phi())))<0.5)
 	    {
 	      Pi0EnergyRes.at(t).Fill(Ntp->NeutralDaughters_P4(Tau2).E()-Pions2.at(1).E(),w);
 	      Pi0EnergyResPull.at(t).Fill((Ntp->NeutralDaughters_P4(Tau2).E()-Pions2.at(1).E())/Pions2.at(1).E(),w);
 	    }
 	  else{ Pi0EnergyRes.at(t).Fill(Ntp->NeutralDaughters_P4(Tau1).E()-Pions2.at(1).E(),w);Pi0EnergyResPull.at(t).Fill((Ntp->NeutralDaughters_P4(Tau1).E()-Pions2.at(1).E())/Pions2.at(1).E(),w);}
+	  if(TruthDecayFromTau1==TruthDecayFromTau2)cout<<"Same decay particle 1-4"<<endl;
 	}
 	if(Ntp->CheckDecayID(1,5)){
 	  Tau1Truth=Ntp->GetTruthTauLV(1,0);
 	  Tau2Truth=Ntp->GetTruthTauLV(5,1);
 	  TruthDecayFromTau1=Ntp->GetTruthTauProductLV(1,11,0);
 	  Pions2=Ntp->GetTruthPionsFromA1(1);
-	  TruthDecayFromTau2=Pions2.at(0)+Pions2.at(1)+Pions2.at(2);decay=1;if(TruthDecayFromTau1==TruthDecayFromTau2)cout<<"1 5"<<endl;
-
+	  TruthDecayFromTau2=Pions2.at(0)+Pions2.at(1)+Pions2.at(2);decay=1;
+	  if(TruthDecayFromTau1==TruthDecayFromTau2)cout<<"Same decay particle 1-5"<<endl;
 	}
 
 
@@ -1455,30 +1477,30 @@ void  ZTauTau::doEvent()  { //  Method called on every event
 	  Tau1Truth=Ntp->GetTruthTauLV(2,0);
 	  Tau2Truth=Ntp->GetTruthTauLV(3,1);
 	  TruthDecayFromTau1=Ntp->GetTruthTauProductLV(2,13,0);
-	  TruthDecayFromTau2=Ntp->GetTruthTauProductLV(3,211,1);decay=1;if(TruthDecayFromTau1==TruthDecayFromTau2)cout<<"2 3"<<endl;
-
+	  TruthDecayFromTau2=Ntp->GetTruthTauProductLV(3,211,1);decay=1;
+	  if(TruthDecayFromTau1==TruthDecayFromTau2)cout<<"Same decay particle 2-3"<<endl;
 	}
 	if(Ntp->CheckDecayID(2,4)){
 	  Tau1Truth=Ntp->GetTruthTauLV(2,0);
 	  Tau2Truth=Ntp->GetTruthTauLV(4,1);
 	  TruthDecayFromTau1=Ntp->GetTruthTauProductLV(2,13,0);
 	  Pions2=Ntp->GetTruthPionsFromRho(1);
-	  TruthDecayFromTau2=Pions2.at(0)+Pions2.at(1);decay=1;if(TruthDecayFromTau1==TruthDecayFromTau2)cout<<"2 4"<<endl;
+	  TruthDecayFromTau2=Pions2.at(0)+Pions2.at(1);decay=1;
 	  if((sqrt((Tau1P4.Eta()-Tau1Truth.Eta())*(Tau1P4.Eta()-Tau1Truth.Eta())+(Tau1P4.Phi()-Tau1Truth.Phi())*(Tau1P4.Phi()-Tau1Truth.Phi())))<0.5 && (sqrt((Tau2P4.Eta()-Tau2Truth.Eta())*(Tau2P4.Eta()-Tau2Truth.Eta())+(Tau2P4.Phi()-Tau2Truth.Phi())*(Tau2P4.Phi()-Tau2Truth.Phi())))<0.5)
 	    {
 	      Pi0EnergyRes.at(t).Fill(Ntp->NeutralDaughters_P4(Tau2).E()-Pions2.at(1).E(),w);
 	      Pi0EnergyResPull.at(t).Fill((Ntp->NeutralDaughters_P4(Tau2).E()-Pions2.at(1).E())/Pions2.at(1).E(),w);
 	    }
 	  else{ Pi0EnergyRes.at(t).Fill(Ntp->NeutralDaughters_P4(Tau1).E()-Pions2.at(1).E(),w);Pi0EnergyResPull.at(t).Fill((Ntp->NeutralDaughters_P4(Tau1).E()-Pions2.at(1).E())/Pions2.at(1).E(),w);}
-
+	  if(TruthDecayFromTau1==TruthDecayFromTau2)cout<<"Same decay particle 2-4"<<endl;
 	}
 	if(Ntp->CheckDecayID(2,5)){
 	  Tau1Truth=Ntp->GetTruthTauLV(2,0);
 	  Tau2Truth=Ntp->GetTruthTauLV(5,1);
 	  TruthDecayFromTau1=Ntp->GetTruthTauProductLV(2,13,0);
 	  Pions2=Ntp->GetTruthPionsFromA1(1);
-	  TruthDecayFromTau2=Pions2.at(0)+Pions2.at(1)+Pions2.at(2);decay=1;if(TruthDecayFromTau1==TruthDecayFromTau2)cout<<"2 5"<<endl;
-
+	  TruthDecayFromTau2=Pions2.at(0)+Pions2.at(1)+Pions2.at(2);decay=1;
+	  if(TruthDecayFromTau1==TruthDecayFromTau2)cout<<"Same decay particle 2-5"<<endl;
 	}
 
 
@@ -1486,7 +1508,8 @@ void  ZTauTau::doEvent()  { //  Method called on every event
 	  Tau1Truth=Ntp->GetTruthTauLV(3,0);
 	  Tau2Truth=Ntp->GetTruthTauLV(3,1);
 	  TruthDecayFromTau1=Ntp->GetTruthTauProductLV(3,211,0);
-	  TruthDecayFromTau2=Ntp->GetTruthTauProductLV(3,211,1);decay=1;if(TruthDecayFromTau1==TruthDecayFromTau2)cout<<"3 3"<<endl;
+	  TruthDecayFromTau2=Ntp->GetTruthTauProductLV(3,211,1);decay=1;
+	  if(TruthDecayFromTau1==TruthDecayFromTau2)cout<<"Same decay particle 3-3"<<endl;
 
 	}
 	if(Ntp->CheckDecayID(3,5)){
@@ -1494,8 +1517,8 @@ void  ZTauTau::doEvent()  { //  Method called on every event
 	  Tau2Truth=Ntp->GetTruthTauLV(5,1);
 	  TruthDecayFromTau1=Ntp->GetTruthTauProductLV(3,211,0);
 	  Pions2=Ntp->GetTruthPionsFromA1(1);
-	  TruthDecayFromTau2=Pions2.at(0)+Pions2.at(1)+Pions2.at(2);decay=1;if(TruthDecayFromTau1==TruthDecayFromTau2)cout<<"3 5"<<endl;
-
+	  TruthDecayFromTau2=Pions2.at(0)+Pions2.at(1)+Pions2.at(2);decay=1;
+	  if(TruthDecayFromTau1==TruthDecayFromTau2)cout<<"Same decay particle 3-5"<<endl;
 	}
 
 
@@ -1505,7 +1528,7 @@ void  ZTauTau::doEvent()  { //  Method called on every event
 	  Pions1=Ntp->GetTruthPionsFromRho(0);
 	  TruthDecayFromTau1=Pions1.at(0)+Pions1.at(1);
 	  Pions2=Ntp->GetTruthPionsFromRho(1);
-	  TruthDecayFromTau2=Pions2.at(0)+Pions2.at(1);decay=1;if(TruthDecayFromTau1==TruthDecayFromTau2)cout<<"4 4"<<endl;
+	  TruthDecayFromTau2=Pions2.at(0)+Pions2.at(1);decay=1;
 	  if((sqrt((Tau1P4.Eta()-Pions1.at(1).Eta())*(Tau1P4.Eta()-Pions1.at(1).Eta())+(Tau1P4.Phi()-Pions1.at(1).Phi())*(Tau1P4.Phi()-Pions1.at(1).Phi())))<0.5 && (sqrt((Tau2P4.Eta()-Pions2.at(1).Eta())*(Tau2P4.Eta()-Pions2.at(1).Eta())+(Tau2P4.Phi()-Pions2.at(1).Phi())*(Tau2P4.Phi()-Pions2.at(1).Phi())))<0.5)
 	    {
 	      Pi0EnergyRes.at(t).Fill(Ntp->NeutralDaughters_P4(Tau1).E()-Pions1.at(1).E(),w);
@@ -1527,20 +1550,21 @@ void  ZTauTau::doEvent()  { //  Method called on every event
 
 	  // std::cout<<" pi0reco_tau1   "<< pi0reco_tau1.Phi() << " pi0reco_tau2    " << pi0reco_tau2.Phi() <<std::endl;
 	  // std::cout<<" pi0mc_tau1   "<< Pions1.at(1).Phi() << " pi0mc_tau2    " << Pions2.at(1).Phi() <<std::endl;
-
+	  if(TruthDecayFromTau1==TruthDecayFromTau2)cout<<"Same decay particle 4-4"<<endl;
 	}
 	if(Ntp->CheckDecayID(4,3)){
 	  Tau1Truth=Ntp->GetTruthTauLV(4,0);
 	  Tau2Truth=Ntp->GetTruthTauLV(3,1);
 	  Pions1=Ntp->GetTruthPionsFromRho(0);
 	  TruthDecayFromTau1=Pions1.at(0)+Pions1.at(1);
-	  TruthDecayFromTau2=Ntp->GetTruthTauProductLV(3,211,1);decay=1;if(TruthDecayFromTau1==TruthDecayFromTau2)cout<<"4 3"<<endl;
+	  TruthDecayFromTau2=Ntp->GetTruthTauProductLV(3,211,1);decay=1;
 	  if((sqrt((Tau1P4.Eta()-Tau1Truth.Eta())*(Tau1P4.Eta()-Tau1Truth.Eta())+(Tau1P4.Phi()-Tau1Truth.Phi())*(Tau1P4.Phi()-Tau1Truth.Phi())))<0.5 && (sqrt((Tau2P4.Eta()-Tau2Truth.Eta())*(Tau2P4.Eta()-Tau2Truth.Eta())+(Tau2P4.Phi()-Tau2Truth.Phi())*(Tau2P4.Phi()-Tau2Truth.Phi())))<0.5)
 	    {
 	      Pi0EnergyRes.at(t).Fill(Ntp->NeutralDaughters_P4(Tau1).E()-Pions1.at(1).E(),w);
 	      Pi0EnergyResPull.at(t).Fill((Ntp->NeutralDaughters_P4(Tau1).E()-Pions1.at(1).E())/Pions1.at(1).E(),w);
 	    }
 	  else{ Pi0EnergyRes.at(t).Fill(Ntp->NeutralDaughters_P4(Tau2).E()-Pions1.at(1).E(),w);Pi0EnergyResPull.at(t).Fill((Ntp->NeutralDaughters_P4(Tau2).E()-Pions1.at(1).E())/Pions1.at(1).E(),w);}
+	  if(TruthDecayFromTau1==TruthDecayFromTau2)cout<<"Same decay particle 4-3"<<endl;
 
 	}
 	if(Ntp->CheckDecayID(4,5)){
@@ -1549,25 +1573,27 @@ void  ZTauTau::doEvent()  { //  Method called on every event
 	  Pions1=Ntp->GetTruthPionsFromRho(0);
 	  TruthDecayFromTau1=Pions1.at(0)+Pions1.at(1);
 	  Pions2=Ntp->GetTruthPionsFromA1(1);
-	  TruthDecayFromTau2=Pions2.at(0)+Pions2.at(1)+Pions2.at(2);decay=1;if(TruthDecayFromTau1==TruthDecayFromTau2){cout<<"4 5"<<endl;TruthDecayFromTau1.Print();TruthDecayFromTau2.Print();}
+	  TruthDecayFromTau2=Pions2.at(0)+Pions2.at(1)+Pions2.at(2);decay=1;
 	  if((sqrt((Tau1P4.Eta()-Tau1Truth.Eta())*(Tau1P4.Eta()-Tau1Truth.Eta())+(Tau1P4.Phi()-Tau1Truth.Phi())*(Tau1P4.Phi()-Tau1Truth.Phi())))<0.5 && (sqrt((Tau2P4.Eta()-Tau2Truth.Eta())*(Tau2P4.Eta()-Tau2Truth.Eta())+(Tau2P4.Phi()-Tau2Truth.Phi())*(Tau2P4.Phi()-Tau2Truth.Phi())))<0.5)
 	    {
 	      Pi0EnergyRes.at(t).Fill(Ntp->NeutralDaughters_P4(Tau1).E()-Pions1.at(1).E(),w);
 	      Pi0EnergyResPull.at(t).Fill((Ntp->NeutralDaughters_P4(Tau1).E()-Pions1.at(1).E())/Pions1.at(1).E(),w);
 	    }
 	  else{ Pi0EnergyRes.at(t).Fill(Ntp->NeutralDaughters_P4(Tau2).E()-Pions1.at(1).E(),w);Pi0EnergyResPull.at(t).Fill((Ntp->NeutralDaughters_P4(Tau2).E()-Pions1.at(1).E())/Pions1.at(1).E(),w);}
+	  if(TruthDecayFromTau1==TruthDecayFromTau2)cout<<"Same decay particle 4-5"<<endl;
 
 	}
 
 
-	if(Ntp->CheckDecayID(5,5)){
+	if(Ntp->CheckDecayID(5,5) ){
+	  
 	  Tau1Truth=Ntp->GetTruthTauLV(5,0);
 	  Tau2Truth=Ntp->GetTruthTauLV(5,1);
 	  Pions1=Ntp->GetTruthPionsFromA1(0);
 	  TruthDecayFromTau1=Pions1.at(0)+Pions1.at(1)+Pions1.at(2);
 	  Pions2=Ntp->GetTruthPionsFromA1(1);
-	  TruthDecayFromTau2=Pions2.at(0)+Pions2.at(1)+Pions2.at(2);decay=1;if(TruthDecayFromTau1==TruthDecayFromTau2){cout<<"5 5"<<endl;TruthDecayFromTau1.Print();TruthDecayFromTau2.Print();}
-
+	  TruthDecayFromTau2=Pions2.at(0)+Pions2.at(1)+Pions2.at(2);decay=1;
+	  //if(TruthDecayFromTau1==TruthDecayFromTau2)cout<<"Same decay particle 5-5"<<endl;
 	}
 	if (decay==1)
 	  {
@@ -1575,7 +1601,7 @@ void  ZTauTau::doEvent()  { //  Method called on every event
 
 	    TLorentzVector TruthZ    = Tau1Truth+Tau2Truth;
 	    // TLorentzVector TruthrhoFromTau2 = (Ntp->GetTruthTauProductLV(3,211) + Ntp->GetTruthTauProductLV(3,111));
-	    if(TruthDecayFromTau1==TruthDecayFromTau2)cout<<"Same decay particle"<<endl;
+	    
 
 	    //double visiblePtTruth = (TruthDecayFromTau1 + TruthDecayFromTau2).Pt();
 
@@ -1583,21 +1609,30 @@ void  ZTauTau::doEvent()  { //  Method called on every event
 	    TLorentzVector VisDecayfromTauminus;
 	  
 	    TauTauTruthMass.at(t).Fill((Tau1Truth+Tau2Truth).M(),w);
-	  
-	    if((sqrt((Tauplusvis.Eta()-Tau1Truth.Eta())*(Tauplusvis.Eta()-Tau1Truth.Eta())+(Tauplusvis.Phi()-Tau1Truth.Phi())*(Tauplusvis.Phi()-Tau1Truth.Phi())))<0.5 && (sqrt((Tauminusvis.Eta()-Tau2Truth.Eta())*(Tauminusvis.Eta()-Tau2Truth.Eta())+(Tauminusvis.Phi()-Tau2Truth.Phi())*(Tauminusvis.Phi()-Tau2Truth.Phi())))<0.5)
-	      {
-		Tauplustruth=Tau1Truth;
-		Tauminustruth=Tau2Truth;
-		VisDecayfromTauplus=TruthDecayFromTau1;
-		VisDecayfromTauminus=TruthDecayFromTau2;
-	      }
-	    else
-	      {
-		Tauplustruth=Tau2Truth;
-		Tauminustruth=Tau1Truth;
-		VisDecayfromTauplus=TruthDecayFromTau2;
-		VisDecayfromTauminus=TruthDecayFromTau1;
-	      }
+	    
+
+	    Tauplustruth=Tau2Truth;
+	    Tauminustruth=Tau1Truth;
+	    VisDecayfromTauplus=TruthDecayFromTau2;
+	    VisDecayfromTauminus=TruthDecayFromTau1;
+	    
+	    // if((sqrt((Tauplusvis.Eta()-Tau1Truth.Eta())*(Tauplusvis.Eta()-Tau1Truth.Eta())+(Tauplusvis.Phi()-Tau1Truth.Phi())*(Tauplusvis.Phi()-Tau1Truth.Phi())))<0.5 && (sqrt((Tauminusvis.Eta()-Tau2Truth.Eta())*(Tauminusvis.Eta()-Tau2Truth.Eta())+(Tauminusvis.Phi()-Tau2Truth.Phi())*(Tauminusvis.Phi()-Tau2Truth.Phi())))<0.5)
+	    //   {
+		
+		
+	
+	    // 	Tauplustruth=Tau1Truth;
+	    // 	Tauminustruth=Tau2Truth;
+	    // 	VisDecayfromTauplus=TruthDecayFromTau1;
+	    // 	VisDecayfromTauminus=TruthDecayFromTau2;
+	    //   }
+	    // else
+	    //   {
+	    // 	Tauplustruth=Tau2Truth;
+	    // 	Tauminustruth=Tau1Truth;
+	    // 	VisDecayfromTauplus=TruthDecayFromTau2;
+	    // 	VisDecayfromTauminus=TruthDecayFromTau1;
+	    //   }
 	    
 	    TVector3 Tauplus3Dtruth(Tauplustruth.X(),Tauplustruth.Y(),Tauplustruth.Z());
 	    TVector3 Tauminus3Dtruth(Tauminustruth.X(),Tauminustruth.Y(),Tauminustruth.Z());
@@ -1642,44 +1677,344 @@ void  ZTauTau::doEvent()  { //  Method called on every event
 	      // PhiSvFitResrhoa1.at(t).Fill(Ntp->DeltaPhi(xyprotonsvfit.Phi(),xytauplussvfit.Phi())-Ntp->DeltaPhi(xyprotontruth.Phi(),xytauplustruth.Phi()),w);
 	      // PhiVisResrhoa1.at(t).Fill(Ntp->DeltaPhi(xyprotonvis.Phi(),xytauplusvis.Phi())-Ntp->DeltaPhi(xyprotontruth.Phi(),xytauplustruth.Phi()),w);
 	    }
-	    if(a1a1 && id==30530533) {
-	      ResolPullTauplusFroma1a1MeanEnergy.at(t).Fill((TauplusMean.E()-Tauplustruth.E())/Tauplustruth.E(),w);
-	      ResolPullTauplusFroma1a1MZEnergy.at(t).Fill((TauplusPairConstraint.E()-Tauplustruth.E())/Tauplustruth.E(),w);
+	    if(a1a1) {
+	    
+	      
+	      SCalculator Scalc1("a1");
+	      SCalculator Scalc2("a1");
+	      SCalculator ScalcSVFit1("a1");
+	      SCalculator ScalcSVFit2("a1");
+	    
+	      vector<TLorentzVector> A1Pions_minus;
+	    
+	      A1Pions_minus.push_back(Ntp->PFTau_PionsP4(Tauminus,0));
+	      A1Pions_minus.push_back(Ntp->PFTau_PionsP4(Tauminus,1));
+	      A1Pions_minus.push_back(Ntp->PFTau_PionsP4(Tauminus,2));
+
+	      vector<double> A1PionsCharge_minus;
+	      A1PionsCharge_minus.push_back(Ntp->PFTau_PionsCharge(Tauminus,0));
+	      A1PionsCharge_minus.push_back(Ntp->PFTau_PionsCharge(Tauminus,1));
+	      A1PionsCharge_minus.push_back(Ntp->PFTau_PionsCharge(Tauminus,2));
+	      vector<TLorentzVector> A1Pions_plus;
+	      A1Pions_plus.push_back(Ntp->PFTau_PionsP4(Tauplus,0));
+	      A1Pions_plus.push_back(Ntp->PFTau_PionsP4(Tauplus,1));
+	      A1Pions_plus.push_back(Ntp->PFTau_PionsP4(Tauplus,2));
+	      vector<double> A1PionsCharge_plus;
+	      A1PionsCharge_plus.push_back(Ntp->PFTau_PionsCharge(Tauplus,0));
+	      A1PionsCharge_plus.push_back(Ntp->PFTau_PionsCharge(Tauplus,1));
+	      A1PionsCharge_plus.push_back(Ntp->PFTau_PionsCharge(Tauplus,2));
+ 
+	      //cout<<A1PionsCharge_minus.at(2)<<endl;
+	      // A1Pions_plus.at(2).Print();
+	      // A1Pions_minus.at(2).Print();
+	      // cout<<"Avant minus: "<<A1PionsCharge_minus.at(0)<<" "<<A1PionsCharge_minus.at(1)<<" "<<A1PionsCharge_minus.at(2)<<endl;
+	      // cout<<"Avant plus: "<<A1PionsCharge_plus.at(0)<<" "<<A1PionsCharge_plus.at(1)<<" "<<A1PionsCharge_plus.at(2)<<endl;
+	    
+	      Scalc1.SortPions(A1Pions_minus, A1PionsCharge_minus);
+	      Scalc2.SortPions(A1Pions_plus, A1PionsCharge_plus);
+	      ScalcSVFit1.SortPions(A1Pions_minus, A1PionsCharge_minus);
+	      ScalcSVFit2.SortPions(A1Pions_plus, A1PionsCharge_plus);
+	      
+	      //Scalc1.SortPions(A1PionsTruth_minus, A1PionsChargeTruth_minus);
+	      //Scalc2.SortPions(A1PionsTruth_plus, A1PionsChargeTruth_plus);
+	      //
+	      //cout<<"minus: "<<A1PionsCharge_minus.at(0)<<" "<<A1PionsCharge_minus.at(1)<<" "<<A1PionsCharge_minus.at(2)<<endl;
+	      //cout<<"plus: "<<A1PionsCharge_plus.at(0)<<" "<<A1PionsCharge_plus.at(1)<<" "<<A1PionsCharge_plus.at(2)<<endl;
+	      vector<TLorentzVector> tauandprodSVFitminus;
+	      vector<TLorentzVector> tauandprodSVFitplus;
+	      TLorentzVector TauminussvfitLV;
+	      TLorentzVector TauplussvfitLV;
+	      TauminussvfitLV.SetPxPyPzE(Tauminussvfit.Px(),Tauminussvfit.Py(),Tauminussvfit.Pz(),Tauminussvfit.E());
+	      TauplussvfitLV.SetPxPyPzE(Tauplussvfit.Px(),Tauplussvfit.Py(),Tauplussvfit.Pz(),Tauplussvfit.E());
+	    
+	      tauandprodSVFitminus.push_back(TauminussvfitLV);
+	      tauandprodSVFitminus.push_back(A1Pions_minus.at(0));
+	      tauandprodSVFitminus.push_back(A1Pions_minus.at(1));
+	      tauandprodSVFitminus.push_back(A1Pions_minus.at(2));
+	      tauandprodSVFitplus.push_back(TauplussvfitLV);   
+	      tauandprodSVFitplus.push_back(A1Pions_plus.at(0));   
+	      tauandprodSVFitplus.push_back(A1Pions_plus.at(1));   
+	      tauandprodSVFitplus.push_back(A1Pions_plus.at(2));   
+	      //
+	      ScalcSVFit1.Configure(tauandprodSVFitminus,tauandprodSVFitminus.at(0)+tauandprodSVFitplus.at(0), -1);
+	      TVector3 hSVFit1=-ScalcSVFit1.pv();
+	      ScalcSVFit2.Configure(tauandprodSVFitplus,tauandprodSVFitminus.at(0)+tauandprodSVFitplus.at(0), +1);
+	      TVector3 hSVFit2=-ScalcSVFit2.pv();
+            
+	      TLorentzVector tauSVFitminus_HRF = ScalcSVFit1.Boost(tauandprodSVFitminus.at(0),tauandprodSVFitminus.at(0)+tauandprodSVFitplus.at(0));
+	      TLorentzVector tauSVFitplus_HRF  = ScalcSVFit2.Boost(tauandprodSVFitplus.at(0),tauandprodSVFitminus.at(0)+tauandprodSVFitplus.at(0));
+	      //(tauminus_HRF+tauplus_HRF).Print();
+	      double hSVFit1Norm=1./hSVFit1.Mag();
+	      double hSVFit2Norm=1./hSVFit2.Mag();
+	      hSVFit1=hSVFit1*hSVFit1Norm;
+	      hSVFit2=hSVFit2*hSVFit2Norm;
+	      double kSVFit1Norm=1./((hSVFit1.Cross(tauSVFitminus_HRF.Vect().Unit())).Mag());
+	      double kSVFit2Norm=1./((hSVFit2.Cross(tauSVFitplus_HRF.Vect().Unit())).Mag());
+	      TVector3 kSVFit1 = (hSVFit1.Cross(tauSVFitminus_HRF.Vect().Unit()))*kSVFit1Norm;
+	      TVector3 kSVFit2 = (hSVFit2.Cross(tauSVFitplus_HRF.Vect().Unit()))*kSVFit2Norm;
+
+
+	      vector<TLorentzVector> tauandprodminus;
+	      vector<TLorentzVector> tauandprodplus;
+
+	      tauandprodminus.push_back(TauminusPairConstraint);
+	      tauandprodminus.push_back(A1Pions_minus.at(0));
+	      tauandprodminus.push_back(A1Pions_minus.at(1));
+	      tauandprodminus.push_back(A1Pions_minus.at(2));
+	      tauandprodplus.push_back(TauplusPairConstraint);   
+	      tauandprodplus.push_back(A1Pions_plus.at(0));   
+	      tauandprodplus.push_back(A1Pions_plus.at(1));   
+	      tauandprodplus.push_back(A1Pions_plus.at(2));   
+	      //
+	      Scalc1.Configure(tauandprodminus,tauandprodminus.at(0)+tauandprodplus.at(0), -1);
+	      TVector3 h1=-Scalc1.pv();
+	      Scalc2.Configure(tauandprodplus,tauandprodminus.at(0)+tauandprodplus.at(0), +1);
+	      TVector3 h2=-Scalc2.pv();
+            
+	      TLorentzVector tauminus_HRF = Scalc1.Boost(tauandprodminus.at(0),tauandprodminus.at(0)+tauandprodplus.at(0));
+	      TLorentzVector tauplus_HRF  = Scalc2.Boost(tauandprodplus.at(0),tauandprodminus.at(0)+tauandprodplus.at(0));
+	      //(tauminus_HRF+tauplus_HRF).Print();
+	      double h1Norm=1./h1.Mag();
+	      double h2Norm=1./h2.Mag();
+	      h1=h1*h1Norm;
+	      h2=h2*h2Norm;
+	      double k1Norm=1./((h1.Cross(tauminus_HRF.Vect().Unit())).Mag());
+	      double k2Norm=1./((h2.Cross(tauplus_HRF.Vect().Unit())).Mag());
+	      TVector3 k1 = (h1.Cross(tauminus_HRF.Vect().Unit()))*k1Norm;
+	      TVector3 k2 = (h2.Cross(tauplus_HRF.Vect().Unit()))*k2Norm;
+
+
+	      TLorentzVector testTruth(0,0,0,0);
+	      if((TruthDecayFromTau1!=TruthDecayFromTau2) && (TruthDecayFromTau1!=testTruth) && (TruthDecayFromTau2!=testTruth) && Ntp->CheckDecayID(5,5))
+		{
+		  SCalculator Scalc1Truth("a1");
+		  SCalculator Scalc2Truth("a1");
+		 
+		  vector<TLorentzVector> A1PionsTruth_minus;
+		  vector<TLorentzVector> A1PionsTruth_plus;
+		  
+		  vector<double> A1PionsChargeTruth_minus;
+		  vector<double> A1PionsChargeTruth_plus;
+		  
+		  Pions1=Ntp->GetTruthPionsFromA1(0);
+		  TruthDecayFromTau1=Pions1.at(0)+Pions1.at(1)+Pions1.at(2);
+		  Pions2=Ntp->GetTruthPionsFromA1(1);
+		  TruthDecayFromTau2=Pions2.at(0)+Pions2.at(1)+Pions2.at(2);
+	      
+		  A1PionsTruth_minus.push_back(Pions1.at(0));
+		  A1PionsTruth_minus.push_back(Pions1.at(1)); 
+		  A1PionsTruth_minus.push_back(Pions1.at(2));
+
+		  A1PionsTruth_plus.push_back(Pions2.at(0));
+		  A1PionsTruth_plus.push_back(Pions2.at(1)); 
+		  A1PionsTruth_plus.push_back(Pions2.at(2));
+
+		 
+		  
+		  A1PionsChargeTruth_minus.push_back(Ntp->MCTauandProd_charge(0, 2));
+		  A1PionsChargeTruth_minus.push_back(Ntp->MCTauandProd_charge(0, 3));
+		  A1PionsChargeTruth_minus.push_back(Ntp->MCTauandProd_charge(0, 4));
+		  A1PionsChargeTruth_plus.push_back(Ntp->MCTauandProd_charge(1, 2));
+		  A1PionsChargeTruth_plus.push_back(Ntp->MCTauandProd_charge(1, 3));
+		  A1PionsChargeTruth_plus.push_back(Ntp->MCTauandProd_charge(1, 4));
+		  
+		 
+		  Scalc1Truth.SortPions(A1PionsTruth_minus, A1PionsChargeTruth_minus);
+		  Scalc2Truth.SortPions(A1PionsTruth_plus, A1PionsChargeTruth_plus);
+		  
+		 
+
+		  vector<TLorentzVector> tauandprodTruthminus;
+		  vector<TLorentzVector> tauandprodTruthplus;
+
+		  
+
+		  if(Ntp->MCTau_pdgid(0)==15)
+		    {
+		      tauandprodTruthminus.push_back(Ntp->GetTruthTauLV(5,0));
+		      tauandprodTruthminus.push_back(A1PionsTruth_minus.at(0));
+		      tauandprodTruthminus.push_back(A1PionsTruth_minus.at(1));
+		      tauandprodTruthminus.push_back(A1PionsTruth_minus.at(2));
+		      tauandprodTruthplus.push_back(Ntp->GetTruthTauLV(5,1));   
+		      tauandprodTruthplus.push_back(A1PionsTruth_plus.at(0));   
+		      tauandprodTruthplus.push_back(A1PionsTruth_plus.at(1));   
+		      tauandprodTruthplus.push_back(A1PionsTruth_plus.at(2));   
+		    }
+		  else if (Ntp->MCTau_pdgid(0)==-15)
+		    {
+		      tauandprodTruthminus.push_back(Ntp->GetTruthTauLV(5,1));
+		      tauandprodTruthminus.push_back(A1PionsTruth_minus.at(0));
+		      tauandprodTruthminus.push_back(A1PionsTruth_minus.at(1));
+		      tauandprodTruthminus.push_back(A1PionsTruth_minus.at(2));
+		      tauandprodTruthplus.push_back(Ntp->GetTruthTauLV(5,0));   
+		      tauandprodTruthplus.push_back(A1PionsTruth_plus.at(0));   
+		      tauandprodTruthplus.push_back(A1PionsTruth_plus.at(1));   
+		      tauandprodTruthplus.push_back(A1PionsTruth_plus.at(2));   
+		    }
+		  Scalc1Truth.Configure(tauandprodTruthminus,tauandprodTruthminus.at(0)+tauandprodTruthplus.at(0), -1);
+		  TVector3 h1Truth=-Scalc1Truth.pv();
+	      
+		  Scalc2Truth.Configure(tauandprodTruthplus,tauandprodTruthminus.at(0)+tauandprodTruthplus.at(0), +1);
+		  TVector3 h2Truth=-Scalc2Truth.pv();
+
+		  double h1TruthNorm=1./h1Truth.Mag();
+		  double h2TruthNorm=1./h2Truth.Mag();
+	      
+		  TLorentzVector tauminusTruth_HRF = Scalc1Truth.Boost(tauandprodTruthminus.at(0),tauandprodTruthminus.at(0)+tauandprodTruthplus.at(0));
+	      
+		  TLorentzVector tauplusTruth_HRF  = Scalc2Truth.Boost(tauandprodTruthplus.at(0),tauandprodTruthminus.at(0)+tauandprodTruthplus.at(0));
+	      
+		  int summinus=Ntp->MCTauandProd_charge(0, 2)+Ntp->MCTauandProd_charge(0, 3)+Ntp->MCTauandProd_charge(0, 4);
+		  int sumplus=Ntp->MCTauandProd_charge(1, 2)+Ntp->MCTauandProd_charge(1, 3)+Ntp->MCTauandProd_charge(1, 4);
+
+		  // cout<<"minus: "<<Ntp->MCTauandProd_charge(0, 2)<<" "<<Ntp->MCTauandProd_charge(0, 3)<<" "<<Ntp->MCTauandProd_charge(0, 4)<<endl;
+		  // cout<<"plus: "<<Ntp->MCTauandProd_charge(1, 2)<<" "<<Ntp->MCTauandProd_charge(1, 3)<<" "<<Ntp->MCTauandProd_charge(1, 4)<<endl;
+
+		  // cout<<"minus: "<<A1PionsCharge_minus.at(0)<<" "<<A1PionsCharge_minus.at(1)<<" "<<A1PionsCharge_minus.at(2)<<endl;
+		  // cout<<"plus: "<<A1PionsCharge_plus.at(0)<<" "<<A1PionsCharge_plus.at(1)<<" "<<A1PionsCharge_plus.at(2)<<endl;
+
+		  double Spin_WT=Ntp->TauSpinerGet(TauSpinerInterface::Spin);
+		  double UnSpin_WT=Ntp->TauSpinerGet(TauSpinerInterface::UnSpin);
+		  double FlipSpin_WT=Ntp->TauSpinerGet(TauSpinerInterface::FlipSpin);
+		  double hplus=Ntp->TauSpinerGet(TauSpinerInterface::hplus);
+		  double hminus=Ntp->TauSpinerGet(TauSpinerInterface::hminus);//1-hplus;
+		 
+		  double Wspin=w*Spin_WT;
+		  //Logger(Logger::Info) << " Spin_WT: " <<Spin_WT<<  "  "<<"UnSpin_WT: "<< UnSpin_WT<<"  "<<"FlipSpin_WT: "<<FlipSpin_WT<<"  "<<"hplus " << hplus << " hminus " << hminus << std::endl;
+
+
+		  if(summinus==-1 && sumplus==1 && A1PionsChargeTruth_minus.at(0)==1 && A1PionsChargeTruth_minus.at(1)==-1 && A1PionsChargeTruth_minus.at(2)==-1 && A1PionsChargeTruth_plus.at(0)==-1 && A1PionsChargeTruth_plus.at(1)==1 && A1PionsChargeTruth_plus.at(2)==1 && A1PionsCharge_minus.at(0)==1 && A1PionsCharge_minus.at(1)==-1 && A1PionsCharge_minus.at(2)==-1 && A1PionsCharge_plus.at(0)==-1 && A1PionsCharge_plus.at(1)==1 && A1PionsCharge_plus.at(2)==1 /*&& Ntp->NMCTauDecayProducts(0)==5 && Ntp->NMCTauDecayProducts(1)==5*/)
+		    {
+		      if((h1Truth.Cross(tauminusTruth_HRF.Vect().Unit())).Mag()!=0 && (h2Truth.Cross(tauplusTruth_HRF.Vect().Unit())).Mag()!=0)
+			{
+			  ResolPullTauFroma1a1MZMomentum.at(t).Fill((TauplusPairConstraint.P()-Tauplustruth.P())/Tauplustruth.P(),w);
+			  ResolPullTauFroma1a1MZMomentum.at(t).Fill((TauminusPairConstraint.P()-Tauminustruth.P())/Tauminustruth.P(),w);
+			  ResolPullTauTauFroma1a1MZMomentum.at(t).Fill((ZPairConstraint.P()-TruthZ.P())/TruthZ.P(),w);
+			  ResolPullTauminusFroma1a1MZMomentum.at(t).Fill((TauminusPairConstraint.P()-Tauminustruth.P())/Tauminustruth.P(),w);
+			  ResolPullTauplusFroma1a1MZMomentum.at(t).Fill((TauplusPairConstraint.P()-Tauplustruth.P())/Tauplustruth.P(),w);
+			  
+			  double norm1Truth=1./(((h1Truth*h1TruthNorm).Cross(tauminusTruth_HRF.Vect().Unit())).Mag());
+			  double norm2Truth=1./(((h2Truth*h2TruthNorm).Cross(tauplusTruth_HRF.Vect().Unit())).Mag());
+			  TVector3 k1Truth = ((h1Truth*h1TruthNorm).Cross(tauminusTruth_HRF.Vect().Unit()))*norm1Truth;
+			  TVector3 k2Truth = ((h2Truth*h2TruthNorm).Cross(tauplusTruth_HRF.Vect().Unit()))*norm2Truth;
+			      
+			  
+			  AcolAngleTruth.at(t).Fill(acos((h1Truth*h1TruthNorm)*(h2Truth*h2TruthNorm)),Wspin);
+			 
+			  if(((h1Truth*h1TruthNorm).Cross(h2Truth*h2TruthNorm))*tauminusTruth_HRF.Vect().Unit()<=0)polarimetricAcopAngleTruth.at(t).Fill(acos(k1Truth*k2Truth),Wspin);
+			  else polarimetricAcopAngleTruth.at(t).Fill(2*TMath::Pi()-acos(k1Truth*k2Truth),Wspin);
+		      
+			  AcolAngle.at(t).Fill(acos(h1*h2),Wspin);
+			  if(((h1.Cross(h2))*(tauminus_HRF.Vect().Unit()))<=0)polarimetricAcopAngle.at(t).Fill(acos(k1*k2),Wspin);
+			  else polarimetricAcopAngle.at(t).Fill(2.*TMath::Pi()-acos(k1*k2),Wspin);
+			  
+			  AcolAngleSVFit.at(t).Fill(acos(hSVFit1*hSVFit2),Wspin);
+			  if(((hSVFit1.Cross(hSVFit2))*(tauSVFitminus_HRF.Vect().Unit()))<=0)polarimetricAcopAngleSVFit.at(t).Fill(acos(kSVFit1*kSVFit2),Wspin);
+			  else polarimetricAcopAngleSVFit.at(t).Fill(2.*TMath::Pi()-acos(kSVFit1*kSVFit2),Wspin);
+
+			  if(abs((tauandprodminus.at(0).P()-Tauminustruth.P())/Tauminustruth.P())<0.3 && abs((tauandprodplus.at(0).P()-Tauplustruth.P())/Tauplustruth.P())<0.3)
+			    {
+			      if(((h1.Cross(h2))*(tauminus_HRF.Vect().Unit()))<=0)polarimetricAcopAngle30.at(t).Fill(acos(k1*k2),Wspin);
+			      else polarimetricAcopAngle30.at(t).Fill(2.*TMath::Pi()-acos(k1*k2),Wspin);
+			    }
+			  if(abs((tauandprodminus.at(0).P()-Tauminustruth.P())/Tauminustruth.P())<0.25 && abs((tauandprodplus.at(0).P()-Tauplustruth.P())/Tauplustruth.P())<0.25)
+			    {
+			      if(((h1.Cross(h2))*(tauminus_HRF.Vect().Unit()))<=0)polarimetricAcopAngle25.at(t).Fill(acos(k1*k2),Wspin);
+			      else polarimetricAcopAngle25.at(t).Fill(2.*TMath::Pi()-acos(k1*k2),Wspin);
+			    }
+			  if(abs((tauandprodminus.at(0).P()-Tauminustruth.P())/Tauminustruth.P())<0.2 && abs((tauandprodplus.at(0).P()-Tauplustruth.P())/Tauplustruth.P())<0.2)
+			    {
+			      if(((h1.Cross(h2))*(tauminus_HRF.Vect().Unit()))<=0)polarimetricAcopAngle20.at(t).Fill(acos(k1*k2),Wspin);
+			      else polarimetricAcopAngle20.at(t).Fill(2.*TMath::Pi()-acos(k1*k2),Wspin);
+			    }
+			  if(abs((tauandprodminus.at(0).P()-Tauminustruth.P())/Tauminustruth.P())<0.15 && abs((tauandprodplus.at(0).P()-Tauplustruth.P())/Tauplustruth.P())<0.15)
+			    {
+			      if(((h1.Cross(h2))*(tauminus_HRF.Vect().Unit()))<=0)polarimetricAcopAngle15.at(t).Fill(acos(k1*k2),Wspin);
+			      else polarimetricAcopAngle15.at(t).Fill(2.*TMath::Pi()-acos(k1*k2),Wspin);
+			    }
+			  if(abs((tauandprodminus.at(0).P()-Tauminustruth.P())/Tauminustruth.P())<0.1 && abs((tauandprodplus.at(0).P()-Tauplustruth.P())/Tauplustruth.P())<0.1)
+			    {
+			      if(((h1.Cross(h2))*(tauminus_HRF.Vect().Unit()))<=0)polarimetricAcopAngle10.at(t).Fill(acos(k1*k2),Wspin);
+			      else polarimetricAcopAngle10.at(t).Fill(2.*TMath::Pi()-acos(k1*k2),Wspin);
+			    }
+			  if(abs((tauandprodminus.at(0).P()-Tauminustruth.P())/Tauminustruth.P())<0.05 && abs((tauandprodplus.at(0).P()-Tauplustruth.P())/Tauplustruth.P())<0.05)
+			    {
+			      if(((h1.Cross(h2))*(tauminus_HRF.Vect().Unit()))<=0)polarimetricAcopAngle5.at(t).Fill(acos(k1*k2),Wspin);
+			      else polarimetricAcopAngle5.at(t).Fill(2.*TMath::Pi()-acos(k1*k2),Wspin);
+			    }
+			}
+		    }
+		}
+	      if(Ntp->MCTau_pdgid(0)==15)//nplus==1 && nminus==2)
+		{
+		  
+		  ResolPullXVtxIna1a1.at(t).Fill((Ntp->PFTau_secondaryVertex_pos(Tauminus).X()-Ntp->MCTauandProd_Vertex(0,1).X())/Ntp->MCTauandProd_Vertex(0,1).X());
+		  
+		  ResolPullXVtxIna1a1.at(t).Fill((Ntp->PFTau_secondaryVertex_pos(Tauplus).X()-Ntp->MCTauandProd_Vertex(1,1).X())/Ntp->MCTauandProd_Vertex(1,1).X());
+		 
+		  ResolPullYVtxIna1a1.at(t).Fill((Ntp->PFTau_secondaryVertex_pos(Tauminus).Y()-Ntp->MCTauandProd_Vertex(0,1).Y())/Ntp->MCTauandProd_Vertex(0,1).Y());
+		  ResolPullYVtxIna1a1.at(t).Fill((Ntp->PFTau_secondaryVertex_pos(Tauplus).Y()-Ntp->MCTauandProd_Vertex(1,1).Y())/Ntp->MCTauandProd_Vertex(1,1).Y());
+		  ResolPullZVtxIna1a1.at(t).Fill((Ntp->PFTau_secondaryVertex_pos(Tauminus).Z()-Ntp->MCTauandProd_Vertex(0,1).Z())/Ntp->MCTauandProd_Vertex(0,1).Z());
+		  ResolPullZVtxIna1a1.at(t).Fill((Ntp->PFTau_secondaryVertex_pos(Tauplus).Z()-Ntp->MCTauandProd_Vertex(1,1).Z())/Ntp->MCTauandProd_Vertex(1,1).Z());
+		}
+	      else if(Ntp->MCTau_pdgid(0)==-15)
+		{
+		  ResolPullXVtxIna1a1.at(t).Fill((Ntp->PFTau_secondaryVertex_pos(Tauminus).X()-Ntp->MCTauandProd_Vertex(1,1).X())/Ntp->MCTauandProd_Vertex(1,1).X());
+		  ResolPullXVtxIna1a1.at(t).Fill((Ntp->PFTau_secondaryVertex_pos(Tauplus).X()-Ntp->MCTauandProd_Vertex(0,1).X())/Ntp->MCTauandProd_Vertex(0,1).X());
+		  ResolPullYVtxIna1a1.at(t).Fill((Ntp->PFTau_secondaryVertex_pos(Tauminus).Y()-Ntp->MCTauandProd_Vertex(1,1).Y())/Ntp->MCTauandProd_Vertex(1,1).Y());
+		  ResolPullYVtxIna1a1.at(t).Fill((Ntp->PFTau_secondaryVertex_pos(Tauplus).Y()-Ntp->MCTauandProd_Vertex(0,1).Y())/Ntp->MCTauandProd_Vertex(0,1).Y());
+		  ResolPullZVtxIna1a1.at(t).Fill((Ntp->PFTau_secondaryVertex_pos(Tauminus).Z()-Ntp->MCTauandProd_Vertex(1,1).Z())/Ntp->MCTauandProd_Vertex(1,1).Z());
+		  ResolPullZVtxIna1a1.at(t).Fill((Ntp->PFTau_secondaryVertex_pos(Tauplus).Z()-Ntp->MCTauandProd_Vertex(0,1).Z())/Ntp->MCTauandProd_Vertex(0,1).Z());
+		}
+	      //ResolPullTauplusFroma1a1MeanEnergy.at(t).Fill((TauplusMean.E()-Tauplustruth.E())/Tauplustruth.E(),w);
+	      //ResolPullTauplusFroma1a1MZEnergy.at(t).Fill((TauplusPairConstraint.E()-Tauplustruth.E())/Tauplustruth.E(),w);
 	      ResolPullTauplusFroma1a1MeanMomentum.at(t).Fill((TauplusMean.P()-Tauplustruth.P())/Tauplustruth.P(),w);
-	      ResolPullTauplusFroma1a1MZMomentum.at(t).Fill((TauplusPairConstraint.P()-Tauplustruth.P())/Tauplustruth.P(),w);
+	      
 
-	      ResolPullTauminusFroma1a1MeanEnergy.at(t).Fill((TauminusMean.E()-Tauminustruth.E())/Tauminustruth.E(),w);
-	      ResolPullTauminusFroma1a1MZEnergy.at(t).Fill((TauminusPairConstraint.E()-Tauminustruth.E())/Tauminustruth.E(),w);
+	      //ResolPullTauminusFroma1a1MeanEnergy.at(t).Fill((TauminusMean.E()-Tauminustruth.E())/Tauminustruth.E(),w);
+	      //ResolPullTauminusFroma1a1MZEnergy.at(t).Fill((TauminusPairConstraint.E()-Tauminustruth.E())/Tauminustruth.E(),w);
 	      ResolPullTauminusFroma1a1MeanMomentum.at(t).Fill((TauminusMean.P()-Tauminustruth.P())/Tauminustruth.P(),w);
-	      ResolPullTauminusFroma1a1MZMomentum.at(t).Fill((TauminusPairConstraint.P()-Tauminustruth.P())/Tauminustruth.P(),w);
+	      
 
-	      ResolPullTauTauFroma1a1MeanEnergy.at(t).Fill((ZMean.E()-TruthZ.E())/TruthZ.E(),w);
-	      ResolPullTauTauFroma1a1MZEnergy.at(t).Fill((ZPairConstraint.E()-TruthZ.E())/TruthZ.E(),w);
+	      //ResolPullTauTauFroma1a1MeanEnergy.at(t).Fill((ZMean.E()-TruthZ.E())/TruthZ.E(),w);
+	      //ResolPullTauTauFroma1a1MZEnergy.at(t).Fill((ZPairConstraint.E()-TruthZ.E())/TruthZ.E(),w);
 	      ResolPullTauTauFroma1a1MeanMomentum.at(t).Fill((ZMean.P()-TruthZ.P())/TruthZ.P(),w);
-	      ResolPullTauTauFroma1a1MZMomentum.at(t).Fill((ZPairConstraint.P()-TruthZ.P())/TruthZ.P(),w);
+	      
 
+	      //ResolPullTauFroma1a1MeanEnergy.at(t).Fill((TauminusMean.E()-Tauminustruth.E())/Tauminustruth.E(),w);
+	      //ResolPullTauFroma1a1MZEnergy.at(t).Fill((TauminusPairConstraint.E()-Tauminustruth.E())/Tauminustruth.E(),w);
+	      ResolPullTauFroma1a1MeanMomentum.at(t).Fill((TauminusMean.P()-Tauminustruth.P())/Tauminustruth.P(),w);
+	      //ResolPullTauFroma1a1MZMomentum.at(t).Fill((TauminusPairConstraint.P()-Tauminustruth.P())/Tauminustruth.P(),w);
+
+	      //ResolPullTauFroma1a1MeanEnergy.at(t).Fill((TauplusMean.E()-Tauplustruth.E())/Tauplustruth.E(),w);
+	      //ResolPullTauFroma1a1MZEnergy.at(t).Fill((TauplusPairConstraint.E()-Tauplustruth.E())/Tauplustruth.E(),w);
+	      ResolPullTauFroma1a1MeanMomentum.at(t).Fill((TauplusMean.P()-Tauplustruth.P())/Tauplustruth.P(),w);
+	      //ResolPullTauFroma1a1MZMomentum.at(t).Fill((TauplusPairConstraint.P()-Tauplustruth.P())/Tauplustruth.P(),w);
+	      
 	      Phitrutha1a1.at(t).Fill(Ntp->DeltaPhi(xyprotontruth.Phi(),xytauplustruth.Phi()),w);
 	      // PhiSvFitResa1a1.at(t).Fill(Ntp->DeltaPhi(xyprotonsvfit.Phi(),xytauplussvfit.Phi())-Ntp->DeltaPhi(xyprotontruth.Phi(),xytauplustruth.Phi()),w);
 	      // PhiVisResa1a1.at(t).Fill(Ntp->DeltaPhi(xyprotonvis.Phi(),xytauplusvis.Phi())-Ntp->DeltaPhi(xyprotontruth.Phi(),xytauplustruth.Phi()),w);
 	    }
-	    if(a1X && (id==10130533 || id==10230533 || id==10330533|| id==10430533))
+	    if(a1X)
 	      {
 		if(a1minus)
 		  {
-		    ResolPullTauminusFroma1XMeanEnergy.at(t).Fill((TauminusMean.E()-Tauminustruth.E())/Tauminustruth.E(),w);
+		    //ResolPullTauminusFroma1XMeanEnergy.at(t).Fill((TauminusMean.E()-Tauminustruth.E())/Tauminustruth.E(),w);
 		    ResolPullTauminusFroma1XMeanMomentum.at(t).Fill((TauminusMean.P()-Tauminustruth.P())/Tauminustruth.P(),w);
-		    ResolPullXplusFroma1XMeanEnergy.at(t).Fill((TauplusMean.E()-Tauplustruth.E())/Tauplustruth.E(),w);
+		    //ResolPullXplusFroma1XMeanEnergy.at(t).Fill((TauplusMean.E()-Tauplustruth.E())/Tauplustruth.E(),w);
 		    ResolPullXplusFroma1XMeanMomentum.at(t).Fill((TauplusMean.P()-Tauplustruth.P())/Tauplustruth.P(),w);
 		    
 		  }
 		else if (a1plus)
 		  {
-		    ResolPullTauplusFroma1XMeanEnergy.at(t).Fill((TauplusMean.E()-Tauplustruth.E())/Tauplustruth.E(),w);
+		    //ResolPullTauplusFroma1XMeanEnergy.at(t).Fill((TauplusMean.E()-Tauplustruth.E())/Tauplustruth.E(),w);
 		    ResolPullTauplusFroma1XMeanMomentum.at(t).Fill((TauplusMean.P()-Tauplustruth.P())/Tauplustruth.P(),w);
-		    ResolPullXminusFroma1XMeanEnergy.at(t).Fill((TauminusMean.E()-Tauminustruth.E())/Tauminustruth.E(),w);
+		    //ResolPullXminusFroma1XMeanEnergy.at(t).Fill((TauminusMean.E()-Tauminustruth.E())/Tauminustruth.E(),w);
 		    ResolPullXminusFroma1XMeanMomentum.at(t).Fill((TauminusMean.P()-Tauminustruth.P())/Tauminustruth.P(),w);
+		   
 		  }
 	      }
+
 	    if(id==10110333 || id==10210333) {	    
 	      //Phitruthlpi.at(t).Fill(Ntp->DeltaPhi(xyprotontruth.Phi(),xytauplustruth.Phi()),w);
 	      //  PhiSvFitReslpi.at(t).Fill(Ntp->DeltaPhi(xyprotonsvfit.Phi(),xytauplussvfit.Phi())-Ntp->DeltaPhi(xyprotontruth.Phi(),xytauplustruth.Phi()),w);
@@ -1758,7 +2093,7 @@ void  ZTauTau::doEvent()  { //  Method called on every event
   }
 }
 //  This is a function if you want to do something after the event loop
-void ZTauTau::Finish() {
+void HTauTau::Finish() {
   
   // if(mode == RECONSTRUCT) {
   //   std::cout<<" Starting Finish!  " <<std::endl;

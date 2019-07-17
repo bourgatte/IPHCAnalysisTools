@@ -1,10 +1,10 @@
 Thin: False
 Skim: False
-HistoFile: InputData/HistotautauInclusivejul2018.txt
-Analysis: ZTauTau
+HistoFile: InputData/Histomutau.txt
+Analysis: ZMuTau
 UncertType: default
-SkimInfo: InputData/SummaryTauTauMay2019.log
-Lumi: 35825.829
+SkimInfo: InputData/SummarySingleMuTauMay2019.log
+Lumi: 35862.45
 PlotStyle: style2
 
 

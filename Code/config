@@ -45,7 +45,7 @@ else
 	    rm -rf TauSpiner/hepmc
 	    rm -rf TauSpiner/HepMC-2.06.05*
 	    rm -rf TauSpiner/pythia8*
-	    rm -rf TauSpiner/tauola*
+	    rm -rf TauSpiner/TAUOLA*
 	    rm -rf TauSpiner/lhapdf
 	    rm make.inc
 	fi
@@ -124,16 +124,21 @@ else
 	    cd TauSpiner
 	    wget http://lcgapp.cern.ch/project/simu/HepMC/download/HepMC-2.06.05.tar.gz
 	    tar -xzvf HepMC-2.06.05.tar.gz
+	    rm HepMC-2.06.05.tar.gz
 	    mkdir hepmc
 	    cd hepmc/
 	    mkdir build install
 	    cd ../../
 	fi 
-	lhapdf=$(ls TauSpiner/* | grep  lhapdf | wc -l)
+	lhapdf=$(ls TauSpiner/* | grep LHAPDF | wc -l)
 	if [ $lhapdf == 0 ]; then
 		cd TauSpiner
-		wget http://www.hepforge.org/archive/lhapdf/lhapdf-5.9.1.tar.gz
-	#	wget http://www.hepforge.org/archive/lhapdf/LHAPDF-6.1.6.tar.gz
+		wget https://lhapdf.hepforge.org/downloads/LHAPDF-6.2.1.tar.gz
+		tar -xzvf LHAPDF-6.2.1.tar.gz
+		rm LHAPDF-6.2.1.tar.gz
+		#wget http://www.hepforge.org/archive/lhapdf/lhapdf-5.9.1.tar.gz
+		#tar -xzvf lhapdf-5.9.1.tar.gz
+		#rm lhapdf-5.9.1.tar.gz
 	    cd ..
 	fi
 	pythia=$(ls TauSpiner/* | grep pythia8 | wc -l )
@@ -143,16 +148,20 @@ else
 	    tar -xzvf pythia8-176-src.tgz
 	    cd ..
 	fi
-	tauola=$(ls TauSpiner/* | grep tauola++ | wc -l )
+	tauola=$(ls TauSpiner/* | grep TAUOLA | wc -l )
 	if [ $tauola == 0 ]; then 
 	    cd TauSpiner
-	    wget http://service-spi.web.cern.ch/service-spi/external/MCGenerators/distribution/tauola++/tauola++-1.1.5-src.tgz
-	    tar -xzvf tauola++-1.1.5-src.tgz
+	    wget http://tauolapp.web.cern.ch/tauolapp/resources/TAUOLA.1.1.6c/TAUOLA.1.1.6c.tar.gz
+	    tar -xvzf TAUOLA.1.1.6c.tar.gz
+	    rm TAUOLA.1.1.6c.tar.gz
+	    #wget http://service-spi.web.cern.ch/service-spi/external/MCGenerators/distribution/tauola++/tauola++-1.1.5-src.tgz
+	    #tar -xzvf tauola++-1.1.5-src.tgz
 	    cd ..
 	fi
     fi
     
-    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/TauSpiner/tauola++/1.1.5/lib
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/TauSpiner/TAUOLA/lib
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/TauSpiner/TAUOLA/TauSpinner/include/TauSpinner/
     export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/TauSpiner/pythia8/176/lib/
     export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/TauSpiner/lhapdf/lib/
     export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/TauSpiner/hepmc/install/lib/

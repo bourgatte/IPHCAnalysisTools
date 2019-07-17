@@ -1,0 +1,6 @@
+<bin name="TauDecaysInterfaceExample" file="example.cc">
+	<flags LDFLAGS="-rdynamic" />
+	<flags EDM_PLUGIN="1"/>
+	<use name="root" />
+	<use name="TauPolSoftware/TauDecaysInterface" />
+</bin>
