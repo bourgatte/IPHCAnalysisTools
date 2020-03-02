@@ -75,7 +75,7 @@ PolarimetricA1::Setup(vector<TLorentzVector> TauA1andProd, TLorentzVector Refere
    _ss1pionLV  = TauA1andProd_RF.at(2);
    _ss2pionLV  = TauA1andProd_RF.at(3);
    _a1LV       = _osPionLV+_ss1pionLV+_ss2pionLV;
-   _tauLV      = TauA1andProd_RF.at(0);
+   _tauLV      = (TauA1andProd_RF.at(0));
    _nuLV      = _tauLV - _a1LV;
    _s12 = _ss1pionLV  + _ss2pionLV;
    _s13 = _ss1pionLV  + _osPionLV;
@@ -84,6 +84,17 @@ PolarimetricA1::Setup(vector<TLorentzVector> TauA1andProd, TLorentzVector Refere
    _s2  =  _s13.M2();
    _s3  =  _s12.M2();
    _Q = _a1LV.M();
+   // cout<<"---------"<<endl;
+   // _osPionLV.Print();
+   // _ss1pionLV.Print();
+   // _ss2pionLV.Print();
+   // cout<<"a1: :";
+   // _a1LV.Print();
+   // cout<<"tau: :";
+   // _tauLV.Print();
+   // cout<<"Nu: :";
+   // _nuLV.Print();
+   // cout<<"---------"<<endl;
 }
 
 void 
@@ -463,6 +474,7 @@ PolarimetricA1::PVC(){
    TLorentzVector a1 = q1+q2+q3;
    TLorentzVector N = _nuLV;
    TLorentzVector P = _tauLV;
+   
    double s1 = (q2+q3).M2();
    double s2 = (q1+q3).M2();
    double s3 = (q1+q2).M2();
@@ -498,7 +510,25 @@ PolarimetricA1::PVC(){
    TComplex BWProd2 = f3(a1.M())*BreitWigner(sqrt(s1),"rho");
  
    double omega = P*CLV - P*CLA;
-   return (P.M()*P.M()*  (CLA - CLV)  -  P*(  P*CLA -  P*CLV))*(1/omega/P.M());
+   cout.precision(10);
+   
+   // cout<<"P: ";
+   // P.Print();
+   //cout<<"P.M: "<<P.M()<<endl;
+   // cout<<"CLV: ";
+   // CLV.Print();
+   // cout<<"CLA: ";
+   // CLA.Print();
+    // cout<<"omega: "<<omega<<endl;
+    // cout<<"P*CLV: "<<P*CLV<<endl;
+    //  cout<<"P*CLA: "<<P*CLA<<endl;
+   //cout<<"P: ";P.Print();
+   //cout<<"CLV: ";CLV.Print();
+   // cout<<"(P.M()*P.M()*(CLA - CLV) - P*(P*CLA - P*CLV)): ";
+   // (P.M()*P.M()*(CLA - CLV) - P*(P*CLA - P*CLV)).Print();
+   //   cout<<"(1./omega/P.M()): "<<(1./omega/P.M())<<endl;
+
+   return (P.M()*P.M()*(CLA - CLV) - P*(P*CLA - P*CLV))*(1./omega/P.M());
 }
 
 TLorentzVector 
@@ -506,7 +536,7 @@ PolarimetricA1::CLVEC(std::vector<TComplex> H, std::vector<TComplex> HC, TLorent
   TComplex HN  = H.at(0)*N.E()     - H.at(1)*N.Px()    - H.at(2)*N.Py()   - H.at(3)*N.Pz();
   TComplex HCN = HC.at(0)*N.E()    - HC.at(1)*N.Px()   - HC.at(2)*N.Py()  - HC.at(3)*N.Pz();
   double   HH  = (H.at(0)*HC.at(0) - H.at(1)*HC.at(1)  - H.at(2)*HC.at(2) - H.at(3)*HC.at(3)).Re();
-
+  
   double PIVEC0 = 2*(   2*(HN*HC.at(0)).Re()  - HH*N.E()   );
   double PIVEC1 = 2*(   2*(HN*HC.at(1)).Re()  - HH*N.Px()  );
   double PIVEC2 = 2*(   2*(HN*HC.at(2)).Re()  - HH*N.Py()  );
@@ -532,6 +562,21 @@ PolarimetricA1::CLAXI(std::vector<TComplex> H, std::vector<TComplex> HC, TLorent
   double PIAX2 = SIGN*2*(-c1*d34 + c3*d14 - c4*d13);
   double PIAX3 = SIGN*2*( c1*d24 - c2*d14 + c4*d12);
 
+  
+
+  // cout<<"-c1*d23: "<<-c1*d23<<endl;
+  // cout<<"c2*d13: "<<c2*d13<<endl;
+  // cout<<"- c3*d12: "<<- c3*d12<<endl;
+  
+  // cout<<"-c1: "<<-c1<<endl;
+  // cout<<"c2: "<<c2<<endl;
+  // cout<<"- c3: "<<-c3<<endl;
+  // cout<<"d23: "<<d23<<endl;
+  // cout<<"d13: "<<d13<<endl;
+  // cout<<"d12: "<<d12<<endl;
+  
+  
+  
   return TLorentzVector( PIAX1,PIAX2,PIAX3,PIAX0);
 }
 
@@ -971,7 +1016,7 @@ PolarimetricA1::getOmegaA1(){
   double ga1 = (costhetaLF()*(RR -2) - 0.5*(3*cosbeta()*cosbeta() - 1)*V)*WA()/3 + 0.5*sinbeta()*sinbeta()*cos2gamma()*V*WC() - 0.5*sinbeta()*sinbeta()*sin2gamma()*V*WD() -cosbeta()*(costhetaLF()*cospsiLF() + sinthetaLF()*sinpsiLF()*sqrt(RR))*WE();
 
   double omega = ga1/fa1;
-  if(isinf(std::fabs(omega)) || isnan(std::fabs(omega))) omega  = -999.;
+  if(std::isinf(std::fabs(omega)) || std::isnan(std::fabs(omega))) omega  = -999.;
   return omega;
 }
 TLorentzVector

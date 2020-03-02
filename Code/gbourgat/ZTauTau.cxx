@@ -197,6 +197,9 @@ void  ZTauTau::Configure(){
   // TauTauFullMass_C=HConfig.GetTH1D(Name+"_TauTauFullMass_C","TauTauFullMass_C",40,0,150,"#tau_h#tau_h SVFit Mass in C","Events");
   // TauTauFullMass_D=HConfig.GetTH1D(Name+"_TauTauFullMass_D","TauTauFullMass_D",40,0,150,"#tau_h#tau_h SVFit Mass in D","Events");
 
+  TauTauVisMass_B=HConfig.GetTH1D(Name+"_TauTauVisMass_B","TauTauVisMass_B",40,0,150,"#tau_h#tau_h Visible Mass in B","Events");
+  TauTauVisMass_C=HConfig.GetTH1D(Name+"_TauTauVisMass_C","TauTauVisMass_C",40,0,150,"#tau_h#tau_h Visible Mass in C","Events");
+  TauTauVisMass_D=HConfig.GetTH1D(Name+"_TauTauVisMass_D","TauTauVisMass_D",40,0,150,"#tau_h#tau_h Visible Mass in D","Events");
   dRTauTau=HConfig.GetTH1D(Name+"_dRTauTau","#Delta R",20,0.,3.5," #Delta R","Events");
 
   MET=HConfig.GetTH1D(Name+"_MET","MET",20,0,80,"MET, GeV","Events");
@@ -487,7 +490,10 @@ void  ZTauTau::Store_ExtraDist(){
   // Extradist1d.push_back(&TauTauFullMass_B);
   // Extradist1d.push_back(&TauTauFullMass_C);
   // Extradist1d.push_back(&TauTauFullMass_D);
-
+  
+  Extradist1d.push_back(&TauTauVisMass_B);
+  Extradist1d.push_back(&TauTauVisMass_C);
+  Extradist1d.push_back(&TauTauVisMass_D);
   Extradist1d.push_back(&MET);
   Extradist1d.push_back(&METphi);
   Extradist1d.push_back(&PUPPImet);
@@ -992,16 +998,19 @@ void  ZTauTau::doEvent()  { //  Method called on every event
       }
       if((Ntp->isIsolatedTau(Tau1,"Medium") && !Ntp->isIsolatedTau(Tau2,"Tight") && Ntp->isIsolatedTau(Tau2,"Loose")) || (Ntp->isIsolatedTau(Tau2,"Medium") && !Ntp->isIsolatedTau(Tau1,"Tight") && Ntp->isIsolatedTau(Tau1,"Loose"))){
 	NQCD.at(t).Fill(2.,w); //B
+	TauTauVisMass_B.at(t).Fill((Tau1P4+Tau2P4).M(),w);
 	//TauTauFullMass_B.at(t).Fill((tau1P4+tau2P4).M(),w);
       }
     }
     if(!pass.at(PairCharge)){
       if(pass.at(Tau1Isolation) && pass.at(Tau2Isolation)){
 	NQCD.at(t).Fill(3.,w); //C
+	TauTauVisMass_C.at(t).Fill((Tau1P4+Tau2P4).M(),w);
 	//TauTauFullMass_C.at(t).Fill((tau1P4+tau2P4).M(),w);
       }
       if((Ntp->isIsolatedTau(Tau1,"Medium") && !Ntp->isIsolatedTau(Tau2,"Tight") && Ntp->isIsolatedTau(Tau2,"Loose")) || (Ntp->isIsolatedTau(Tau2,"Medium") && !Ntp->isIsolatedTau(Tau1,"Tight") && Ntp->isIsolatedTau(Tau1,"Loose"))){
 	NQCD.at(t).Fill(4.,w); //D
+	TauTauVisMass_D.at(t).Fill((Tau1P4+Tau2P4).M(),w);
 	//TauTauFullMass_D.at(t).Fill((tau1P4+tau2P4).M(),w);
       }
     }
@@ -1760,61 +1769,61 @@ void  ZTauTau::doEvent()  { //  Method called on every event
 //  This is a function if you want to do something after the event loop
 void ZTauTau::Finish() {
   
-  // if(mode == RECONSTRUCT) {
-  //   std::cout<<" Starting Finish!  " <<std::endl;
-  //   std::cout<<"A  Data  "<< NQCD.at(0).GetBinContent(1) << std::endl;
-  //   std::cout<<"B  Data  "<< NQCD.at(0).GetBinContent(2) << std::endl;
-  //   std::cout<<"C  Data  "<< NQCD.at(0).GetBinContent(3) << std::endl;
-  //   std::cout<<"D  Data  "<< NQCD.at(0).GetBinContent(4) << std::endl;
-  //   SkimConfig SC;
-  //   SC.ApplySkimEfficiency(types,Npassed, Npassed_noweight);
-  //   std::vector<double> QCD_Integral_B;
-  //   double QCD_IntegralMC_B;
-  //   double QCD_Integral_B_Data_minus_MC = 0;
+  if(mode == RECONSTRUCT) {
+    std::cout<<" Starting Finish!  " <<std::endl;
+    std::cout<<"A  Data  "<< NQCD.at(0).GetBinContent(1) << std::endl;
+    std::cout<<"B  Data  "<< NQCD.at(0).GetBinContent(2) << std::endl;
+    std::cout<<"C  Data  "<< NQCD.at(0).GetBinContent(3) << std::endl;
+    std::cout<<"D  Data  "<< NQCD.at(0).GetBinContent(4) << std::endl;
+    SkimConfig SC;
+    SC.ApplySkimEfficiency(types,Npassed, Npassed_noweight);
+    std::vector<double> QCD_Integral_B;
+    double QCD_IntegralMC_B;
+    double QCD_Integral_B_Data_minus_MC = 0;
     
-  //   std::vector<double> QCD_Integral_C;
-  //   double QCD_IntegralMC_C;
-  //   double QCD_Integral_C_Data_minus_MC = 0;
+    std::vector<double> QCD_Integral_C;
+    double QCD_IntegralMC_C;
+    double QCD_Integral_C_Data_minus_MC = 0;
     
-  //   std::vector<double> QCD_Integral_D;
-  //   double QCD_IntegralMC_D;
-  //   double QCD_Integral_D_Data_minus_MC = 0;
-  //   //Get Yields in ABCD for QCD Scalefactor                                                                                                                                                                  
-  //   for(unsigned i=0;i<CrossSectionandAcceptance.size();i++){
-  //     QCD_Integral_B.push_back(NQCD.at(i).GetBinContent(2));
-  //     QCD_Integral_C.push_back(NQCD.at(i).GetBinContent(3));
-  //     QCD_Integral_D.push_back(NQCD.at(i).GetBinContent(4));
-  //     if(CrossSectionandAcceptance.at(i)>0){
-  // 	QCD_Integral_B.at(i) *= CrossSectionandAcceptance.at(i)*Lumi/Npassed.at(i).GetBinContent(0);
-  // 	QCD_Integral_C.at(i) *= CrossSectionandAcceptance.at(i)*Lumi/Npassed.at(i).GetBinContent(0);
-  // 	QCD_Integral_D.at(i) *= CrossSectionandAcceptance.at(i)*Lumi/Npassed.at(i).GetBinContent(0);
-  //     }
-  //   }
-  //   for(unsigned i=0;i<CrossSectionandAcceptance.size();i++){
-  //     if(HConfig.GetID(i) == DataMCType::Data){
-  // 	QCD_Integral_B_Data_minus_MC  += QCD_Integral_B.at(i);
-  // 	QCD_Integral_C_Data_minus_MC += QCD_Integral_C.at(i);
-  // 	QCD_Integral_D_Data_minus_MC += QCD_Integral_D.at(i);
-  //     }
-  //     if(CrossSectionandAcceptance.at(i)>0){
-  // 	QCD_IntegralMC_B  += QCD_Integral_B.at(i);
-  // 	QCD_IntegralMC_C  += QCD_Integral_C.at(i);
-  // 	QCD_IntegralMC_D  += QCD_Integral_D.at(i);
-  //     }
-  //   }
-  //   double CDFactor = (QCD_Integral_C_Data_minus_MC  - QCD_IntegralMC_C )/ (QCD_Integral_D_Data_minus_MC - QCD_IntegralMC_D);
-  //   double QCD_Signal = QCD_Integral_B_Data_minus_MC *CDFactor;
+    std::vector<double> QCD_Integral_D;
+    double QCD_IntegralMC_D;
+    double QCD_Integral_D_Data_minus_MC = 0;
+    //Get Yields in ABCD for QCD Scalefactor                                                                                                                                                                  
+    for(unsigned i=0;i<CrossSectionandAcceptance.size();i++){
+      QCD_Integral_B.push_back(NQCD.at(i).GetBinContent(2));
+      QCD_Integral_C.push_back(NQCD.at(i).GetBinContent(3));
+      QCD_Integral_D.push_back(NQCD.at(i).GetBinContent(4));
+      if(CrossSectionandAcceptance.at(i)>0){
+  	QCD_Integral_B.at(i) *= CrossSectionandAcceptance.at(i)*Lumi/Npassed.at(i).GetBinContent(0);
+  	QCD_Integral_C.at(i) *= CrossSectionandAcceptance.at(i)*Lumi/Npassed.at(i).GetBinContent(0);
+  	QCD_Integral_D.at(i) *= CrossSectionandAcceptance.at(i)*Lumi/Npassed.at(i).GetBinContent(0);
+      }
+    }
+    for(unsigned i=0;i<CrossSectionandAcceptance.size();i++){
+      if(HConfig.GetID(i) == DataMCType::Data){
+  	QCD_Integral_B_Data_minus_MC  += QCD_Integral_B.at(i);
+  	QCD_Integral_C_Data_minus_MC += QCD_Integral_C.at(i);
+  	QCD_Integral_D_Data_minus_MC += QCD_Integral_D.at(i);
+      }
+      if(CrossSectionandAcceptance.at(i)>0){
+  	QCD_IntegralMC_B  += QCD_Integral_B.at(i);
+  	QCD_IntegralMC_C  += QCD_Integral_C.at(i);
+  	QCD_IntegralMC_D  += QCD_Integral_D.at(i);
+      }
+    }
+    double CDFactor = (QCD_Integral_C_Data_minus_MC  - QCD_IntegralMC_C )/ (QCD_Integral_D_Data_minus_MC - QCD_IntegralMC_D);
+    double QCD_Signal = QCD_Integral_B_Data_minus_MC *CDFactor;
 
-  //   std::cout << "Factor: " << CDFactor << std::endl;
-  //   std::cout << "QCD_Signal: " << QCD_Signal << std::endl;
-  //   std::cout << "QCD in B region "<<  QCD_Integral_B_Data_minus_MC <<std::endl;
-  //   std::cout << "QCD_Integral_B_Data_minus_MC is: " << QCD_Integral_B_Data_minus_MC << std::endl;
-  //   std::cout << "QCD_Integral_C_Data_minus_MC is: " << QCD_Integral_C_Data_minus_MC << std::endl;
-  //   std::cout << "QCD_Integral_D_Data_minus_MC is: " << QCD_Integral_D_Data_minus_MC << std::endl;
-  //   std::cout << "QCD_IntegralMC_B is: " << QCD_IntegralMC_B << std::endl;
-  //   std::cout << "QCD_IntegralMC_C is: " << QCD_IntegralMC_C << std::endl;
-  //   std::cout << "QCD_IntegralMC_D is: " << QCD_IntegralMC_D << std::endl;
-  //   ScaleAllHistOfType(HConfig.GetType(DataMCType::QCD),QCD_Signal/Nminus0.at(0).at(HConfig.GetType(DataMCType::QCD)).Integral());
-  // }
+    std::cout << "Factor: " << CDFactor << std::endl;
+    std::cout << "QCD_Signal: " << QCD_Signal << std::endl;
+    std::cout << "QCD in B region "<<  QCD_Integral_B_Data_minus_MC <<std::endl;
+    std::cout << "QCD_Integral_B_Data_minus_MC is: " << QCD_Integral_B_Data_minus_MC << std::endl;
+    std::cout << "QCD_Integral_C_Data_minus_MC is: " << QCD_Integral_C_Data_minus_MC << std::endl;
+    std::cout << "QCD_Integral_D_Data_minus_MC is: " << QCD_Integral_D_Data_minus_MC << std::endl;
+    std::cout << "QCD_IntegralMC_B is: " << QCD_IntegralMC_B << std::endl;
+    std::cout << "QCD_IntegralMC_C is: " << QCD_IntegralMC_C << std::endl;
+    std::cout << "QCD_IntegralMC_D is: " << QCD_IntegralMC_D << std::endl;
+    ScaleAllHistOfType(HConfig.GetType(DataMCType::QCD),QCD_Signal/Nminus0.at(0).at(HConfig.GetType(DataMCType::QCD)).Integral());
+  }
   Selection::Finish();
 }

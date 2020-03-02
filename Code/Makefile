@@ -3,9 +3,9 @@ include make.inc
 ### Defining Compiling variables              ###
 #################################################
 #-Wno-parentheses
-CXX           = c++ -Wno-deprecated -Wall -std=c++0x
+CXX           = c++ -Wno-deprecated -Wall -std=c++11
 #-m32  -Wno-deprecated
-LD            = g++ -Wno-deprecated -Wall
+LD            = g++ -Wno-deprecated -Wall -std=c++11
 #-m32  -Wno-deprecated 
 INSTALL	      = /usr/bin/install
 SHELL = /bin/sh
@@ -16,13 +16,14 @@ SHELL = /bin/sh
 
 SHAREDLIBFLAGS =-L./CommonUtils/lib -lTauNtuple -L./DataFormats/lib -lDataFormats  -L./CommonUtils/lib -lClassicSVfit  -L./CommonUtils/lib -lTDCILib 
 SHAREDCXXFLAGS =-I./CommonUtils -I./DataFormats
-SUBDIRS = CommonUtils/ 
+SUBDIRS = CommonUtils/
+
 TAUSPINERFLAG = 
 
 override CXXFLAGS += 
 ALLCXXFLAGS = $(CXXFLAGS) -I$(ROOTSYS)/include -c -I/include $(SHAREDCXXFLAGS) -c -I./ -c
 LDFLAGS       =  
-ROOTLIBS      =  -L$(ROOTSYS)/lib -L/usr/lib/ -L/lib/i686/  -lCore -lCint -lHist -lGraf  -lGraf3d -lGpad -lTree -lRint -lReflexDict -lReflex -lPostscript -lMatrix -lPhysics -lGui -LObj -lMinuit2 -lThread -lTreePlayer -lRIO -lMathCore -rdynamic -Wl,--rpath $(ROOTSYS)/lib
+ROOTLIBS      =  -L$(ROOTSYS)/lib -L/usr/lib/ -L/lib/i686/  -lCore -lHist -lGraf  -lGraf3d -lGpad -lTree -lRint -lRooFitCore -lPostscript -lMatrix -lPhysics -lGui -LObj -lMinuit2 -lThread -lTreePlayer -lRIO -lMathCore -rdynamic -Wl,--rpath $(ROOTSYS)/lib
 
 # -ldl -lpthread
 
@@ -52,7 +53,10 @@ TARGETS       =	Ntuple_Controller \
 		PUReweight \
 		ScaleFactor \
 		tauTrigSFreader \
-		UncertaintyValue
+		UncertaintyValue \
+		PileUp \
+		RecoilCorrector \
+		TauIDSFTool
 
 CINTTARGETS = 
 
@@ -66,6 +70,7 @@ ifdef USE_TauSpinner
 				-L./TauSpiner/hepmc/install/lib -lHepMC
         SHAREDCXXFLAGS +=	-I./TauSpiner/hepmc/install/include \
 				-I./TauSpiner/TAUOLA/include/Tauola/ \
+				-I./TauSpiner/TAUOLA/TauSpinner/include/TauSpinner \
 				-I./TauSpiner/TAUOLA/include/TauSpinner/ \
 				-I./TauSpiner/TAUOLA/TauSpinner/examples/ \
 				-I./TauSpiner/TAUOLA/include/ \
@@ -98,7 +103,7 @@ ifdef USE_lebihan
 endif
 
 ifdef USE_gbourgat
-	TARGETS += ZMuTau ZTauTau HTauTau SVFitIPHC SingleMuSkim SkimNtupleDiTauHTrigger
+	TARGETS += HCPTauTau
 	DEFS += -DUSE_gbourgat=1
 endif
 

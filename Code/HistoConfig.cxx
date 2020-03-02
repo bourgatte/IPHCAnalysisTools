@@ -24,6 +24,8 @@ std::vector<TString>      HistoConfig::HistoLegend;
 std::vector<int>          HistoConfig::HistoColour;
 bool                      HistoConfig::loaded=false;
 
+using namespace std;
+
 HistoConfig::HistoConfig(){
 }
 

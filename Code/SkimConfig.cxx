@@ -29,6 +29,8 @@ std::vector<float> SkimConfig::NEvents_noweight_sel;
 bool SkimConfig::loaded = false;
 bool SkimConfig::converted = false;
 
+using namespace std;
+
 SkimConfig::SkimConfig() {
 }
 

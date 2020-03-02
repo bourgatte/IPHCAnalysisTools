@@ -4,6 +4,7 @@
 #include "Selection.h"
 #include <vector>
 #include "TString.h"
+#include "boost/functional/hash.hpp"
 //#include "SVFitStorage.h"
 #include "SimpleFits/FitSoftware/interface/PDGInfo.h"
 #include "TVector3.h"
@@ -36,14 +37,14 @@ class HTauTau : public Selection {
   virtual void  Configure();
   virtual void  Finish();
 
-  enum cuts {Trigger=0,
-	     Id_and_Kin=0, 
-	     NPairsFound,
-	     Tau1Isolation,
-	     Tau2Isolation,
-	     LeptonVeto,
-	     PairCharge, 
-	     //PairMass, 
+  enum cuts {//Trigger=0,
+	      Id_and_Kin=0, 
+	     /* NPairsFound, */
+	     /* Tau1Isolation, */
+	     /* Tau2Isolation, */
+	     /* LeptonVeto, */
+	      PairCharge, 
+	     /* PairMass, */
 	     //MTM,
 	     NCuts};
 
@@ -339,22 +340,193 @@ class HTauTau : public Selection {
 
 
   std::vector<TH1D> polarimetricAcopAngle;
-  std::vector<TH1D> polarimetricAcopAngleSVFit;
-  std::vector<TH1D> polarimetricAcopAngleTruth;
-  
-  std::vector<TH1D> polarimetricAcopAngle30;
-  std::vector<TH1D> polarimetricAcopAngle25;
-  std::vector<TH1D> polarimetricAcopAngle20;
-  std::vector<TH1D> polarimetricAcopAngle15;
-  std::vector<TH1D> polarimetricAcopAngle10;
-  std::vector<TH1D> polarimetricAcopAngle5;
-  
-  
-  
-  std::vector<TH1D> AcolAngle;
-  std::vector<TH1D> AcolAngleSVFit;
-  std::vector<TH1D> AcolAngleTruth;
 
+  std::vector<TH1D> polarimetricAcopAnglePVRefitNoBSOld;
+  std::vector<TH1D> polarimetricAcopAnglePVRefitBSOld;
+  std::vector<TH1D> polarimetricAcopAnglePVRefitNoBSZNominalOld;
+  std::vector<TH1D> polarimetricAcopAnglePVRefitBSZNominalOld;
+   
+  std::vector<TH1D> polarimetricAcopAnglePVRefitNoBSOneTrackRemovedOld;
+  std::vector<TH1D> polarimetricAcopAnglePVRefitBSOneTrackRemovedOld;
+  std::vector<TH1D> polarimetricAcopAnglePVRefitNoBSOneTrackRemovedZNominalOld;
+  std::vector<TH1D> polarimetricAcopAnglePVRefitBSOneTrackRemovedZNominalOld;
+
+  std::vector<TH1D> polarimetricAcopAnglePVRefitNoBSTracksRemovedOld;
+  std::vector<TH1D> polarimetricAcopAnglePVRefitBSTracksRemovedOld;
+  std::vector<TH1D> polarimetricAcopAnglePVRefitNoBSTracksRemovedZNominalOld;
+  std::vector<TH1D> polarimetricAcopAnglePVRefitBSTracksRemovedZNominalOld;
+
+  std::vector<TH1D> polarimetricAcopAnglePVRefitNoBSNew;
+  std::vector<TH1D> polarimetricAcopAnglePVRefitBSNew;
+  std::vector<TH1D> polarimetricAcopAnglePVRefitNoBSZNominalNew;
+  std::vector<TH1D> polarimetricAcopAnglePVRefitBSZNominalNew;
+
+  std::vector<TH1D> polarimetricAcopAnglePVRefitOnlyNoBSTracksRemovedOld;
+  std::vector<TH1D> polarimetricAcopAnglePVRefitOnlyBSTracksRemovedOld;
+  std::vector<TH1D> polarimetricAcopAnglePVRefitOnlyNoBSTracksRemovedZNominalOld;
+  std::vector<TH1D> polarimetricAcopAnglePVRefitOnlyBSTracksRemovedZNominalOld;
+
+  std::vector<TH1D> polarimetricAcopAnglePVRefitOnlyNoBSNew;
+  std::vector<TH1D> polarimetricAcopAnglePVRefitOnlyBSNew;
+  std::vector<TH1D> polarimetricAcopAnglePVRefitOnlyNoBSZNominalNew;
+  std::vector<TH1D> polarimetricAcopAnglePVRefitOnlyBSZNominalNew;
+   
+  /* std::vector<TH1D> polarimetricAcopAnglePVRefitNoBSTIP; */
+  /* std::vector<TH1D> polarimetricAcopAnglePVRefitBSTIP; */
+  /* std::vector<TH1D> polarimetricAcopAnglePVRefitNoBSZNominalTIP; */
+  /* std::vector<TH1D> polarimetricAcopAnglePVRefitBSZNominalTIP; */
+
+  std::vector<TH1D> polarimetricAcopAngleMVA;
+
+  std::vector<TH1D> polarimetricAcopAnglePVRefitNoBSOldMVA;
+  std::vector<TH1D> polarimetricAcopAnglePVRefitBSOldMVA;
+  std::vector<TH1D> polarimetricAcopAnglePVRefitNoBSZNominalOldMVA;
+  std::vector<TH1D> polarimetricAcopAnglePVRefitBSZNominalOldMVA;
+   
+  std::vector<TH1D> polarimetricAcopAnglePVRefitNoBSOneTrackRemovedOldMVA;
+  std::vector<TH1D> polarimetricAcopAnglePVRefitBSOneTrackRemovedOldMVA;
+  std::vector<TH1D> polarimetricAcopAnglePVRefitNoBSOneTrackRemovedZNominalOldMVA;
+  std::vector<TH1D> polarimetricAcopAnglePVRefitBSOneTrackRemovedZNominalOldMVA;
+
+  std::vector<TH1D> polarimetricAcopAnglePVRefitNoBSTracksRemovedOldMVA;
+  std::vector<TH1D> polarimetricAcopAnglePVRefitBSTracksRemovedOldMVA;
+  std::vector<TH1D> polarimetricAcopAnglePVRefitNoBSTracksRemovedZNominalOldMVA;
+  std::vector<TH1D> polarimetricAcopAnglePVRefitBSTracksRemovedZNominalOldMVA;
+
+  std::vector<TH1D> polarimetricAcopAnglePVRefitNoBSNewMVA;
+  std::vector<TH1D> polarimetricAcopAnglePVRefitBSNewMVA;
+  std::vector<TH1D> polarimetricAcopAnglePVRefitNoBSZNominalNewMVA;
+  std::vector<TH1D> polarimetricAcopAnglePVRefitBSZNominalNewMVA;
+
+  std::vector<TH1D> polarimetricAcopAnglePVRefitOnlyNoBSTracksRemovedOldMVA;
+  std::vector<TH1D> polarimetricAcopAnglePVRefitOnlyBSTracksRemovedOldMVA;
+  std::vector<TH1D> polarimetricAcopAnglePVRefitOnlyNoBSTracksRemovedZNominalOldMVA;
+  std::vector<TH1D> polarimetricAcopAnglePVRefitOnlyBSTracksRemovedZNominalOldMVA;
+
+  std::vector<TH1D> polarimetricAcopAnglePVRefitOnlyNoBSNewMVA;
+  std::vector<TH1D> polarimetricAcopAnglePVRefitOnlyBSNewMVA;
+  std::vector<TH1D> polarimetricAcopAnglePVRefitOnlyNoBSZNominalNewMVA;
+  std::vector<TH1D> polarimetricAcopAnglePVRefitOnlyBSZNominalNewMVA;
+   
+  /* std::vector<TH1D> polarimetricAcopAnglePVRefitNoBSTIPMVA; */
+  /* std::vector<TH1D> polarimetricAcopAnglePVRefitBSTIPMVA; */
+  /* std::vector<TH1D> polarimetricAcopAnglePVRefitNoBSZNominalTIPMVA; */
+  /* std::vector<TH1D> polarimetricAcopAnglePVRefitBSZNominalTIPMVA; */
+   
+  std::vector<TH1D> polarimetricAcopAngleTruthA1;
   
+  /* std::vector<TH1D> polarimetricAcopAngleTruthRho; */
+  /* std::vector<TH1D> polarimetricAcopAngleTruthPi; */
+
+  std::vector<TH1D> polarimetricAcopAngleDecayPlane;
+
+  /* std::vector<TH1D> polarimetricAcopAnglePVRefitNoBS; */
+  /* std::vector<TH1D> polarimetricAcopAnglePVRefitBS; */
+  /* std::vector<TH1D> polarimetricAcopAngleMVA; */
+  /* std::vector<TH1D> polarimetricAcopAnglePVRefitNoBSMVA; */
+  /* std::vector<TH1D> polarimetricAcopAnglePVRefitBSMVA; */
+  
+  /* std::vector<TH1D> polarimetricAcopAngle30; */
+  /* std::vector<TH1D> polarimetricAcopAngle25; */
+  /* std::vector<TH1D> polarimetricAcopAngle20; */
+  /* std::vector<TH1D> polarimetricAcopAngle15; */
+  /* std::vector<TH1D> polarimetricAcopAngle10; */
+  /* std::vector<TH1D> polarimetricAcopAngle5; */
+  
+  /* std::vector<TH1D> AcolAngle; */
+  /* std::vector<TH1D> AcolAngleSVFit; */
+  /* std::vector<TH1D> AcolAngleTruth; */
+  
+  /* std::vector<TH1D> polarimetricAcopAnglePtTruthA1;   */
+  /* std::vector<TH1D> polarimetricAcopAngleMVAPtTruthA1; */
+ 
+
+  /* std::vector<TH1D> polarimetricAcopAnglePtTruthRho; */
+  /* std::vector<TH1D> polarimetricAcopAngleMVAPtTruthRho; */
+
+  /* std::vector<TH1D> polarimetricAcopAnglePtTruthPi; */
+  /* std::vector<TH1D> polarimetricAcopAngleMVAPtTruthPi; */
+
+   std::vector<TH1D> polarimetricAcopAngleSVFit; 
+   std::vector<TH1D> polarimetricAcopAngleMVASVFit; 
+
+  /* std::vector<TH1D> polarimetricAcopAngleSVFitRho; */
+  /* std::vector<TH1D> polarimetricAcopAngleMVASVFitRho; */
+  
+  /* std::vector<TH1D> polarimetricAcopAngleSVFitPi; */
+  /* std::vector<TH1D> polarimetricAcopAngleMVASVFitPi; */
+  
+  
+  /* std::vector<TH1D> polarimetricAcopAngleBackground; */
+  /* std::vector<TH1D> polarimetricAcopAnglePVRefitNoBSBackground; */
+  /* std::vector<TH1D> polarimetricAcopAnglePVRefitBSBackground; */
+  /* std::vector<TH1D> polarimetricAcopAngleMVABackground; */
+  /* std::vector<TH1D> polarimetricAcopAnglePVRefitNoBSMVABackground; */
+  /* std::vector<TH1D> polarimetricAcopAnglePVRefitBSMVABackground; */
+
+  /* std::vector<TH1D> polarimetricAcopAnglePVRefitNoBSWithoutWSpin; */  
+
+  std::vector<TH1D> test;  
+  
+  std::vector<TH1D> PurityDM;
+  std::vector<TH1D> PurityNewMVA;
+
+
+  std::vector<TH1D> TauSVFitPxResPull;
+  std::vector<TH1D> TauSVFitPyResPull;
+  std::vector<TH1D> TauSVFitPzResPull;
+ 
+
+  std::vector<TH1D> TauPxResPull;
+  std::vector<TH1D> TauPyResPull;
+  std::vector<TH1D> TauPzResPull;
+
+  std::vector<TH1D> TauSVFitPxResPullMVA;
+  std::vector<TH1D> TauSVFitPyResPullMVA;
+  std::vector<TH1D> TauSVFitPzResPullMVA;
+ 
+
+  std::vector<TH1D> TauPxResPullMVA;
+  std::vector<TH1D> TauPyResPullMVA;
+  std::vector<TH1D> TauPzResPullMVA;
+
+  std::vector<TH1D> PVXResol;
+  std::vector<TH1D> PVXNoBSOldResol;
+  std::vector<TH1D> PVXNoBSTracksRemovedOldResol;
+  std::vector<TH1D> PVXNoBSNewResol;
+  std::vector<TH1D> PVXBSOldResol;
+  std::vector<TH1D> PVXBSTracksRemovedOldResol;
+  std::vector<TH1D> PVXBSNewResol;
+
+  std::vector<TH1D> PVYResol;
+  std::vector<TH1D> PVYNoBSOldResol;
+  std::vector<TH1D> PVYNoBSTracksRemovedOldResol;
+  std::vector<TH1D> PVYNoBSNewResol;
+  std::vector<TH1D> PVYBSOldResol;
+  std::vector<TH1D> PVYBSTracksRemovedOldResol;
+  std::vector<TH1D> PVYBSNewResol;
+  
+  std::vector<TH1D> PVZResol;
+  std::vector<TH1D> PVZNoBSOldResol;
+  std::vector<TH1D> PVZNoBSTracksRemovedOldResol;
+  std::vector<TH1D> PVZNoBSNewResol;
+  std::vector<TH1D> PVZBSOldResol;
+  std::vector<TH1D> PVZBSTracksRemovedOldResol;
+  std::vector<TH1D> PVZBSNewResol;
+  
+  std::vector<TH1D> PVXNoBSTracksRemovedOldOnlyResol;
+  std::vector<TH1D> PVXNoBSNewOnlyResol;
+  std::vector<TH1D> PVXBSTracksRemovedOldOnlyResol;
+  std::vector<TH1D> PVXBSNewOnlyResol;
+  
+  std::vector<TH1D> PVYNoBSTracksRemovedOldOnlyResol;
+  std::vector<TH1D> PVYNoBSNewOnlyResol;
+  std::vector<TH1D> PVYBSTracksRemovedOldOnlyResol;
+  std::vector<TH1D> PVYBSNewOnlyResol;
+  
+  std::vector<TH1D> PVZNoBSTracksRemovedOldOnlyResol;
+  std::vector<TH1D> PVZNoBSNewOnlyResol;
+  std::vector<TH1D> PVZBSTracksRemovedOldOnlyResol;
+  std::vector<TH1D> PVZBSNewOnlyResol;
 };
 #endif

@@ -19,12 +19,23 @@ else
     echo "Configuring Environment...."
     export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/CommonUtils/lib
     export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/DataFormats/lib
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/DataFormats
     export DATAFORMATS_LIB=$PWD/DataFormats/lib/libDataFormats.so
     export codedir=$PWD
     ## setup variables for make files
-    export ROOTSYS=/libcern/root/5.34.18/sl6.3-x86_64
+    #export ROOTSYS=/libcern/root/5.34.30/sl6.6-x86_64
+    #export ROOTSYS=/libcern/root/5.34.18/sl6.3-x86_64
+    export ROOTSYS=/libcern/root/6.06.08/sl6.6-x86_64
     source /libcern/gcc/4.9.3/sl6.5-x86_64/setup.sh
-    cernlib-use --version 5.34.18 root
+    cernlib-use --version 6.06.08 root
+    #source /libcern/root/6.06.08/sl6.6-x86_64/bin/thisroot.sh
+    #source /libcern/gcc/6.2.0/sl6.6-x86_64/setup.sh
+    
+    #cernlib-use --version 5.34.30 root
+    #source /libcern/gcc/4.9.3/sl6.5-x86_64/setup.sh
+    #cernlib-use --version 5.34.18 root
+    #cernlib-use root
+#    export ROOTSYS=/libcern/root/6.06.08/sl6.6-x86_64
 #    export ROOTSYS=/libcern/root/6.06.08/sl6.6-x86_64
 #    ROOT="$PWD/../root/"
     if [ "${1}"  == "--useRoot" ]; then
@@ -95,8 +106,14 @@ else
     fi
     
     ## now downloading required code from github
+    
+    LegacyCorrectionsWorkspace=$(ls | grep LegacyCorrectionsWorkspace | wc -l)
+    if [ $LegacyCorrectionsWorkspace == 0 ]; then
+	git clone -b legacy_newrepo https://github.com/danielwinterbottom/LegacyCorrectionsWorkspace.git LegacyCorrectionsWorkspace
+    fi
+
     cd CommonUtils
-    CommonUtils=$(ls | grep TauDataFormat | wc -l)
+    CommonUtils=$(ls | grep SimpleFits | wc -l)
     cd ..
     if [ $CommonUtils == 0 ]; then
 	cd CommonUtils
@@ -104,14 +121,15 @@ else
 	
 	git clone https://github.com/cherepan/SimpleFits.git SimpleFits
 	
-	git clone https://github.com/cherepan/TauDataFormat.git TauDataFormat
+	#git clone https://github.com/cherepan/TauDataFormat.git TauDataFormat
 	
 	git clone https://github.com/TauPolSoftware/TauDecaysInterface.git TauPolSoftware/TauDecaysInterface
 
 	if [ $UseSVfit == 1 ]; then
-	#	git clone -b svFit_2015Apr03  https://github.com/veelken/SVfit_standalone.git TauAnalysis/SVfitStandaloney
+	#	git clone -b svFit_2015Apr03  https://github.com/veelken/SVfit_standalone.git TauAnalysis/SVfitStandalone
 	    git clone -b svFit_2015Apr03  https://github.com/veelken/SVfit_standalone.git TauAnalysis/SVfitStandalone
-	    git clone -b release_2018Mar20  https://github.com/SVfit/ClassicSVfit.git TauAnalysis/ClassicSVfit # this is classic svfit
+	    #git clone -b release_2018Mar20  https://github.com/SVfit/ClassicSVfit.git TauAnalysis/ClassicSVfit # this is classic svfit
+	    git clone -b fastMTT_19_02_2019  https://github.com/SVfit/ClassicSVfit.git TauAnalysis/ClassicSVfit # this is classic svfit
 	fi
 	
 	cd ../

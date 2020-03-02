@@ -9,15 +9,12 @@
 //Random function
 #include "stdlib.h"
 #include "time.h"
+#include "boost/functional/hash.hpp"
 
 using std::cin;
 using std::cout; using std::endl;
 using std::string;
 using std::vector;
-
-
-
-
 
 
 void quadratic(const double &a, const double &b, const double &c, bool isReal, double &x_0, double &x_1)
@@ -186,7 +183,7 @@ TVector3 RandomT3VectorInsideResolutionCone(const double res, const double tauFl
 void tauPairConstraint(const TVector3 &tau1Dir, const TLorentzVector &a1LV1, bool is1Real, TLorentzVector &tau1PairConstraintLV, 
 		       const TVector3 &tau2Dir, const TLorentzVector &a1LV2, bool is2Real, TLorentzVector &tau2PairConstraintLV)
 {
-  double Hmass = 125.;//91.1876; // GeV
+  double Hmass = 125.10; //91.1876; // GeV
   vector<TLorentzVector> tau1Solutions, tau2Solutions;
   tau1Solutions = tauMomentumSolutions(tau1Dir, a1LV1, is1Real);
   tau2Solutions = tauMomentumSolutions(tau2Dir, a1LV2, is2Real);
@@ -243,20 +240,62 @@ void tauPairConstraint(const TVector3 &tau1Dir, const TLorentzVector &a1LV1, boo
 }
 
 
-vector<TLorentzVector> tauPairMomentumSolutions(const TVector3 &tau1Dir, const TLorentzVector &a1LV1, bool is1Real, const TVector3 &tau2Dir, const TLorentzVector &a1LV2, bool is2Real)
+vector<TLorentzVector> tauPairMomentumSolutions(const TVector3 &tau1Dir, const TLorentzVector &a1RefitLV1, const TLorentzVector &a1LV1, bool is1Real, const TVector3 &tau2Dir, const TLorentzVector &a1RefitLV2, const TLorentzVector &a1LV2, bool is2Real, bool isRefit)
 {
   vector<TLorentzVector> solutions, tau1Solutions, tau2Solutions;
   TLorentzVector tau1PairConstraintLV, tau2PairConstraintLV;
 
-  tauPairConstraint(tau1Dir, a1LV1, is1Real, tau1PairConstraintLV,
-		    tau2Dir, a1LV2, is2Real, tau2PairConstraintLV);
-
-  tau1Solutions = tauMomentumSolutions(tau1Dir, a1LV1, is1Real);
-  tau2Solutions = tauMomentumSolutions(tau2Dir, a1LV2, is2Real);
-
+  if(isRefit)
+    {
+      tauPairConstraint(tau1Dir, a1RefitLV1, is1Real, tau1PairConstraintLV, tau2Dir, a1RefitLV2, is2Real, tau2PairConstraintLV);
+      tau1Solutions = tauMomentumSolutions(tau1Dir, a1RefitLV1, is1Real);
+      tau2Solutions = tauMomentumSolutions(tau2Dir, a1RefitLV2, is2Real);
+    }
+  else
+    {
+      tauPairConstraint(tau1Dir, a1LV1, is1Real, tau1PairConstraintLV, tau2Dir, a1LV2, is2Real, tau2PairConstraintLV);
+      tau1Solutions = tauMomentumSolutions(tau1Dir, a1LV1, is1Real);
+      tau2Solutions = tauMomentumSolutions(tau2Dir, a1LV2, is2Real);
+    }
+  
   std::copy(tau1Solutions.begin(), tau1Solutions.end(), std::back_inserter(solutions));
   solutions.push_back(tau1PairConstraintLV);
   solutions.insert(solutions.end(), tau2Solutions.begin(), tau2Solutions.end());
   solutions.push_back(tau2PairConstraintLV);
   return solutions;
+}
+
+TVector3 GetRefittedPV(std::vector<size_t> hashes, TVector3 PVNominal, std::vector<double> PVRefit_X , std::vector<double> PVRefit_Y, std::vector<double> PVRefit_Z ,std::vector<size_t> VertexHash1, std::vector<size_t> VertexHash2, bool &isRefit)
+{ 
+  // find the vertex among the refitted vertices
+  for (unsigned int ivertex =0; ivertex<PVRefit_X.size(); ivertex++){
+    size_t selectionHash = 0;
+    boost::hash_combine(selectionHash, VertexHash1.at(ivertex));
+    boost::hash_combine(selectionHash, VertexHash2.at(ivertex));
+    if ( std::find(hashes.begin(), hashes.end(), selectionHash) != hashes.end() ){
+      //cout<<"NoBS Hash Matching!!!"<<endl;
+      isRefit=true;
+      return TVector3(PVRefit_X.at(ivertex), PVRefit_Y.at(ivertex), PVRefit_Z.at(ivertex));
+    }
+  } // loop over refitted vertices collection
+  isRefit=false;
+  return PVNominal;
+}
+
+
+TVector3 GetRefittedPV(std::vector<size_t> hashes, TVector3 PVNominal, std::vector<double> PVRefit_X , std::vector<double> PVRefit_Y, double PV_Z ,std::vector<size_t> VertexHash1, std::vector<size_t> VertexHash2, bool &isRefit)
+{ 
+  // find the vertex among the refitted vertices
+  for (unsigned int ivertex =0; ivertex<PVRefit_X.size(); ivertex++){
+    size_t selectionHash = 0;
+    boost::hash_combine(selectionHash, VertexHash1.at(ivertex));
+    boost::hash_combine(selectionHash, VertexHash2.at(ivertex));
+    if ( std::find(hashes.begin(), hashes.end(), selectionHash) != hashes.end() ){
+      //cout<<"NoBS Hash Matching!!!"<<endl;
+      isRefit=true;
+      return TVector3(PVRefit_X.at(ivertex), PVRefit_Y.at(ivertex), PV_Z);
+    }
+  } // loop over refitted vertices collection
+  isRefit=false;
+  return PVNominal;
 }

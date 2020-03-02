@@ -325,7 +325,7 @@ if( $ARGV[0] eq "--Local" ){
     system(sprintf("echo \"#! /bin/bash\" >> $OutputDir/workdir$set/compile "));
     system(sprintf("echo \"cd  $OutputDir/workdir$set/Code/\" >> $OutputDir/workdir$set/compile "));
     system(sprintf("echo \"source config \\\$\@ \"   >> $OutputDir/workdir$set/compile "));
-    system(sprintf("echo \"gmake all \" >> $OutputDir/workdir$set/compile "));
+    system(sprintf("echo \"gmake all  \" >> $OutputDir/workdir$set/compile "));
     system(sprintf("echo \"cd $OutputDir/workdir$set/ \" >> $OutputDir/workdir$set/compile")) ;
  
     # Generate Combine script 
@@ -374,7 +374,7 @@ if( $ARGV[0] eq "--Local" ){
 		else{
 		    $max=$maxmc;
 			if($subdir =~ m/embed/){
-				$max=$maxemb
+			    $max=$maxemb;
 			}
 		}
 		printf(" \nAccessing Directory  $subdir \n");
@@ -505,7 +505,7 @@ if( $ARGV[0] eq "--Local" ){
     system(sprintf("echo \"#! /bin/bash\" >> $OutputDir/workdir$set/compile "));
     system(sprintf("echo \"cd  $OutputDir/workdir$set/Code/\" >> $OutputDir/workdir$set/compile "));
     system(sprintf("echo \"source config \\\$\@ \"   >> $OutputDir/workdir$set/compile "));
-    system(sprintf("echo \"gmake all \" >> $OutputDir/workdir$set/compile "));
+    system(sprintf("echo \"gmake all\" >> $OutputDir/workdir$set/compile "));
     system(sprintf("echo \"cd $OutputDir/workdir$set/ \" >> $OutputDir/workdir$set/compile")) ;
  
     # Generate Combine script 
@@ -557,21 +557,22 @@ if( $ARGV[0] eq "--Local" ){
 	system(sprintf("echo \"notification = Error        \" >> $OutputDir/workdir$set/Condor_Combine"));
 	$max=1;
 	foreach $DS (@DataSets){
-	   
-	    if(($l==0 && ($DS =~ m/data/)) || ($l==1 && !($DS =~ m/data/))){
-	#	print "true 1   l = $l\n";
+	    #if((($l==0 && ($DS =~ m/Data/)) || ($l==1 && !($DS =~ m/Data/))) || (($l==0 && ($DS =~ m/data/)) || ($l==1 && !($DS =~ m/data/)))){
+	    if((($l==0 && ($DS =~ m/Data/)) || ($l==1 && !($DS =~ m/Data/)))){
+		#	print "true 1   l = $l\n";
 		if($l==0){
-	#	print "true 2   l = $l\n";
+		    #	print "true 2   l = $l\n";
 		    $max=$maxdata;
 		}
 		else{
-	#	print "true 3   l = $l\n";
+		    #	print "true 3   l = $l\n";
 		    $max=$maxmc;
-			if($DS =~ m/embed/){
-	#	print "true 4";
-				$max=$maxemb
-			}
+		    if($DS =~ m/embed/){
+			#	print "true 4";
+			$max=$maxemb;
+		    }
 		}
+		
 		print "max  = $max;    maxmc = $maxmc \n";
 #		print "------- DS   $DS  \n";
 		printf("\n\nStarting Loop $l \n");
@@ -674,7 +675,7 @@ if( $ARGV[0] eq "--Local" ){
 
 			system(sprintf("echo \"cd $OutputDir/workdir$set/Set_$B/ \" >> $OutputDir/workdir$set/Set_$B/Set_$B.sh")) ;
 			# Setup Input.txt
-			system(sprintf("cp   $InputFile $OutputDir/workdir$set/Set_$B/Input.txt ")); 
+			system(sprintf("cp   $InputFile $OutputDir/workdir$set/Set_$B/Input.txt "));
 			system(sprintf("cd $OutputDir/workdir$set/Set_$B; $dir/subs '{SET}' Set_$B Input.txt; cd $dir "));
 			system(sprintf("cd $OutputDir/workdir$set/Set_$B; $dir/subs '{FileDir}' $DS Input.txt; cd $dir "));
 			system(sprintf("echo \"Mode: ANALYSIS\" >> $OutputDir/workdir$set/Set_$B/Input.txt")); 
@@ -713,9 +714,12 @@ if( $ARGV[0] eq "--Local" ){
 			}
 		    }
 #		    system(sprintf("echo \"xrdcp root://sbgse1.in2p3.fr/$file . \"  >> $OutputDir/workdir$set/Set_$B/Set_$B-get.sh"));
-		    system(sprintf("echo \"rfcp /dpm/in2p3.fr/home/cms/phedex/$file . \"  >> $OutputDir/workdir$set/Set_$B/Set_$B-get.sh"));  ##rfcp /dpm/in2p3.fr/home/cms/phedex/store/user/cherepan
-		    system(sprintf("echo \"File:  $RemoteDir/$myfiletrunc \"     >> $OutputDir/workdir$set/Set_$B/Input.txt")) ;
-		    system(sprintf("echo \"rm -rf $RemoteDir/$myfiletrunc \"    >> $OutputDir/workdir$set/Set_$B/Set_$B-clean.sh"));
+		    #system(sprintf("echo \"rfcp /dpm/in2p3.fr/home/cms/phedex/$file . \"  >> $OutputDir/workdir$set/Set_$B/Set_$B-get.sh"));  ##rfcp /dpm/in2p3.fr/home/cms/phedex/store/user/cherepan
+		    
+		    #system(sprintf("echo \"File:  gfal:srm://sbgse1.in2p3.fr:8446/dpm/in2p3.fr/home/cms/phedex/${DS}0000/$myfiletrunc \"     >> $OutputDir/workdir$set/Set_$B/Input.txt")) ;
+			system(sprintf("echo \"File:  root://sbgse1.in2p3.fr//dpm/in2p3.fr/home/cms/phedex/$file \"     >> $OutputDir/workdir$set/Set_$B/Input.txt")) ;
+		    
+                    #system(sprintf("echo \"rm -rf $RemoteDir/$myfiletrunc \"    >> $OutputDir/workdir$set/Set_$B/Set_$B-clean.sh"));
 		    $A++;
 		}
 	    }
@@ -881,14 +885,14 @@ if( $ARGV[0] eq "--GRID" ){
 	system(sprintf("echo \"notification = Error \" >> $OutputDir/workdir$set/Condor_Combine"));
 	$max=1;
 	foreach $DS (@DataSets){
-	    if(($l==0 && ($DS =~ m/data/)) || ($l==1 && !($DS =~ m/data/))){
+	    if(($l==0 && ($DS =~ m/Data/)) || ($l==1 && !($DS =~ m/Data/))){
 		if($l==0){
 		    $max=$maxdata;
 		}
 		else{
 		    $max=$maxmc;
 			if($DS =~ m/embed/){
-				$max=$maxemb
+			    $max=$maxemb;
 			}
 		}
 		printf("\n\nStarting Loop $l \n");
@@ -947,7 +951,7 @@ if( $ARGV[0] eq "--GRID" ){
 			system(sprintf("echo \"cd /user/scratch/$UserID/workdir$set-Set_$B  \" >> $OutputDir/workdir$set/Set_$B/Set_$B.sh"));
 			system(sprintf("echo \"$OutputDir/workdir$set/Code/Analysis.exe 2>&1 | tee >(sed -r \\\"s/\\\\x1B\\\\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g\\\" > Set_$B.output) \" >> $OutputDir/workdir$set/Set_$B/Set_$B.sh"));
 			system(sprintf("echo \"cp -r *  $OutputDir/workdir$set/Set_$B/ \" >> $OutputDir/workdir$set/Set_$B/Set_$B.sh"));
-			system(sprintf("echo \"source $OutputDir/workdir$set/Set_$B/Set_$B-clean.sh \" >> $OutputDir/workdir$set/Set_$B/Set_$B.sh"));
+			#system(sprintf("echo \"source $OutputDir/workdir$set/Set_$B/Set_$B-clean.sh \" >> $OutputDir/workdir$set/Set_$B/Set_$B.sh"));
 			system(sprintf("echo \"rm -r  /user/scratch/$UserID/workdir$set-Set_$B  \" >> $OutputDir/workdir$set/Set_$B/Set_$B.sh"));			
 			system(sprintf("echo \"echo 'Completed Job' \" >> $OutputDir/workdir$set/Set_$B/Set_$B.sh"));
 			system(sprintf("echo \"cd $OutputDir/workdir$set/Set_$B/ \" >> $OutputDir/workdir$set/Set_$B/Set_$B.sh")) ;
@@ -982,11 +986,11 @@ if( $ARGV[0] eq "--GRID" ){
 			system(sprintf("echo \"cd $OutputDir/workdir$set/Set_$B; srmcp  srm://$gridsite:8443/pnfs/physik.rwth-aachen.de/cms/store/user/$UserIDCern/workdir$set/SKIMMED_NTUP_$B.root  file:////\\\$PWD/SKIMMED_NTUP.root; cd $OutputDir/workdir$set/ \n fi \" >> $OutputDir/workdir$set/Set_$B/GRIDRetrieve.sh "));
 			
                         # Setup Set_$B_get.sh Set_$B-getGRID and Set_$B_clean.sh
-			system(sprintf("echo \"#! /bin/bash\"         >> $OutputDir/workdir$set/Set_$B/Set_$B-get.sh"));
-			system(sprintf("echo \"mkdir /user/scratch/$UserID \" >> $OutputDir/workdir$set/Set_$B/Set_$B-get.sh"));
-			system(sprintf("echo \"cd /user/scratch/$UserID \"    >> $OutputDir/workdir$set/Set_$B/Set_$B-get.sh")); 
-                        system(sprintf("echo \"#! /bin/bash\"         >> $OutputDir/workdir$set/Set_$B/Set_$B-clean.sh"));
-                        system(sprintf("echo \"cd /user/scratch/$UserID \"    >> $OutputDir/workdir$set/Set_$B/Set_$B-clean.sh"));
+			#system(sprintf("echo \"#! /bin/bash\"         >> $OutputDir/workdir$set/Set_$B/Set_$B-get.sh"));
+			#system(sprintf("echo \"mkdir /user/scratch/$UserID \" >> $OutputDir/workdir$set/Set_$B/Set_$B-get.sh"));
+			#system(sprintf("echo \"cd /user/scratch/$UserID \"    >> $OutputDir/workdir$set/Set_$B/Set_$B-get.sh")); 
+                        #system(sprintf("echo \"#! /bin/bash\"         >> $OutputDir/workdir$set/Set_$B/Set_$B-clean.sh"));
+                        #system(sprintf("echo \"cd /user/scratch/$UserID \"    >> $OutputDir/workdir$set/Set_$B/Set_$B-clean.sh"));
                         #system(sprintf("echo \"#! /bin/bash\"         >> $OutputDir/workdir$set/Set_$B/Set_$B-getGRID.sh"));
 
 			# Setup Input.txt

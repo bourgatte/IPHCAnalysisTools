@@ -5,8 +5,8 @@ include ../make.inc
 
 
 BASE = ${PWD}
-CXX           = g++ -m32  -Wno-deprecated
-LD            = g++ -m32  -Wno-deprecated 
+CXX           = g++ -m32  -Wno-deprecated  -std=c++11
+LD            = g++ -m32  -Wno-deprecated -std=c++11
 INSTALL	      = /usr/bin/install
 SHELL = /bin/sh
 
@@ -19,7 +19,7 @@ SHELL = /bin/sh
 install: HEPMC LHAPDF PYTHIA8 TAUOLA
 
 clean:
-        @echo "============================="
+	@echo "============================="
 
 
 HEPMC:
@@ -39,19 +39,19 @@ LHAPDF:
 	cd ../lhapdf/share/LHAPDF; \
 	#mkdir PDFsets; \
 	#cd PDFsets; \
-	wget http://www.hepforge.org/archive/lhapdf/pdfsets/6.2.1/NNPDF30_nlo_as_0118.tar.gz -O -| tar -zxvf - -C "."; \
-	wget http://www.hepforge.org/archive/lhapdf/pdfsets/6.2.1/NNPDF23_nlo_as_0119.tar.gz -O -| tar -zxvf - -C "."; \
-	wget http://www.hepforge.org/archive/lhapdf/pdfsets/6.2.1/NNPDF23_nnlo_as_0119.tar.gz -O -| tar -zxvf - -C "."; \
-	wget http://www.hepforge.org/archive/lhapdf/pdfsets/6.2.1/MSTW2008lo68cl.tar.gz -O -| tar -zxvf - -C "."; \
-	wget http://www.hepforge.org/archive/lhapdf/pdfsets/6.2.1/MSTW2008nlo68cl.tar.gz -O -| tar -zxvf - -C "."; \
-	wget http://www.hepforge.org/archive/lhapdf/pdfsets/6.2.1/MSTW2008nnlo68cl.tar.gz -O -| tar -zxvf - -C "."; \
-	wget http://www.hepforge.org/archive/lhapdf/pdfsets/6.2.1/MSTW2008lo90cl.tar.gz -O -| tar -zxvf - -C "."; \
-	wget http://www.hepforge.org/archive/lhapdf/pdfsets/6.2.1/MSTW2008nlo90cl.tar.gz -O -| tar -zxvf - -C "."; \
-	wget http://www.hepforge.org/archive/lhapdf/pdfsets/6.2.1/MSTW2008nnlo90cl.tar.gz -O -| tar -zxvf - -C "."; \
-	wget http://www.hepforge.org/archive/lhapdf/pdfsets/6.2.1/CT10.tar.gz -O -| tar -zxvf - -C "."; \
-	wget http://www.hepforge.org/archive/lhapdf/pdfsets/6.2.1/CT10nlo.tar.gz -O -| tar -zxvf - -C "."; \
-	wget http://www.hepforge.org/archive/lhapdf/pdfsets/6.2.1/CT10nnlo.tar.gz -O -| tar -zxvf - -C "."; \
-	wget http://www.hepforge.org/archive/lhapdf/pdfsets/6.2.1/cteq66.tar.gz -O -| tar -zxvf - -C "."; \
+	wget http://lhapdfsets.web.cern.ch/lhapdfsets/current/NNPDF30_nlo_as_0118.tar.gz -O -| tar -zxvf - -C "."; \
+	wget http://lhapdfsets.web.cern.ch/lhapdfsets/current/NNPDF23_nlo_as_0119.tar.gz -O -| tar -zxvf - -C "."; \
+	wget http://lhapdfsets.web.cern.ch/lhapdfsets/current/NNPDF23_nnlo_as_0119.tar.gz -O -| tar -zxvf - -C "."; \
+	wget http://lhapdfsets.web.cern.ch/lhapdfsets/current/MSTW2008lo68cl.tar.gz -O -| tar -zxvf - -C "."; \
+	wget http://lhapdfsets.web.cern.ch/lhapdfsets/current/MSTW2008nlo68cl.tar.gz -O -| tar -zxvf - -C "."; \
+	wget http://lhapdfsets.web.cern.ch/lhapdfsets/current/MSTW2008nnlo68cl.tar.gz -O -| tar -zxvf - -C "."; \
+	wget http://lhapdfsets.web.cern.ch/lhapdfsets/current/MSTW2008lo90cl.tar.gz -O -| tar -zxvf - -C "."; \
+	wget http://lhapdfsets.web.cern.ch/lhapdfsets/current/MSTW2008nlo90cl.tar.gz -O -| tar -zxvf - -C "."; \
+	wget http://lhapdfsets.web.cern.ch/lhapdfsets/current/MSTW2008nnlo90cl.tar.gz -O -| tar -zxvf - -C "."; \
+	wget http://lhapdfsets.web.cern.ch/lhapdfsets/current/CT10.tar.gz -O -| tar -zxvf - -C "."; \
+	wget http://lhapdfsets.web.cern.ch/lhapdfsets/current/CT10nlo.tar.gz -O -| tar -zxvf - -C "."; \
+	wget http://lhapdfsets.web.cern.ch/lhapdfsets/current/CT10nnlo.tar.gz -O -| tar -zxvf - -C "."; \
+	wget http://lhapdfsets.web.cern.ch/lhapdfsets/current/cteq66.tar.gz -O -| tar -zxvf - -C "."; \
 	
 	#wget http://www.hepforge.org/archive/lhapdf/pdfsets/6.2.1/cteq6mE.tar.gz -O -| tar -zxvf - -C "."; \
 
@@ -88,7 +88,7 @@ LHAPDF:
 	cd ../../../../;
 
 PYTHIA8:
-        @cd pythia8/176/; \
+	@cd pythia8/176/; \
         ./configure --enable-shared --lcgplatform=x86_64-slc5-gcc43-opt --with-hepmc=${BASE}/hepmc/install/ --with-hepmcversion=2.06.05; \
         make;
 

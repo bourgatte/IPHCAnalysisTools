@@ -4,8 +4,8 @@
 
 
 
-CXX           = g++ -Wno-deprecated -Wall
-LD            = g++ -Wno-deprecated -Wall
+CXX           = g++ -Wno-deprecated -Wall  -std=c++11 #-I$(ROOTSYS)/include -pthread -std=c++17 -m64 -I/opt/sbg/cms/safe1/cms/bourgatte/Tau/Temp/include -I../../ -c
+LD            = g++ -Wno-deprecated -Wall  -std=c++11 #-I$(ROOTSYS)/include -pthread -std=c++17 -m64 -I/opt/sbg/cms/safe1/cms/bourgatte/Tau/Temp/include -I../../ -c
 INSTALL	      = /usr/bin/install
 SHELL = /bin/sh
 

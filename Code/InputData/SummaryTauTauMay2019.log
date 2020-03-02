@@ -350,3 +350,6 @@ ID= 12210312 AllEvt= 1819.725990 AllEvtErr= 82.544369 SelEvt= 0.000000  SelEvtEr
 ID= 12210412 AllEvt= 4388.308000 AllEvtErr= 128.293173 SelEvt= 0.000000  SelEvtErr= 0.000000 AllEvtnoweight= 1174.000000 SelEvtnoweight= 0.000000 Nfile= 15 
 ID= 12230512 AllEvt= 1688.672800 AllEvtErr= 79.516613 SelEvt= 0.000000  SelEvtErr= 0.000000 AllEvtnoweight= 451.000000 SelEvtnoweight= 0.000000 Nfile= 15 
 ID= 30530512 AllEvt= 47998.064400 AllEvtErr= 424.163516 SelEvt= 0.000000  SelEvtErr= 0.000000 AllEvtnoweight= 12833.000000 SelEvtnoweight= 0.000000 Nfile= 16 
+
+
+ID= 60 AllEvt= 5145606.000000 AllEvtErr= 2743.953552 SelEvt= 1732.000000 SelEvtErr= 41.617309 AllEvtnoweight= 7529312.000000 SelEvtnoweight= 1732.000000 Nfile= 301

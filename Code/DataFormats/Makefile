@@ -5,8 +5,8 @@ include ../make.inc
 
 
 
-CXX           = g++ -Wno-deprecated -Wall
-LD            = g++ -Wno-deprecated -Wall
+CXX           = g++ -Wno-deprecated -Wall -std=c++11
+LD            = g++ -Wno-deprecated -Wall -std=c++11
 INSTALL	      = /usr/bin/install
 SHELL = /bin/sh
 
@@ -16,7 +16,7 @@ SHELL = /bin/sh
 
 override CXXFLAGS += -I$(ROOTSYS)/include -I./ -c
 LDFLAGS       =  -fPIC
-ROOTLIBS      =  -L$(ROOTSYS)/lib -L/usr/lib/ -L/lib/i686/  -lCore -lCint -lHist -lGraf  -lGraf3d -lGpad -lTree -lRint -lReflexDict -lReflex -lPostscript -lMatrix -lPhysics -lMinuit2 -lGui -LObj -lThread -rdynamic -Wl,--rpath $(ROOTSYS)/lib
+ROOTLIBS      =  -L$(ROOTSYS)/lib -L/usr/lib/ -L/lib/i686/  -lCore -lHist -lGraf  -lGraf3d -lGpad -lTree -lRint  -lPostscript -lMatrix -lPhysics -lMinuit2 -lGui -LObj -lThread -rdynamic -Wl,--rpath $(ROOTSYS)/lib
 
 DEFS  	      = -DSTANDALONE=1
 LIBS          = $(ROOTLIBS) $(SHAREDLIBFLAGS)
@@ -48,7 +48,7 @@ ROOTCINT: $(HDRS)  Linkdef.h
 	 rootcint -f MyDict.cxx -c  $^
 
 $(OBJS): MyDict.cxx 
-	g++ -shared -rdynamic  -o $@ `root-config --ldflags` $(CXXFLAGS) $(LDFLAGS) $(ROOTLIBS) $^
+	$(LD) -shared -rdynamic  -o $@ `root-config --ldflags` $(CXXFLAGS) $(LDFLAGS) $(ROOTLIBS) $^
 
 .PHONY: clean install 
 

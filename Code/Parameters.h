@@ -1,6 +1,20 @@
 #ifndef Parameters_h
 #define Parameters_h
 
+#include <cstdlib>
+#include <algorithm>                                     
+#include <iostream>
+#include <iomanip>
+#include <string>
+#include <fstream>
+#include <sstream>
+#include "Riostream.h"
+#include <fstream>
+#include <istream>
+#include <strstream>
+#include <cstdlib>
+#include <math.h>
+
 #include <vector>
 #include "TString.h"
 
@@ -23,7 +37,7 @@ class Parameters {
 
  private:
   static TString file;
-
+  
   template<typename T> void GetParameter(TString p, T &v, T dv);
 
 };
