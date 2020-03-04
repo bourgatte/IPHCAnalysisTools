@@ -11,6 +11,7 @@ if [ "${1}"  == "--help" ]; then
     echo "--lebihan                 Configures the make file to compile files in the directory lebihan"
     echo "--gbourgat                Configures the make file to compile files in the directory gbourgat"
     echo "--cgrimault               Configures the make file to compile files in the directory cgrimault"
+    
 
 
 
