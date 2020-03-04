@@ -41,6 +41,11 @@ if($UserID eq "cgrimault"){
     $UserName="Clement";
 }
 
+if($UserID eq "msessini"){
+    $UserIDCern="msessini";
+    $UserDir="--msessini";
+    $UserName="Mario";
+}
 
 #Default values
 $InputDir="/home-pbs/$UserID/InputTest";

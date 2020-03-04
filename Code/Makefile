@@ -112,7 +112,10 @@ ifdef USE_cgrimault
 	DEFS += -DUSE_cgrimault=1
 endif
 
-
+ifdef USE_msessini
+	TARGETS += HCPTauTau
+	DEFS += -DUSE_msessini=1
+endif
 
 
 
@@ -152,6 +155,11 @@ endif
 ifdef USE_cgrimault
 	vpath %.cxx cgrimault 
 	vpath %.h cgrimault
+endif
+
+ifdef USE_msessini
+	vpath %.cxx msessini 
+	vpath %.h msessini
 endif
 
 

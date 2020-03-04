@@ -38,7 +38,11 @@
 
 #endif
 
+#ifdef USE_msessini
 
+#include "msessini/HCPTauTau.h"
+
+#endif
 
 Selection_Factory::Selection_Factory(){
 }
@@ -85,6 +89,12 @@ Selection_Base* Selection_Factory::Factory(TString Analysis, TString UncertType,
 #ifdef USE_gbourgat
 
   //else if(Analysis.Contains("htautau"))s=new HTauTau(Analysis,UncertType);
+  else if(Analysis.Contains("hcptautau"))s=new HCPTauTau(Analysis,UncertType);
+
+#endif
+
+#ifdef USE_msessini
+
   else if(Analysis.Contains("hcptautau"))s=new HCPTauTau(Analysis,UncertType);
 
 #endif
