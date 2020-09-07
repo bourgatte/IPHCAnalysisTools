@@ -107,11 +107,17 @@ class NtupleReader {
   vector<int>     *daughters_isTauMatched;
   Int_t           PUNumInteractions;
   vector<int>     *daughters_genindex;
-  Float_t         MC_weight;
-  Float_t         MC_weight_scale_muF0p5;
-  Float_t         MC_weight_scale_muF2;
-  Float_t         MC_weight_scale_muR0p5;
-  Float_t         MC_weight_scale_muR2;
+  Double_t         MC_weight;
+  Double_t         MC_weight_scale_muF0p5;
+  Double_t         MC_weight_scale_muF2;
+  Double_t         MC_weight_scale_muR0p5;
+  Double_t         MC_weight_scale_muR2;
+  Float_t         nominal_wt;
+  vector<double> *TheoreticalPSUnc;
+  Double_t          TheoreticalScaleUnc1005;
+  Double_t          TheoreticalScaleUnc1009;
+  Double_t          TheoreticalScaleUnc5;
+  Double_t          TheoreticalScaleUnc9;
   Float_t         lheHt;
   Int_t           lheNOutPartons;
   Int_t           lheNOutB;
@@ -356,6 +362,15 @@ class NtupleReader {
   vector<float>   *jets_py;
   vector<float>   *jets_pz;
   vector<float>   *jets_e;
+  vector<float>   *jetsDown_px;
+  vector<float>   *jetsDown_py;
+  vector<float>   *jetsDown_pz;
+  vector<float>   *jetsDown_e;
+  vector<float>   *jetsUp_px;
+  vector<float>   *jetsUp_py;
+  vector<float>   *jetsUp_pz;
+  vector<float>   *jetsUp_e;
+  
   vector<float>   *jetRawf;
   vector<float>   *jets_area;
   std::vector<Float_t> *jets_JER;
@@ -385,6 +400,28 @@ class NtupleReader {
   vector<int>     *_jets_neMult;
   vector<int>     *_jets_chMult;
   vector<float>   *jets_jecUnc;
+  vector<float>   *jets_jetUnc_Absolute_up;
+  vector<float>   *jets_jetUnc_FlavorQCD_up;
+  vector<float>   *jets_jetUnc_RelativeBal_up;
+  vector<float>   *jets_jetUnc_HF_up;
+  vector<float>   *jets_jetUnc_BBEC1_up;
+  vector<float>   *jets_jetUnc_EC2_up;
+  vector<float>   *jets_jetUnc_BBEC1_YEAR_up;
+  vector<float>   *jets_jetUnc_EC2_YEAR_up;
+  vector<float>   *jets_jetUnc_Absolute_YEAR_up;
+  vector<float>   *jets_jetUnc_HF_YEAR_up;
+  vector<float>   *jets_jetUnc_RelativeSample_YEAR_up;
+  vector<float>   *jets_jetUnc_Absolute_dw;
+  vector<float>   *jets_jetUnc_FlavorQCD_dw;
+  vector<float>   *jets_jetUnc_RelativeBal_dw;
+  vector<float>   *jets_jetUnc_HF_dw;
+  vector<float>   *jets_jetUnc_BBEC1_dw;
+  vector<float>   *jets_jetUnc_EC2_dw;
+  vector<float>   *jets_jetUnc_BBEC1_YEAR_dw;
+  vector<float>   *jets_jetUnc_EC2_YEAR_dw;
+  vector<float>   *jets_jetUnc_Absolute_YEAR_dw;
+  vector<float>   *jets_jetUnc_HF_YEAR_dw;
+  vector<float>   *jets_jetUnc_RelativeSample_YEAR_dw;
   vector<float>   *bDiscriminator;
   vector<float>   *bCSVscore;
   vector<float>   *pfCombinedMVAV2BJetTags;
@@ -445,6 +482,14 @@ class NtupleReader {
   vector<Float_t>         *RefitPVBS_y;
   vector<Float_t>         *RefitPVBS_z;
 
+  Float_t          RefitPVWithTracksBS_x;
+  Float_t          RefitPVWithTracksBS_y;
+  Float_t          RefitPVWithTracksBS_z;
+
+  Float_t          RefitPVWithTracksBS_xError;
+  Float_t          RefitPVWithTracksBS_yError;
+  Float_t          RefitPVWithTracksBS_zError;
+
   std::vector<Float_t> *RefitPVBS_xError,  *RefitPVBS_yError, *RefitPVBS_zError;
   std::vector<Float_t> *RefitPVNoBS_xError,  *RefitPVNoBS_yError, *RefitPVNoBS_zError;
    
@@ -489,14 +534,27 @@ class NtupleReader {
   Float_t met;
   Float_t metphi;
   Float_t PUPPImet;
+  Float_t puppimet_ex_UnclusteredEnUp;
+  Float_t puppimet_ey_UnclusteredEnUp;
+  Float_t puppimet_ex_UnclusteredEnDown;
+  Float_t puppimet_ey_UnclusteredEnDown;
   Float_t PUPPImetphi;
   Float_t PFMETCov00;
   Float_t PFMETCov01;
   Float_t PFMETCov10;
   Float_t PFMETCov11;
-  
+  Float_t PUPPIMETCov00;
+  Float_t PUPPIMETCov01;
+  Float_t PUPPIMETCov10;
+  Float_t PUPPIMETCov11;
+
   std::vector<Float_t> *mjj;
   std::vector<Float_t> *jdeta;
+  std::vector<Float_t> *mjjDown;
+  std::vector<Float_t> *jdetaDown;
+  std::vector<Float_t> *mjjUp;
+  std::vector<Float_t> *jdetaUp;
+  
   std::vector<Int_t> *njetingap;
   std::vector<Int_t> *njetingap20;
   std::vector<Float_t> *jdphi;
@@ -507,7 +565,14 @@ class NtupleReader {
   std::vector<Int_t> *nbtag;
   std::vector<Int_t> *njets;
   std::vector<Int_t> *njetspt20;
+  std::vector<Int_t> *njetsUp;
+  std::vector<Int_t> *njetspt20Up;
+  std::vector<Int_t> *njetsDown;
+  std::vector<Int_t> *njetspt20Down;
   std::vector<Float_t> *jpt_1;
+  std::vector<Float_t> *jptDown_1;
+  std::vector<Float_t> *jptUp_1;
+  
   std::vector<Float_t> *jeta_1;
   std::vector<Float_t> *jphi_1;
   std::vector<Float_t> *jcsv_1;
@@ -692,6 +757,13 @@ class NtupleReader {
   TBranch        *b_MC_weight_scale_muF2;   //!
   TBranch        *b_MC_weight_scale_muR0p5;   //!
   TBranch        *b_MC_weight_scale_muR2;   //!
+  TBranch        *b_nominal_wt;
+  TBranch        *b_TheoreticalPSUnc;
+  TBranch        *b_TheoreticalScaleUnc1005;
+  TBranch        *b_TheoreticalScaleUnc1009;
+  TBranch        *b_TheoreticalScaleUnc5;
+  TBranch        *b_TheoreticalScaleUnc9;
+  
   TBranch        *b_lheHt;   //!
   TBranch        *b_lheNOutPartons;   //!
   TBranch        *b_lheNOutB;   //!
@@ -936,6 +1008,14 @@ class NtupleReader {
   TBranch        *b_jets_py;   //!
   TBranch        *b_jets_pz;   //!
   TBranch        *b_jets_e;   //!
+  TBranch        *b_jetsDown_px;
+  TBranch        *b_jetsDown_py;
+  TBranch        *b_jetsDown_pz;
+  TBranch        *b_jetsDown_e;
+  TBranch        *b_jetsUp_px;
+  TBranch        *b_jetsUp_py;
+  TBranch        *b_jetsUp_pz;
+  TBranch        *b_jetsUp_e;
   TBranch        *b_jetRawf;   //!
   TBranch        *b_jets_area;   //!
   TBranch        *b_jets_JER;
@@ -965,6 +1045,28 @@ class NtupleReader {
   TBranch        *b_jets_neMult;   //!
   TBranch        *b_jets_chMult;   //!
   TBranch        *b_jets_jecUnc;   //!
+  TBranch   *b_jets_jetUnc_Absolute_up;
+  TBranch   *b_jets_jetUnc_FlavorQCD_up;
+  TBranch   *b_jets_jetUnc_RelativeBal_up;
+  TBranch   *b_jets_jetUnc_HF_up;
+  TBranch   *b_jets_jetUnc_BBEC1_up;
+  TBranch   *b_jets_jetUnc_EC2_up;
+  TBranch   *b_jets_jetUnc_BBEC1_YEAR_up;
+  TBranch   *b_jets_jetUnc_EC2_YEAR_up;
+  TBranch   *b_jets_jetUnc_Absolute_YEAR_up;
+  TBranch   *b_jets_jetUnc_HF_YEAR_up;
+  TBranch   *b_jets_jetUnc_RelativeSample_YEAR_up;
+  TBranch   *b_jets_jetUnc_Absolute_dw;
+  TBranch   *b_jets_jetUnc_FlavorQCD_dw;
+  TBranch   *b_jets_jetUnc_RelativeBal_dw;
+  TBranch   *b_jets_jetUnc_HF_dw;
+  TBranch   *b_jets_jetUnc_BBEC1_dw;
+  TBranch   *b_jets_jetUnc_EC2_dw;
+  TBranch   *b_jets_jetUnc_BBEC1_YEAR_dw;
+  TBranch   *b_jets_jetUnc_EC2_YEAR_dw;
+  TBranch   *b_jets_jetUnc_Absolute_YEAR_dw;
+  TBranch   *b_jets_jetUnc_HF_YEAR_dw;
+  TBranch   *b_jets_jetUnc_RelativeSample_YEAR_dw;
   TBranch        *b_PFJet_chargedMultiplicity;   //!
   TBranch        *b_PFJet_neutralMultiplicity;   //!
   TBranch        *b_PFJet_chargedEmEnergyFraction;   //!
@@ -1035,6 +1137,14 @@ class NtupleReader {
   TBranch        *b_RefitPVBS_xError;
   TBranch        *b_RefitPVBS_yError;
   TBranch        *b_RefitPVBS_zError;
+  
+  TBranch        *b_RefitPVWithTracksBS_x;
+  TBranch        *b_RefitPVWithTracksBS_y;
+  TBranch        *b_RefitPVWithTracksBS_z;
+  TBranch        *b_RefitPVWithTracksBS_xError;
+  TBranch        *b_RefitPVWithTracksBS_yError;
+  TBranch        *b_RefitPVWithTracksBS_zError;
+  
   TBranch        *b_pvGen_x;   //!
   TBranch        *b_pvGen_y;   //!
   TBranch        *b_pvGen_z;   //!
@@ -1078,14 +1188,27 @@ class NtupleReader {
   TBranch *b_met;
   TBranch *b_metphi;
   TBranch *b_PUPPImet;
+  TBranch *b_puppimet_ex_UnclusteredEnUp;
+  TBranch *b_puppimet_ey_UnclusteredEnUp;
+  TBranch *b_puppimet_ex_UnclusteredEnDown;
+  TBranch *b_puppimet_ey_UnclusteredEnDown;
   TBranch *b_PUPPImetphi;
   TBranch *b_PFMETCov00;
   TBranch *b_PFMETCov01;
   TBranch *b_PFMETCov10;
   TBranch *b_PFMETCov11;
+  TBranch *b_PUPPIMETCov00;
+  TBranch *b_PUPPIMETCov01;
+  TBranch *b_PUPPIMETCov10;
+  TBranch *b_PUPPIMETCov11;
   
   TBranch  *b_mjj;
   TBranch  *b_jdeta;
+  TBranch  *b_mjjDown;
+  TBranch  *b_jdetaDown;
+  TBranch  *b_mjjUp;
+  TBranch  *b_jdetaUp;
+  
   TBranch  *b_njetingap;
   TBranch  *b_njetingap20;
   TBranch  *b_jdphi;
@@ -1096,7 +1219,14 @@ class NtupleReader {
   TBranch  *b_nbtag;
   TBranch  *b_njets;
   TBranch  *b_njetspt20;
+  TBranch  *b_njetsUp;
+  TBranch  *b_njetspt20Up;
+  TBranch  *b_njetsDown;
+  TBranch  *b_njetspt20Down;
   TBranch  *b_jpt_1;
+  TBranch  *b_jptDown_1;
+  TBranch  *b_jptUp_1;
+  
   TBranch  *b_jeta_1;
   TBranch  *b_jphi_1;
   TBranch  *b_jcsv_1;
@@ -1231,7 +1361,7 @@ NtupleReader::NtupleReader(TTree *tree) : fChain(0)
     if (!f || !f->IsOpen()) {
       f = new TFile("Memory Directory");
     }
-    f->GetObject("HTauTauTree",tree);
+    f->GetObject("HTauTauTree/HTauTauTree",tree);
 
 #else // SINGLE_TREE
 
@@ -1331,6 +1461,7 @@ void NtupleReader::Init(TTree *tree)
   /* daughters_e_EleDown = 0; */
   daughters_isTauMatched =0;
   daughters_genindex = 0;
+  TheoreticalPSUnc=0;
   genpart_px = 0;
   genpart_py = 0;
   genpart_pz = 0;
@@ -1569,6 +1700,14 @@ void NtupleReader::Init(TTree *tree)
   jets_py = 0;
   jets_pz = 0;
   jets_e = 0;
+  jetsDown_px = 0;
+  jetsDown_py = 0;
+  jetsDown_pz = 0;
+  jetsDown_e = 0;
+  jetsUp_px = 0;
+  jetsUp_py = 0;
+  jetsUp_pz = 0;
+  jetsUp_e = 0;
   jetRawf = 0;
   jets_area = 0;
   jets_JER = 0;
@@ -1598,6 +1737,28 @@ void NtupleReader::Init(TTree *tree)
   _jets_neMult = 0;
   _jets_chMult = 0;
   jets_jecUnc = 0;
+  jets_jetUnc_Absolute_up=0;
+  jets_jetUnc_FlavorQCD_up=0;
+  jets_jetUnc_RelativeBal_up=0;
+  jets_jetUnc_HF_up=0;
+  jets_jetUnc_BBEC1_up=0;
+  jets_jetUnc_EC2_up=0;
+  jets_jetUnc_BBEC1_YEAR_up=0;
+  jets_jetUnc_EC2_YEAR_up=0;
+  jets_jetUnc_Absolute_YEAR_up=0;
+  jets_jetUnc_HF_YEAR_up=0;
+  jets_jetUnc_RelativeSample_YEAR_up=0;
+  jets_jetUnc_Absolute_dw=0;
+  jets_jetUnc_FlavorQCD_dw=0;
+  jets_jetUnc_RelativeBal_dw=0;
+  jets_jetUnc_HF_dw=0;
+  jets_jetUnc_BBEC1_dw=0;
+  jets_jetUnc_EC2_dw=0;
+  jets_jetUnc_BBEC1_YEAR_dw=0;
+  jets_jetUnc_EC2_YEAR_dw=0;
+  jets_jetUnc_Absolute_YEAR_dw=0;
+  jets_jetUnc_HF_YEAR_dw=0;
+  jets_jetUnc_RelativeSample_YEAR_dw=0;
   bDiscriminator = 0;
   bCSVscore = 0;
   pfCombinedMVAV2BJetTags = 0;
@@ -1663,7 +1824,7 @@ void NtupleReader::Init(TTree *tree)
   RefitPVBS_xError = 0;
   RefitPVBS_yError = 0;
   RefitPVBS_zError = 0;
-
+  
   LeptonHash = 0;
   VertexHashNoBS1 = 0;
   VertexHashNoBS2 = 0;
@@ -1695,6 +1856,11 @@ void NtupleReader::Init(TTree *tree)
   
   mjj=0;
   jdeta=0;
+  mjjDown=0;
+  jdetaDown=0;
+  mjjUp=0;
+  jdetaUp=0;
+  
   njetingap=0;
   njetingap20=0;
   jdphi=0;
@@ -1705,7 +1871,14 @@ void NtupleReader::Init(TTree *tree)
   nbtag=0;
   njets=0;
   njetspt20=0;
+  njetsUp=0;
+  njetspt20Up=0;
+  njetsDown=0;
+  njetspt20Down=0;
   jpt_1=0;
+  jptDown_1=0;
+  jptUp_1=0;
+  
   jeta_1=0;
   jphi_1=0;
   jcsv_1=0;
@@ -1891,6 +2064,13 @@ void NtupleReader::Init(TTree *tree)
   fChain->SetBranchAddress("MC_weight_scale_muF2", &MC_weight_scale_muF2, &b_MC_weight_scale_muF2);
   fChain->SetBranchAddress("MC_weight_scale_muR0p5", &MC_weight_scale_muR0p5, &b_MC_weight_scale_muR0p5);
   fChain->SetBranchAddress("MC_weight_scale_muR2", &MC_weight_scale_muR2, &b_MC_weight_scale_muR2);
+  fChain->SetBranchAddress("_nominal_wt", &nominal_wt, &b_nominal_wt);
+  fChain->SetBranchAddress("TheoreticalPSUnc", &TheoreticalPSUnc, &b_TheoreticalPSUnc);
+  fChain->SetBranchAddress("TheoreticalScaleUnc1005", &TheoreticalScaleUnc1005, &b_TheoreticalScaleUnc1005);
+  fChain->SetBranchAddress("TheoreticalScaleUnc1009", &TheoreticalScaleUnc1009, &b_TheoreticalScaleUnc1009);
+  fChain->SetBranchAddress("TheoreticalScaleUnc5", &TheoreticalScaleUnc5, &b_TheoreticalScaleUnc5);
+  fChain->SetBranchAddress("TheoreticalScaleUnc9", &TheoreticalScaleUnc9, &b_TheoreticalScaleUnc9);
+  
   fChain->SetBranchAddress("lheHt", &lheHt, &b_lheHt);
   fChain->SetBranchAddress("lheNOutPartons", &lheNOutPartons, &b_lheNOutPartons);
   fChain->SetBranchAddress("lheNOutB", &lheNOutB, &b_lheNOutB);
@@ -2135,6 +2315,14 @@ void NtupleReader::Init(TTree *tree)
   fChain->SetBranchAddress("jets_py", &jets_py, &b_jets_py);
   fChain->SetBranchAddress("jets_pz", &jets_pz, &b_jets_pz);
   fChain->SetBranchAddress("jets_e", &jets_e, &b_jets_e);
+  fChain->SetBranchAddress("jetsDown_px", &jetsDown_px, &b_jetsDown_px);
+  fChain->SetBranchAddress("jetsDown_py", &jetsDown_py, &b_jetsDown_py);
+  fChain->SetBranchAddress("jetsDown_pz", &jetsDown_pz, &b_jetsDown_pz);
+  fChain->SetBranchAddress("jetsDown_e", &jetsDown_e, &b_jetsDown_e);
+  fChain->SetBranchAddress("jetsUp_px", &jetsUp_px, &b_jetsUp_px);
+  fChain->SetBranchAddress("jetsUp_py", &jetsUp_py, &b_jetsUp_py);
+  fChain->SetBranchAddress("jetsUp_pz", &jetsUp_pz, &b_jetsUp_pz);
+  fChain->SetBranchAddress("jetsUp_e", &jetsUp_e, &b_jetsUp_e);
   fChain->SetBranchAddress("jetRawf", &jetRawf, &b_jetRawf);
   fChain->SetBranchAddress("jets_area", &jets_area, &b_jets_area);
   fChain->SetBranchAddress("jets_JER",&jets_JER, &b_jets_JER);
@@ -2165,12 +2353,30 @@ void NtupleReader::Init(TTree *tree)
   fChain->SetBranchAddress("jets_chMult", &_jets_chMult, &b_jets_chMult);
   fChain->SetBranchAddress("jets_jecUnc", &jets_jecUnc, &b_jets_jecUnc);
   // JEC Uncertainty sources
-  /* fChain->SetBranchAddress("jets_jetUnc_AbsoluteFlavMap_up"  , &_SourceUncVal_up["AbsoluteFlavMap"]); // up variations */
-  /* fChain->SetBranchAddress("jets_jetUnc_AbsoluteMPFBias_up"  , &_SourceUncVal_up["AbsoluteMPFBias"]); */
-  /* fChain->SetBranchAddress("jets_jetUnc_AbsoluteSample_up"   , &_SourceUncVal_up["AbsoluteSample"]); */
-  /* fChain->SetBranchAddress("jets_jetUnc_AbsoluteScale_up"    , &_SourceUncVal_up["AbsoluteScale"]); */
-  /* fChain->SetBranchAddress("jets_jetUnc_AbsoluteStat_up"     , &_SourceUncVal_up["AbsoluteStat"]); */
-  /* fChain->SetBranchAddress("jets_jetUnc_FlavorQCD_up"        , &_SourceUncVal_up["FlavorQCD"]); */
+  fChain->SetBranchAddress("jets_jetUncRegrouped_Absolute_up"  , &jets_jetUnc_Absolute_up, &b_jets_jetUnc_Absolute_up); // up variations
+  fChain->SetBranchAddress("jets_jetUncRegrouped_FlavorQCD_up"        , &jets_jetUnc_FlavorQCD_up,&b_jets_jetUnc_FlavorQCD_up);
+  fChain->SetBranchAddress("jets_jetUncRegrouped_RelativeBal_up"      , &jets_jetUnc_RelativeBal_up, &b_jets_jetUnc_RelativeBal_up);
+  fChain->SetBranchAddress("jets_jetUncRegrouped_HF_up"      , &jets_jetUnc_HF_up, &b_jets_jetUnc_HF_up);
+  fChain->SetBranchAddress("jets_jetUncRegrouped_BBEC1_up"      , &jets_jetUnc_BBEC1_up, &b_jets_jetUnc_BBEC1_up);
+  fChain->SetBranchAddress("jets_jetUncRegrouped_EC2_up"      , &jets_jetUnc_EC2_up, &b_jets_jetUnc_EC2_up);
+  fChain->SetBranchAddress("jets_jetUncRegrouped_BBEC1_YEAR_up"      , &jets_jetUnc_BBEC1_YEAR_up, &b_jets_jetUnc_BBEC1_YEAR_up);
+  fChain->SetBranchAddress("jets_jetUncRegrouped_EC2_YEAR_up"      , &jets_jetUnc_EC2_YEAR_up, &b_jets_jetUnc_EC2_YEAR_up);
+  fChain->SetBranchAddress("jets_jetUncRegrouped_Absolute_YEAR_up"      , &jets_jetUnc_Absolute_YEAR_up, &b_jets_jetUnc_Absolute_YEAR_up);
+  fChain->SetBranchAddress("jets_jetUncRegrouped_HF_YEAR_up"      , &jets_jetUnc_HF_YEAR_up, &b_jets_jetUnc_HF_YEAR_up);
+  fChain->SetBranchAddress("jets_jetUncRegrouped_RelativeSample_YEAR_up"      , &jets_jetUnc_RelativeSample_YEAR_up, &b_jets_jetUnc_RelativeSample_YEAR_up);
+
+  fChain->SetBranchAddress("jets_jetUncRegrouped_Absolute_dw"  , &jets_jetUnc_Absolute_dw, &b_jets_jetUnc_Absolute_dw); // up variations
+  fChain->SetBranchAddress("jets_jetUncRegrouped_FlavorQCD_dw"        , &jets_jetUnc_FlavorQCD_dw,&b_jets_jetUnc_FlavorQCD_dw);
+  fChain->SetBranchAddress("jets_jetUncRegrouped_RelativeBal_dw"      , &jets_jetUnc_RelativeBal_dw, &b_jets_jetUnc_RelativeBal_dw);
+  fChain->SetBranchAddress("jets_jetUncRegrouped_HF_dw"      , &jets_jetUnc_HF_dw, &b_jets_jetUnc_HF_dw);
+  fChain->SetBranchAddress("jets_jetUncRegrouped_BBEC1_dw"      , &jets_jetUnc_BBEC1_dw, &b_jets_jetUnc_BBEC1_dw);
+  fChain->SetBranchAddress("jets_jetUncRegrouped_EC2_dw"      , &jets_jetUnc_EC2_dw, &b_jets_jetUnc_EC2_dw);
+  fChain->SetBranchAddress("jets_jetUncRegrouped_BBEC1_YEAR_dw"      , &jets_jetUnc_BBEC1_YEAR_dw, &b_jets_jetUnc_BBEC1_YEAR_dw);
+  fChain->SetBranchAddress("jets_jetUncRegrouped_EC2_YEAR_dw"      , &jets_jetUnc_EC2_YEAR_dw, &b_jets_jetUnc_EC2_YEAR_dw);
+  fChain->SetBranchAddress("jets_jetUncRegrouped_Absolute_YEAR_dw"      , &jets_jetUnc_Absolute_YEAR_dw, &b_jets_jetUnc_Absolute_YEAR_dw);
+  fChain->SetBranchAddress("jets_jetUncRegrouped_HF_YEAR_dw"      , &jets_jetUnc_HF_YEAR_dw, &b_jets_jetUnc_HF_YEAR_dw);
+  fChain->SetBranchAddress("jets_jetUncRegrouped_RelativeSample_YEAR_dw"      , &jets_jetUnc_RelativeSample_YEAR_dw, &b_jets_jetUnc_RelativeSample_YEAR_dw);
+
   /* fChain->SetBranchAddress("jets_jetUnc_Fragmentation_up"    , &_SourceUncVal_up["Fragmentation"]); */
   /* fChain->SetBranchAddress("jets_jetUnc_PileUpDataMC_up"     , &_SourceUncVal_up["PileUpDataMC"]); */
   /* fChain->SetBranchAddress("jets_jetUnc_PileUpPtBB_up"       , &_SourceUncVal_up["PileUpPtBB"]); */
@@ -2178,7 +2384,7 @@ void NtupleReader::Init(TTree *tree)
   /* fChain->SetBranchAddress("jets_jetUnc_PileUpPtEC2_up"      , &_SourceUncVal_up["PileUpPtEC2"]); */
   /* fChain->SetBranchAddress("jets_jetUnc_PileUpPtHF_up"       , &_SourceUncVal_up["PileUpPtHF"]); */
   /* fChain->SetBranchAddress("jets_jetUnc_PileUpPtRef_up"      , &_SourceUncVal_up["PileUpPtRef"]); */
-  /* fChain->SetBranchAddress("jets_jetUnc_RelativeBal_up"      , &_SourceUncVal_up["RelativeBal"]); */
+
   /* fChain->SetBranchAddress("jets_jetUnc_RelativeFSR_up"      , &_SourceUncVal_up["RelativeFSR"]); */
   /* fChain->SetBranchAddress("jets_jetUnc_RelativeJEREC1_up"   , &_SourceUncVal_up["RelativeJEREC1"]); */
   /* fChain->SetBranchAddress("jets_jetUnc_RelativeJEREC2_up"   , &_SourceUncVal_up["RelativeJEREC2"]); */
@@ -2298,6 +2504,13 @@ void NtupleReader::Init(TTree *tree)
   fChain->SetBranchAddress("RefitPVNoBS_yError", &RefitPVNoBS_yError, &b_RefitPVNoBS_yError);
   fChain->SetBranchAddress("RefitPVNoBS_zError", &RefitPVNoBS_zError, &b_RefitPVNoBS_zError);
 
+  fChain->SetBranchAddress("pvRefit_x", &RefitPVWithTracksBS_x, &b_RefitPVWithTracksBS_x);
+  fChain->SetBranchAddress("pvRefit_y", &RefitPVWithTracksBS_y, &b_RefitPVWithTracksBS_y);
+  fChain->SetBranchAddress("pvRefit_z", &RefitPVWithTracksBS_z, &b_RefitPVWithTracksBS_z);
+  fChain->SetBranchAddress("pvRefit_xError", &RefitPVWithTracksBS_xError, &b_RefitPVWithTracksBS_xError);
+  fChain->SetBranchAddress("pvRefit_yError", &RefitPVWithTracksBS_yError, &b_RefitPVWithTracksBS_yError);
+  fChain->SetBranchAddress("pvRefit_zError", &RefitPVWithTracksBS_zError, &b_RefitPVWithTracksBS_zError);
+  
   fChain->SetBranchAddress("pvGen_x", &pvGen_x, &b_pvGen_x);
   fChain->SetBranchAddress("pvGen_y", &pvGen_y, &b_pvGen_y);
   fChain->SetBranchAddress("pvGen_z", &pvGen_z, &b_pvGen_z);
@@ -2330,13 +2543,26 @@ void NtupleReader::Init(TTree *tree)
   fChain->SetBranchAddress("mt_tot", &mt_tot,&b_mt_tot);
   //  fChain->SetBranchAddress("m_vis", &m_vis,&b_m_vis);
   fChain->SetBranchAddress("PUPPImet",&PUPPImet,&b_PUPPImet);
+  fChain->SetBranchAddress("puppimet_ex_UnclusteredEnUp",&puppimet_ex_UnclusteredEnUp,&b_puppimet_ex_UnclusteredEnUp);
+  fChain->SetBranchAddress("puppimet_ey_UnclusteredEnUp",&puppimet_ey_UnclusteredEnUp,&b_puppimet_ey_UnclusteredEnUp);
+  fChain->SetBranchAddress("puppimet_ex_UnclusteredEnDown",&puppimet_ex_UnclusteredEnDown,&b_puppimet_ex_UnclusteredEnDown);
+  fChain->SetBranchAddress("puppimet_ey_UnclusteredEnDown",&puppimet_ey_UnclusteredEnDown,&b_puppimet_ey_UnclusteredEnDown);
   fChain->SetBranchAddress("PUPPImetphi",&PUPPImetphi,&b_PUPPImetphi);
   fChain->SetBranchAddress("metcov00",&PFMETCov00,&b_PFMETCov00);
   fChain->SetBranchAddress("metcov01",&PFMETCov01,&b_PFMETCov01);
   fChain->SetBranchAddress("metcov10",&PFMETCov10,&b_PFMETCov10);
   fChain->SetBranchAddress("metcov11",&PFMETCov11,&b_PFMETCov11);
+  fChain->SetBranchAddress("puppimetcov00",&PUPPIMETCov00,&b_PUPPIMETCov00);
+  fChain->SetBranchAddress("puppimetcov01",&PUPPIMETCov01,&b_PUPPIMETCov01);
+  fChain->SetBranchAddress("puppimetcov10",&PUPPIMETCov10,&b_PUPPIMETCov10);
+  fChain->SetBranchAddress("puppimetcov11",&PUPPIMETCov11,&b_PUPPIMETCov11);
   fChain->SetBranchAddress("mjj", &mjj,&b_mjj);
   fChain->SetBranchAddress("jdeta", &jdeta,&b_jdeta);
+  fChain->SetBranchAddress("mjjDown", &mjjDown,&b_mjjDown);
+  fChain->SetBranchAddress("jdetaDown", &jdetaDown,&b_jdetaDown);
+  fChain->SetBranchAddress("mjjUp", &mjjUp,&b_mjjUp);
+  fChain->SetBranchAddress("jdetaUp", &jdetaUp,&b_jdetaUp);
+  
   fChain->SetBranchAddress("njetingap", &njetingap,&b_njetingap);
   fChain->SetBranchAddress("njetingap20", &njetingap20,&b_njetingap20);
   fChain->SetBranchAddress("jdphi", &jdphi,&b_jdphi);
@@ -2346,7 +2572,14 @@ void NtupleReader::Init(TTree *tree)
   fChain->SetBranchAddress("nbtag",&nbtag,&b_nbtag);
   fChain->SetBranchAddress("njets", &njets,&b_njets);
   fChain->SetBranchAddress("njetspt20", &njetspt20,&b_njetspt20);
+  fChain->SetBranchAddress("njetsUp", &njetsUp,&b_njetsUp);
+  fChain->SetBranchAddress("njetspt20Up", &njetspt20Up,&b_njetspt20Up);
+  fChain->SetBranchAddress("njetsDown", &njetsDown,&b_njetsDown);
+  fChain->SetBranchAddress("njetspt20Down", &njetspt20Down,&b_njetspt20Down);
   fChain->SetBranchAddress("jpt_1", &jpt_1,&b_jpt_1);
+  fChain->SetBranchAddress("jptDown_1", &jptDown_1,&b_jptDown_1);
+  fChain->SetBranchAddress("jptUp_1", &jptUp_1,&b_jptUp_1);
+  
   fChain->SetBranchAddress("jeta_1", &jeta_1,&b_jeta_1);
   fChain->SetBranchAddress("jphi_1", &jphi_1,&b_jphi_1);
   fChain->SetBranchAddress("jcsv_1", &jcsv_1,&b_jcsv_1);

@@ -93,6 +93,7 @@ bool SkimConfig::Load(TString Name) {
 
 
 		 //		std::cout<< " skim ID   "<< id <<std::endl;
+		//cout<<"ID: "<<id<<endl;
 		SkimIDs.push_back(id);
 		NEvents.push_back(nevents);
 		NEventsErr.push_back(neventserr);
@@ -242,7 +243,6 @@ bool SkimConfig::CovertToHistoFormat() {
 		NEvents_noweight_new.push_back(0);
 		NEvents_noweight_sel_new.push_back(0);
 	}
-
 	for (unsigned int i = 0; i < SkimIDs_new.size(); i++) {
 		for (unsigned int j = 0; j < SkimIDs.size(); j++) {
 			if (SkimIDs.at(j) == SkimIDs_new.at(i)) {
@@ -257,22 +257,22 @@ bool SkimConfig::CovertToHistoFormat() {
 			}
 		}
 	}
-
 	for (unsigned int i = 0; i < SkimIDs_new.size(); i++) {
-		for (unsigned int j = 0; j < SkimIDs.size(); j++) {
-			if (!IDFlag.at(j)) {
-				if (SkimIDs.at(j) % 100 == SkimIDs_new.at(i)) {
-					Logger(Logger::Verbose) << "Found Master Decay: " << SkimIDs.at(j) << std::endl;
-					IDFlag.at(j) = true;
-					NEvents_new.at(i) += NEvents.at(j);
-					NEventsErr_new.at(i) += sqrt(NEventsErr.at(j) * NEventsErr.at(j) + NEventsErr_new.at(i) * NEventsErr_new.at(i));
-					NEvents_sel_new.at(i) += NEvents_sel.at(j);
-					NEventsErr_sel_new.at(i) += sqrt(NEventsErr_sel.at(j) * NEventsErr_sel.at(j) + NEventsErr_sel_new.at(i) * NEventsErr_sel_new.at(i));
-					NEvents_noweight_new.at(i) += NEvents_noweight.at(j);
-					NEvents_noweight_sel_new.at(i) += NEvents_noweight_sel.at(j);
-				}
-			}
-		}
+	  for (unsigned int j = 0; j < SkimIDs.size(); j++) {
+	    if (IDFlag.at(j)==false) {
+	      
+	      if (((SkimIDs.at(j) % 100 == SkimIDs_new.at(i)) && SkimIDs_new.at(i)!=60)||((SkimIDs.at(j) % 100 ==01) && SkimIDs_new.at(i)==201 && SkimIDs.at(j)!=1) ||((SkimIDs.at(j) % 100 ==02)&& SkimIDs_new.at(i)==202)||((SkimIDs.at(j) % 100 ==03)&&SkimIDs_new.at(i)==203)||((SkimIDs.at(j) % 100 ==60)&&SkimIDs_new.at(i)==460)||((SkimIDs.at(j) % 100 ==61)&&SkimIDs_new.at(i)==461)) {
+		Logger(Logger::Verbose) << "Found Master Decay: " << SkimIDs.at(j) << std::endl;
+		IDFlag.at(j) = true;
+		NEvents_new.at(i) += NEvents.at(j);
+		NEventsErr_new.at(i) += sqrt(NEventsErr.at(j) * NEventsErr.at(j) + NEventsErr_new.at(i) * NEventsErr_new.at(i));
+		NEvents_sel_new.at(i) += NEvents_sel.at(j);
+		NEventsErr_sel_new.at(i) += sqrt(NEventsErr_sel.at(j) * NEventsErr_sel.at(j) + NEventsErr_sel_new.at(i) * NEventsErr_sel_new.at(i));
+		NEvents_noweight_new.at(i) += NEvents_noweight.at(j);
+		NEvents_noweight_sel_new.at(i) += NEvents_noweight_sel.at(j);
+	      }
+	    }
+	  }
 	}
 
 	for (unsigned int i = 0; i < SkimIDs_new.size(); i++) {

@@ -1,10 +1,10 @@
 Thin: False
 Skim: False
-HistoFile: InputData/HistoHCPTauTauInclusive2016.txt
+HistoFile: InputData/HistoHCPTauTauInclusive_2016.txt
 Analysis: HCPTauTau
 UncertType: default
-SkimInfo: InputData/SummaryHCPTauTau2016.log
-Lumi: 35866.000
+SkimInfo: InputData/SkimSummary_2016_final.log
+Lumi: 35920.000
 PlotStyle: style2
 
 

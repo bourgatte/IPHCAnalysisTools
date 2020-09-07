@@ -91,21 +91,21 @@ void SCalculator::SortPions(std::vector<TLorentzVector>& pionsvec, std::vector<d
 {
   
   int npim(0),npip(0), npin(0);
-  int OSMCPionIndex(0);
-  int SSMCPion1Index(0);
-  int SSMCPion2Index(0);
-  int OSCharge(0);
-  int SS1Charge(0);
-  int SS2Charge(0);
+  int OSMCPionIndex(-99);
+  int SSMCPion1Index(-99);
+  int SSMCPion2Index(-99);
+  int OSCharge(-99);
+  int SS1Charge(-99);
+  int SS2Charge(-99);
  
   TLorentzVector os;
   TLorentzVector ss1;
   TLorentzVector ss2;
 
-  int MCNeutralPionIndex(0);
-  int MCChargedPionIndex(0);
-  int NeutralPionCharge(0);
-  int ChargedPionCharge(0);
+  int MCNeutralPionIndex(-99);
+  int MCChargedPionIndex(-99);
+  int NeutralPionCharge(-99);
+  int ChargedPionCharge(-99);
 
   TLorentzVector ChargedPion;
   TLorentzVector NeutralPion;
@@ -135,8 +135,8 @@ void SCalculator::SortPions(std::vector<TLorentzVector>& pionsvec, std::vector<d
 	    SSMCPion2Index=i;
 	  }
 	}
-      }
-      if( npip== 2 && npim==1){
+      } 
+      else if( npip== 2 && npim==1){
 	//cout<<"test 3"<<endl;
 	int nss=0;
 	for(unsigned int i=0; i<charges.size(); i++){
@@ -155,19 +155,27 @@ void SCalculator::SortPions(std::vector<TLorentzVector>& pionsvec, std::vector<d
 	  }
 	}
       }
-      os=pionsvec.at(OSMCPionIndex);
-      ss1=pionsvec.at(SSMCPion1Index);
-      ss2=pionsvec.at(SSMCPion2Index);
+      if(OSMCPionIndex!=-99 && SSMCPion1Index!=-99 && SSMCPion2Index!=-99){
+	os=pionsvec.at(OSMCPionIndex);
+	ss1=pionsvec.at(SSMCPion1Index);
+	ss2=pionsvec.at(SSMCPion2Index);
       
-      charges.clear();
-      charges.push_back(OSCharge);
-      charges.push_back(SS1Charge);
-      charges.push_back(SS2Charge);
+	charges.clear();
+	charges.push_back(OSCharge);
+	charges.push_back(SS1Charge);
+	charges.push_back(SS2Charge);
       
-      pionsvec.clear();
-      pionsvec.push_back(os);
-      pionsvec.push_back(ss1);
-      pionsvec.push_back(ss2);
+	pionsvec.clear();
+	pionsvec.push_back(os);
+	pionsvec.push_back(ss1);
+	pionsvec.push_back(ss2);
+      }
+      else{
+	charges.clear();
+	charges.push_back(-99);
+	charges.push_back(-99);
+	charges.push_back(-99);
+      }
     }
   
   if(charges.size()==2) //Rho
@@ -227,8 +235,10 @@ bool SCalculator::isOk(TString type1, TString type2, TLorentzVector tauMinus, st
   
   if(type1!="pion") Scalc1.SortPions(sumPionsMinus, sumPionsChargeMinus);
   if(type2!="pion") Scalc2.SortPions(sumPionsPlus, sumPionsChargePlus);
-  //cout<<"----------"<<endl;
-  //if(type1=="pion" && type2!="a1")
+  
+  bool isgoodcharge=true;
+  if(sumPionsChargeMinus.at(0)==-99 || sumPionsChargeMinus.at(1)==-99 || sumPionsChargeMinus.at(2)==-99 || sumPionsChargePlus.at(0)==-99 || sumPionsChargePlus.at(1)==-99 || sumPionsChargePlus.at(2)==-99)isgoodcharge=false;
+
   vector<TLorentzVector> tauandprodminus;
   vector<TLorentzVector> tauandprodplus;
   bool pionszero=false;
@@ -244,7 +254,7 @@ bool SCalculator::isOk(TString type1, TString type2, TLorentzVector tauMinus, st
   Scalc2.Configure(tauandprodplus,tauandprodminus.at(0)+tauandprodplus.at(0), +1);
   TVector3 h2=Scalc2.pv();
   
-  if(std::isnan(h1.Mag())==true || std::isnan(h2.Mag())==true || tauMinus==zeroLV || tauPlus==zeroLV || tauMinus==tauPlus || pionszero ||sumPionsPlus==sumPionsMinus) return false;
+  if(std::isnan(h1.Mag())==true || std::isnan(h2.Mag())==true || tauMinus==zeroLV || tauPlus==zeroLV || tauMinus==tauPlus || pionszero ||sumPionsPlus==sumPionsMinus || !isgoodcharge) return false;
   else return true;
 }
 double SCalculator::AcopAngle(TString type1, TString type2, TLorentzVector tauMinus, std::vector<TLorentzVector> sumPionsMinus, std::vector<double> sumPionsChargeMinus, TLorentzVector tauPlus, std::vector<TLorentzVector> sumPionsPlus, std::vector<double> sumPionsChargePlus)

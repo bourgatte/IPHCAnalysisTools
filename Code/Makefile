@@ -23,7 +23,7 @@ TAUSPINERFLAG =
 override CXXFLAGS += 
 ALLCXXFLAGS = $(CXXFLAGS) -I$(ROOTSYS)/include -c -I/include $(SHAREDCXXFLAGS) -c -I./ -c
 LDFLAGS       =  
-ROOTLIBS      =  -L$(ROOTSYS)/lib -L/usr/lib/ -L/lib/i686/  -lCore -lHist -lGraf  -lGraf3d -lGpad -lTree -lRint -lRooFitCore -lPostscript -lMatrix -lPhysics -lGui -LObj -lMinuit2 -lThread -lTreePlayer -lRIO -lMathCore -rdynamic -Wl,--rpath $(ROOTSYS)/lib
+ROOTLIBS      =  -L$(ROOTSYS)/lib -L/usr/lib/ -L/lib/i686/  -lCore -lHist -lGraf  -lGraf3d -lGpad -lTree -lRint -lRooFitCore -lGenVector -lTMVA -lPostscript -lMatrix -lPhysics -lGui -LObj -lMinuit2 -lThread -lTreePlayer -lRIO -lMathCore -rdynamic -Wl,--rpath $(ROOTSYS)/lib
 
 # -ldl -lpthread
 
@@ -56,7 +56,9 @@ TARGETS       =	Ntuple_Controller \
 		UncertaintyValue \
 		PileUp \
 		RecoilCorrector \
-		TauIDSFTool
+		MEtSys \
+		TauIDSFTool \
+		BDTClassification
 
 CINTTARGETS = 
 
@@ -64,7 +66,7 @@ CINTTARGETS =
 
 # now include conditional options set by flags in make.inc
 ifdef USE_TauSpinner
-	SUBDIRS += TauSpiner/ CommonUtils/TauPolSoftware/TauDecaysInterface/
+	SUBDIRS += TauSpiner/  CommonUtils/TauPolSoftware/TauDecaysInterface/
 	SHAREDLIBFLAGS +=	-L./TauSpiner/lhapdf/lib -lLHAPDF \
 				-L./TauSpiner/TAUOLA/lib -lTauolaCxxInterface -lTauolaFortran -lTauolaTauSpinner \
 				-L./TauSpiner/hepmc/install/lib -lHepMC

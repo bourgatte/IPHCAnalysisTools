@@ -1,0 +1,741 @@
+#ifndef HCPTauTau_h
+#define HCPTauTau_h
+
+#include "Selection.h"
+#include <vector>
+#include "TString.h"
+#include "boost/functional/hash.hpp"
+//#include "SVFitStorage.h"
+#include "SimpleFits/FitSoftware/interface/PDGInfo.h"
+#include "TVector3.h"
+//#include "TFile.h"
+#include "TLorentzVector.h"
+#include "TMath.h"
+#include "TauDataFormat/TauNtuple/interface/DataMCType.h"
+#include "SimpleFits/FitSoftware/interface/TrackParticle.h"
+#include "SimpleFits/FitSoftware/interface/LorentzVectorParticle.h"
+#include "SimpleFits/FitSoftware/interface/MultiProngTauSolver.h"
+#include "SimpleFits/FitSoftware/interface/ErrorMatrixPropagator.h"
+#include "SimpleFits/FitSoftware/interface/TauA1NuConstrainedFitter.h"
+#include "SimpleFits/FitSoftware/interface/DiTauConstrainedFitter.h"
+#include "SimpleFits/FitSoftware/interface/GlobalEventFit.h"
+#include "ReferenceScaleFactors.h"
+#include "ScaleFactor.h"
+#include "Objects.h"
+//#include "PUReweight.h"
+#include "tauTrigSFreader.h"
+#include "DataMCCorrections.h"
+#include "TauAnalysis/ClassicSVfit/interface/ClassicSVfit.h"
+#include "TauAnalysis/ClassicSVfit/interface/MeasuredTauLepton.h"
+#include "TauAnalysis/ClassicSVfit/interface/svFitHistogramAdapter.h"
+#include "RecoilCorrector.h"
+#include "BDTClassification.h"
+
+#include "RooWorkspace.h"
+#include "RooFunctor.h"
+#include <memory>
+
+class HCPTauTau : public Selection {
+
+ public:
+  HCPTauTau(TString Name_, TString id_);
+  virtual ~HCPTauTau();
+
+  virtual void  Configure();
+  virtual void  Finish();
+
+  enum cuts {//Trigger=0,
+	     //Id_and_Kin, 
+	     /* NPairsFound, */
+             METFiltersAndBTagVeto=0,
+	     TausIsolation, 
+	     //Tau2Isolation,
+	     AgainstEleMu,
+	     LeptonVeto,
+	     PairCharge, 
+	     //PairMass,
+	     //MTM,
+	     NCuts};
+
+ protected:
+  virtual void doEvent();
+  virtual void Store_ExtraDist();
+  ReferenceScaleFactors *RSF;
+  int TriggerOkDummy, selVertexDummy, selMuon_IsoDummy, selMuon_AntiIsoDummy, selTauDummy, ChargeSumDummy;
+  double MTDummy, MvisDummy, TauFLSigmaDummy;
+
+  int Charge;
+
+  //PUReweight reweight;//(PUReweight::RUN2ANALYSIS);
+  //cout<<"+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<endl;
+  
+  //DataMCCorrections DataMC_Corr;
+  //tauTrigSFreader tauTrgSF;
+
+  TString InputNtuplePath=Ntp->GetInputNtuplePath();
+  bool isDY1050=(InputNtuplePath.Contains("10to50"));
+
+  TFile *WorkSpaceFF2016;
+  RooWorkspace *wFF2016;
+  
+  //Int_t year;
+  BDTClassification *BDT;
+  
+  //ClassicSVfit svfitAlgo1;
+  //ClassicSVfit svfitAlgo2;
+  //  SVFitStorage svfitstorage;
+
+  
+ private:
+  // Selection Variables and Histos
+  
+  /* std::vector<TH1D> Tau1PT; */
+  /* std::vector<TH1D> Tau1E; */
+  /* std::vector<TH1D> Tau1Mass; */
+  /* std::vector<TH1D> Tau1Phi; */
+  /* std::vector<TH1D> Tau1Eta; */
+  /* std::vector<TH1D> Tau1dz; */
+
+  /* std::vector<TH1D> Tau2PT; */
+  /* std::vector<TH1D> Tau2E; */
+  /* std::vector<TH1D> Tau2Mass; */
+  /* std::vector<TH1D> Tau2Phi; */
+  /* std::vector<TH1D> Tau2Eta; */
+  /* std::vector<TH1D> Tau2dz; */
+  
+  /* std::vector<TH1D> Tau1isolation; */
+  /* std::vector<TH1D> Tau2isolation; */
+  /*
+  std::vector<TH1D> againstElectronVLooseMVA6_Tau1;
+  std::vector<TH1D> againstElectronLooseMVA6_Tau1;
+  std::vector<TH1D> againstElectronMediumMVA6_Tau1;
+  std::vector<TH1D> againstElectronTightMVA6_Tau1;
+  std::vector<TH1D> againstElectronVTightMVA6_Tau1;
+  std::vector<TH1D> againstMuonLoose3_Tau1;
+  std::vector<TH1D> againstMuonTight3_Tau1;
+  std::vector<TH1D> byCombinedIsolationDeltaBetaCorrRaw3Hits_Tau1;
+
+  std::vector<TH1D> againstElectronVLooseMVA6_Tau2;
+  std::vector<TH1D> againstElectronLooseMVA6_Tau2;
+  std::vector<TH1D> againstElectronMediumMVA6_Tau2;
+  std::vector<TH1D> againstElectronTightMVA6_Tau2;
+  std::vector<TH1D> againstElectronVTightMVA6_Tau2;
+  std::vector<TH1D> againstMuonLoose3_Tau2;
+  std::vector<TH1D> againstMuonTight3_Tau2;
+  std::vector<TH1D> byCombinedIsolationDeltaBetaCorrRaw3Hits_Tau2;
+  */
+  /* std::vector<TH1D> ExtraLeptonVeto; */
+  /* std::vector<TH1D> Tau2HPSDecayMode; */
+  /* std::vector<TH1D> Tau1HPSDecayMode; */
+  /* std::vector<TH1D> Tau2MVADecayMode; */
+  /* std::vector<TH1D> Tau1MVADecayMode; */
+  /* std::vector<TH1D> Tau2GenMatch; */
+  /* std::vector<TH1D> Tau1GenMatch; */
+  /* std::vector<TH1D> TauTauVisMass; */
+  /* std::vector<TH1D> TauTauFullMass; */
+  /* std::vector<TH1D> TauTauVisPT; */
+  /* std::vector<TH1D> TauTauFullPT; */
+  /* std::vector<TH1D> Mjj; */
+  /* std::vector<TH1D> dijetpt; */
+  /* std::vector<TH1D> dijetphi; */
+  /* std::vector<TH1D> jdeta; */
+  /* std::vector<TH1D> jdphi; */
+  /* std::vector<TH1D> jpt_2; */
+  /* std::vector<TH1D> jeta_2; */
+  /* std::vector<TH1D> jphi_2; */
+  /* std::vector<TH1D> jpt_1; */
+  /* std::vector<TH1D> jeta_1; */
+  /* std::vector<TH1D> jphi_1; */
+ 
+  /* std::vector<TH1D> dRTauTau; */
+  /* std::vector<TH1D> QCDShape; */
+
+  /* std::vector<TH1D> NQCD; */
+  /* std::vector<TH1D> TauTauFullMass_B; */
+  /* std::vector<TH1D> TauTauFullMass_C; */
+  /* std::vector<TH1D> TauTauFullMass_D; */
+  
+  /* std::vector<TH1D> NFFData; */
+  /* std::vector<TH1D> NFFLeadMC; */
+  /* std::vector<TH1D> W_res; */
+  
+  /* std::vector<TH1D> MET; */
+  /* std::vector<TH1D> METphi; */
+  /* std::vector<TH1D> PUPPImet; */
+  /* std::vector<TH1D> PUPPImetphi; */
+  /* std::vector<TH1D> PUPPImetcorr; */
+  /* std::vector<TH1D> PUPPImetcorrphi; */
+  /* std::vector<TH1D> TransverseMass; */
+  
+  /* std::vector<TH1D> NPrimeVtx; */
+  /* std::vector<TH1D> NPU; */
+  /* std::vector<TH1D> RHO; */
+  
+  /* std::vector<TH1D> NbJets; */
+ 
+  /* std::vector<TH1D> HPtVis; */
+
+  /* std::vector<TH1D> IstauminusvisPhysical; */
+  /* std::vector<TH1D> IstauplusvisPhysical; */
+  /* std::vector<TH1D> IsPairPhysical; */
+
+  /* std::vector<TH1D> ResolPullTauTauFroma1a1MZMomentum; */
+  /* std::vector<TH1D> ResolPullTauminusFroma1a1MZMomentum; */
+  /* std::vector<TH1D> ResolPullTauplusFroma1a1MZMomentum; */
+  /* std::vector<TH1D> ResolPullTauFroma1a1MZMomentum; */
+
+  /* std::vector<TH1D> ResolPullXVtxIna1a1; */
+  /* std::vector<TH1D> ResolPullYVtxIna1a1; */
+  /* std::vector<TH1D> ResolPullZVtxIna1a1; */
+
+
+  /* std::vector<TH1D> tauminusa1a1MomentumVis;                         */
+  /* std::vector<TH1D> tauplusa1a1MomentumVis; */
+  /* std::vector<TH1D> InvariantMasstausa1a1Vis; */
+
+  /* std::vector<TH1D> tauminusa1a1MomentumPairConstraint; */
+  /* std::vector<TH1D> tauplusa1a1MomentumPairConstraint; */
+  /* std::vector<TH1D> InvariantMasstausa1a1PairConstraint; */
+
+  /* std::vector<TH1D> polarimetricAcopAngle; */
+
+  //std::vector<TH1D> polarimetricAcopAnglePVRefitNoBS;
+  //std::vector<TH1D> polarimetricAcopAnglePVRefitBS;
+  /* std::vector<TH1D> polarimetricAcopAnglePVRefitNoBSZNominal; */
+  /* std::vector<TH1D> polarimetricAcopAnglePVRefitBSZNominal; */
+
+  //std::vector<TH1D> polarimetricAcopAngleMVADM;
+
+  /* std::vector<TH1D> polarimetricAcopAnglePVRefitNoBSMVADM; */
+  /* std::vector<TH1D> polarimetricAcopAnglePVRefitBSMVADM; */
+  /* std::vector<TH1D> polarimetricAcopAnglePVRefitNoBSZNominalMVADM; */
+  /* std::vector<TH1D> polarimetricAcopAnglePVRefitBSZNominalMVADM; */
+
+
+  //std::vector<TH1D> polarimetricAcopAnglePVRefitWithTracksBSMVADM;
+  // std::vector<TH1D> polarimetricAcopAnglePVRefitWithTracksBSZNominalMVADM;
+   
+  /* std::vector<TH1D> polarimetricAcopAngleMVADMHiggs; */
+  /* std::vector<TH1D> polarimetricAcopAnglePVRefitBSMVADMHiggs; */
+  /* std::vector<TH1D> polarimetricAcopAnglePVRefitBSZNominalMVADMHiggs; */
+  /* std::vector<TH1D> polarimetricAcopAnglePVRefitWithTracksBSMVADMHiggs; */
+  /* std::vector<TH1D> polarimetricAcopAnglePVRefitWithTracksBSZNominalMVADMHiggs; */
+
+  /* std::vector<TH1D> polarimetricAcopAngleMVADMJetFakes; */
+  /* std::vector<TH1D> polarimetricAcopAnglePVRefitBSMVADMJetFakes; */
+  /* std::vector<TH1D> polarimetricAcopAnglePVRefitBSZNominalMVADMJetFakes; */
+  /* std::vector<TH1D> polarimetricAcopAnglePVRefitWithTracksBSMVADMJetFakes; */
+  /* std::vector<TH1D> polarimetricAcopAnglePVRefitWithTracksBSZNominalMVADMJetFakes; */
+
+  /* std::vector<TH1D> polarimetricAcopAngleMVADMZTTEmbed; */
+  /* std::vector<TH1D> polarimetricAcopAnglePVRefitBSMVADMZTTEmbed; */
+  /* std::vector<TH1D> polarimetricAcopAnglePVRefitBSZNominalMVADMZTTEmbed; */
+  /* std::vector<TH1D> polarimetricAcopAnglePVRefitWithTracksBSMVADMZTTEmbed; */
+  /* std::vector<TH1D> polarimetricAcopAnglePVRefitWithTracksBSZNominalMVADMZTTEmbed; */
+
+  std::vector<TH1D> polarimetricAcopAnglePVRefitWithTracksBSMVADMHiggsUnrolled;
+
+  std::vector<TH1D> polarimetricAcopAnglePVRefitWithTracksBSMVADMJetFakesUnrolled;
+
+  std::vector<TH1D> polarimetricAcopAnglePVRefitWithTracksBSMVADMZTTUnrolled;
+  
+  /* std::vector<TH2D> polarimetricAcopAngleMVADMHiggs; */
+  /* std::vector<TH2D> polarimetricAcopAnglePVRefitBSMVADMHiggs; */
+  /* std::vector<TH2D> polarimetricAcopAnglePVRefitBSZNominalMVADMHiggs; */
+  std::vector<TH2D> polarimetricAcopAnglePVRefitWithTracksBSMVADMHiggs;
+  //  std::vector<TH2D> polarimetricAcopAnglePVRefitWithTracksBSZNominalMVADMHiggs;
+
+  /* std::vector<TH2D> polarimetricAcopAngleMVADMJetFakes; */
+  /* std::vector<TH2D> polarimetricAcopAnglePVRefitBSMVADMJetFakes; */
+  /* std::vector<TH2D> polarimetricAcopAnglePVRefitBSZNominalMVADMJetFakes; */
+  std::vector<TH2D> polarimetricAcopAnglePVRefitWithTracksBSMVADMJetFakes;
+  //  std::vector<TH2D> polarimetricAcopAnglePVRefitWithTracksBSZNominalMVADMJetFakes;
+  
+  /* std::vector<TH2D> polarimetricAcopAngleMVADMZTT; */
+  /* std::vector<TH2D> polarimetricAcopAnglePVRefitBSMVADMZTT; */
+  /* std::vector<TH2D> polarimetricAcopAnglePVRefitBSZNominalMVADMZTT; */
+  std::vector<TH2D> polarimetricAcopAnglePVRefitWithTracksBSMVADMZTT;
+  //std::vector<TH2D> polarimetricAcopAnglePVRefitWithTracksBSZNominalMVADMZTT;
+  
+  
+  /* std::vector<TH1D> polarimetricAcopAngleTruthA1; */
+
+  /* std::vector<TH1D> polarimetricAcopAngleDecayPlane; */
+
+  /* std::vector<TH1D> polarimetricAcopAngleSVFit;  */
+  /* std::vector<TH1D> polarimetricAcopAngleMVASVFit;  */
+
+  /* std::vector<TH1D> test;   */
+  
+  /* std::vector<TH1D> PurityDM; */
+  /* std::vector<TH1D> PurityNewMVA; */
+
+  /* std::vector<TH1D> TauSVFitPxResPull; */
+  /* std::vector<TH1D> TauSVFitPyResPull; */
+  /* std::vector<TH1D> TauSVFitPzResPull; */
+ 
+
+  /* std::vector<TH1D> TauPxResPull; */
+  /* std::vector<TH1D> TauPyResPull; */
+  /* std::vector<TH1D> TauPzResPull; */
+
+  /* std::vector<TH1D> TauSVFitPxResPullMVA; */
+  /* std::vector<TH1D> TauSVFitPyResPullMVA; */
+  /* std::vector<TH1D> TauSVFitPzResPullMVA; */
+ 
+
+  /* std::vector<TH1D> TauPxResPullMVA; */
+  /* std::vector<TH1D> TauPyResPullMVA; */
+  /* std::vector<TH1D> TauPzResPullMVA; */
+
+  /* std::vector<TH1D> PVXResol; */
+
+  /* std::vector<TH1D> PVXNoBSResol; */
+  /* std::vector<TH1D> PVXBSResol; */
+
+  /* std::vector<TH1D> PVYResol; */
+  /* std::vector<TH1D> PVYNoBSResol; */
+  /* std::vector<TH1D> PVYBSResol; */
+  
+  /* std::vector<TH1D> PVZResol; */
+  /* std::vector<TH1D> PVZNoBSResol; */
+  /* std::vector<TH1D> PVZBSResol; */
+  
+  /* std::vector<TH1D> PVXNoBSOnlyResol; */
+  /* std::vector<TH1D> PVXBSOnlyResol; */
+  
+  /* std::vector<TH1D> PVYNoBSOnlyResol; */
+  /* std::vector<TH1D> PVYBSOnlyResol; */
+  
+  /* std::vector<TH1D> PVZNoBSOnlyResol; */
+  /* std::vector<TH1D> PVZBSOnlyResol; */
+
+  /* std::vector<TH1D> HiggsBDTScore; */
+  /* std::vector<TH1D> JetFakesBDTScore; */
+  /* std::vector<TH1D> ZTTBDTScore; */
+
+  /* //--------------------------------------------------------------------- */
+  /* //Histos MC for a1-a1 */
+  
+  /* std::vector<TH1D> Tau1PTa1a1; */
+  /* std::vector<TH1D> Tau1Ea1a1; */
+  /* std::vector<TH1D> Tau1Massa1a1; */
+  /* std::vector<TH1D> Tau1Phia1a1; */
+  /* std::vector<TH1D> Tau1Etaa1a1; */
+  /* std::vector<TH1D> Tau1dza1a1; */
+
+  /* std::vector<TH1D> Tau2PTa1a1; */
+  /* std::vector<TH1D> Tau2Ea1a1; */
+  /* std::vector<TH1D> Tau2Massa1a1; */
+  /* std::vector<TH1D> Tau2Phia1a1; */
+  /* std::vector<TH1D> Tau2Etaa1a1; */
+  /* std::vector<TH1D> Tau2dza1a1; */
+  
+  /* std::vector<TH1D> TauTauVisMassa1a1; */
+  /* std::vector<TH1D> TauTauFullMassa1a1; */
+  /* std::vector<TH1D> TauTauVisPTa1a1; */
+  /* std::vector<TH1D> TauTauFullPTa1a1; */
+  /* std::vector<TH1D> Mjja1a1; */
+  /* std::vector<TH1D> dijetpta1a1; */
+  /* std::vector<TH1D> dijetphia1a1; */
+  /* std::vector<TH1D> jdetaa1a1; */
+  /* std::vector<TH1D> jdphia1a1; */
+  /* std::vector<TH1D> jpt_2a1a1; */
+  /* std::vector<TH1D> jeta_2a1a1; */
+  /* std::vector<TH1D> jphi_2a1a1; */
+  /* std::vector<TH1D> jpt_1a1a1; */
+  /* std::vector<TH1D> jeta_1a1a1; */
+  /* std::vector<TH1D> jphi_1a1a1; */
+  
+  /* std::vector<TH1D> PUPPImetcorra1a1; */
+  /* std::vector<TH1D> PUPPImetcorrphia1a1; */
+
+  /* std::vector<TH1D> NbJetsa1a1; */
+
+  std::vector<TH1D> HiggsBDTScorea1a1;
+  std::vector<TH1D> JetFakesBDTScorea1a1;
+  std::vector<TH1D> ZTTBDTScorea1a1;
+
+  /* std::vector<TH1D> Tau1PTa1a1QCDMC; */
+  /* std::vector<TH1D> Tau1Ea1a1QCDMC; */
+  /* std::vector<TH1D> Tau1Massa1a1QCDMC; */
+  /* std::vector<TH1D> Tau1Phia1a1QCDMC; */
+  /* std::vector<TH1D> Tau1Etaa1a1QCDMC; */
+  /* std::vector<TH1D> Tau1dza1a1QCDMC; */
+
+  /* std::vector<TH1D> Tau2PTa1a1QCDMC; */
+  /* std::vector<TH1D> Tau2Ea1a1QCDMC; */
+  /* std::vector<TH1D> Tau2Massa1a1QCDMC; */
+  /* std::vector<TH1D> Tau2Phia1a1QCDMC; */
+  /* std::vector<TH1D> Tau2Etaa1a1QCDMC; */
+  /* std::vector<TH1D> Tau2dza1a1QCDMC; */
+  
+  /* std::vector<TH1D> Tau2GenMatchQCDMC; */
+  /* std::vector<TH1D> Tau1GenMatchQCDMC; */
+  
+  /* std::vector<TH1D> TauTauVisMassa1a1QCDMC; */
+  /* std::vector<TH1D> TauTauFullMassa1a1QCDMC; */
+  /* std::vector<TH1D> TauTauVisPTa1a1QCDMC; */
+  /* std::vector<TH1D> TauTauFullPTa1a1QCDMC; */
+  /* std::vector<TH1D> Mjja1a1QCDMC; */
+  /* std::vector<TH1D> dijetpta1a1QCDMC; */
+  /* std::vector<TH1D> dijetphia1a1QCDMC; */
+  /* std::vector<TH1D> jdetaa1a1QCDMC; */
+  /* std::vector<TH1D> jdphia1a1QCDMC; */
+  /* std::vector<TH1D> jpt_2a1a1QCDMC; */
+  /* std::vector<TH1D> jeta_2a1a1QCDMC; */
+  /* std::vector<TH1D> jphi_2a1a1QCDMC; */
+  /* std::vector<TH1D> jpt_1a1a1QCDMC; */
+  /* std::vector<TH1D> jeta_1a1a1QCDMC; */
+  /* std::vector<TH1D> jphi_1a1a1QCDMC; */
+  
+  /* std::vector<TH1D> PUPPImetcorra1a1QCDMC; */
+  /* std::vector<TH1D> PUPPImetcorrphia1a1QCDMC; */
+
+  /* std::vector<TH1D> NbJetsa1a1QCDMC; */
+
+  std::vector<TH1D> HiggsBDTScorea1a1QCDMC;
+  std::vector<TH1D> JetFakesBDTScorea1a1QCDMC;
+  std::vector<TH1D> ZTTBDTScorea1a1QCDMC;
+  
+  /* //--------------------------------------------------------------------- */
+  /* //Histos MC for QCD */
+  
+  /* std::vector<TH1D> PUPPImetcorrQCDMC; */
+  /* std::vector<TH1D> PUPPImetcorrphiQCDMC; */
+
+  /* std::vector<TH1D> Tau1PTQCDMC; */
+  /* std::vector<TH1D> Tau1EQCDMC; */
+  /* std::vector<TH1D> Tau1MassQCDMC; */
+  /* std::vector<TH1D> Tau1PhiQCDMC; */
+  /* std::vector<TH1D> Tau1EtaQCDMC; */
+  /* std::vector<TH1D> Tau1dzQCDMC; */
+  /* std::vector<TH1D> Tau1HPSDecayModeQCDMC; */
+  /* std::vector<TH1D> Tau1MVADecayModeQCDMC; */
+  
+  /* std::vector<TH1D> Tau2PTQCDMC; */
+  /* std::vector<TH1D> Tau2EQCDMC; */
+  /* std::vector<TH1D> Tau2MassQCDMC; */
+  /* std::vector<TH1D> Tau2PhiQCDMC; */
+  /* std::vector<TH1D> Tau2EtaQCDMC; */
+  /* std::vector<TH1D> Tau2dzQCDMC; */
+  /* std::vector<TH1D> Tau2HPSDecayModeQCDMC; */
+  /* std::vector<TH1D> Tau2MVADecayModeQCDMC; */
+
+  /* std::vector<TH1D> NbJetsQCDMC; */
+  /* std::vector<TH1D> TauTauVisMassQCDMC; */
+  /* std::vector<TH1D> TauTauFullMassQCDMC; */
+  /* std::vector<TH1D> TauTauFullPTQCDMC; */
+  /* std::vector<TH1D> TauTauVisPTQCDMC; */
+
+  /* std::vector<TH1D> MjjQCDMC; */
+  /* std::vector<TH1D> dijetptQCDMC; */
+  /* std::vector<TH1D> dijetphiQCDMC; */
+  /* std::vector<TH1D> jdetaQCDMC; */
+  /* std::vector<TH1D> jdphiQCDMC; */
+  /* std::vector<TH1D> jpt_2QCDMC; */
+  /* std::vector<TH1D> jeta_2QCDMC; */
+  /* std::vector<TH1D> jphi_2QCDMC; */
+  /* std::vector<TH1D> jpt_1QCDMC; */
+  /* std::vector<TH1D> jeta_1QCDMC; */
+  /* std::vector<TH1D> jphi_1QCDMC; */
+
+  /* std::vector<TH1D> HiggsBDTScoreQCDMC; */
+  /* std::vector<TH1D> JetFakesBDTScoreQCDMC; */
+  /* std::vector<TH1D> ZTTBDTScoreQCDMC; */
+
+  /* std::vector<TH1D> polarimetricAcopAngleMVADMQCDMC; */
+  /* std::vector<TH1D> polarimetricAcopAnglePVRefitBSMVADMQCDMC; */
+  /* std::vector<TH1D> polarimetricAcopAnglePVRefitBSZNominalMVADMQCDMC; */
+  std::vector<TH1D> polarimetricAcopAnglePVRefitWithTracksBSMVADMQCDMC;
+  //std::vector<TH1D> polarimetricAcopAnglePVRefitWithTracksBSZNominalMVADMQCDMC;
+
+  /* std::vector<TH1D> polarimetricAcopAngleMVADMHiggsQCDMC; */
+  /* std::vector<TH1D> polarimetricAcopAnglePVRefitBSMVADMHiggsQCDMC; */
+  /* std::vector<TH1D> polarimetricAcopAnglePVRefitBSZNominalMVADMHiggsQCDMC; */
+  /* std::vector<TH1D> polarimetricAcopAnglePVRefitWithTracksBSMVADMHiggsQCDMC; */
+  /* std::vector<TH1D> polarimetricAcopAnglePVRefitWithTracksBSZNominalMVADMHiggsQCDMC; */
+
+  /* std::vector<TH1D> polarimetricAcopAngleMVADMJetFakesQCDMC; */
+  /* std::vector<TH1D> polarimetricAcopAnglePVRefitBSMVADMJetFakesQCDMC; */
+  /* std::vector<TH1D> polarimetricAcopAnglePVRefitBSZNominalMVADMJetFakesQCDMC; */
+  /* std::vector<TH1D> polarimetricAcopAnglePVRefitWithTracksBSMVADMJetFakesQCDMC; */
+  /* std::vector<TH1D> polarimetricAcopAnglePVRefitWithTracksBSZNominalMVADMJetFakesQCDMC; */
+
+  /* std::vector<TH1D> polarimetricAcopAngleMVADMZTTEmbedQCDMC; */
+  /* std::vector<TH1D> polarimetricAcopAnglePVRefitBSMVADMZTTEmbedQCDMC; */
+  /* std::vector<TH1D> polarimetricAcopAnglePVRefitBSZNominalMVADMZTTEmbedQCDMC; */
+  /* std::vector<TH1D> polarimetricAcopAnglePVRefitWithTracksBSMVADMZTTEmbedQCDMC; */
+  /* std::vector<TH1D> polarimetricAcopAnglePVRefitWithTracksBSZNominalMVADMZTTEmbedQCDMC; */
+
+  std::vector<TH1D> polarimetricAcopAnglePVRefitWithTracksBSMVADMHiggsUnrolledQCDMC;
+
+  std::vector<TH1D> polarimetricAcopAnglePVRefitWithTracksBSMVADMJetFakesUnrolledQCDMC;
+
+  std::vector<TH1D> polarimetricAcopAnglePVRefitWithTracksBSMVADMZTTUnrolledQCDMC;
+
+  /* std::vector<TH2D> polarimetricAcopAngleMVADMHiggsQCDMC; */
+  /* std::vector<TH2D> polarimetricAcopAnglePVRefitBSMVADMHiggsQCDMC; */
+  /* std::vector<TH2D> polarimetricAcopAnglePVRefitBSZNominalMVADMHiggsQCDMC; */
+  std::vector<TH2D> polarimetricAcopAnglePVRefitWithTracksBSMVADMHiggsQCDMC;
+  //  std::vector<TH2D> polarimetricAcopAnglePVRefitWithTracksBSZNominalMVADMHiggsQCDMC;
+
+  /* std::vector<TH2D> polarimetricAcopAngleMVADMJetFakesQCDMC; */
+  /* std::vector<TH2D> polarimetricAcopAnglePVRefitBSMVADMJetFakesQCDMC; */
+  /* std::vector<TH2D> polarimetricAcopAnglePVRefitBSZNominalMVADMJetFakesQCDMC; */
+  std::vector<TH2D> polarimetricAcopAnglePVRefitWithTracksBSMVADMJetFakesQCDMC;
+  //  std::vector<TH2D> polarimetricAcopAnglePVRefitWithTracksBSZNominalMVADMJetFakesQCDMC;
+  
+  /* std::vector<TH2D> polarimetricAcopAngleMVADMZTTQCDMC; */
+  /* std::vector<TH2D> polarimetricAcopAnglePVRefitBSMVADMZTTQCDMC; */
+  /* std::vector<TH2D> polarimetricAcopAnglePVRefitBSZNominalMVADMZTTQCDMC; */
+  std::vector<TH2D> polarimetricAcopAnglePVRefitWithTracksBSMVADMZTTQCDMC;
+  //  std::vector<TH2D> polarimetricAcopAnglePVRefitWithTracksBSZNominalMVADMZTTQCDMC;
+  
+  
+  ////////////////// Shape Uncertainties
+
+  
+  /* std::vector<TH2D> CMS_eff_t_pThigh_MVADM10_13TeVUpHiggs; */
+  /* std::vector<TH2D> CMS_eff_t_pThigh_MVADM10_13TeVDownHiggs; */
+  /* std::vector<TH2D> CMS_eff_t_trg_MVADM10_13TeVUpHiggs; */
+  /* std::vector<TH2D> CMS_eff_t_trg_MVADM10_13TeVDownHiggs; */
+  /* std::vector<TH2D> CMS_htt_dyShape_13TeVUpHiggs; */
+  /* std::vector<TH2D> CMS_htt_dyShape_13TeVDownHiggs; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet0_mvadm10_upHiggs; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet0_mvadm10_downHiggs; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet1_mvadm10_upHiggs; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet1_mvadm10_downHiggs; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet2_mvadm10_upHiggs; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet2_mvadm10_downHiggs; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_met_closure_systUpHiggs; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_met_closure_systDownHiggs; */
+  
+  /* std::vector<TH2D> CMS_eff_t_pThigh_MVADM10_13TeVUpPVRefitBSHiggs; */
+  /* std::vector<TH2D> CMS_eff_t_pThigh_MVADM10_13TeVDownPVRefitBSHiggs; */
+  /* std::vector<TH2D> CMS_eff_t_trg_MVADM10_13TeVUpPVRefitBSHiggs; */
+  /* std::vector<TH2D> CMS_eff_t_trg_MVADM10_13TeVDownPVRefitBSHiggs; */
+  /* std::vector<TH2D> CMS_htt_dyShape_13TeVUpPVRefitBSHiggs; */
+  /* std::vector<TH2D> CMS_htt_dyShape_13TeVDownPVRefitBSHiggs; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet0_mvadm10_upPVRefitBSHiggs; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet0_mvadm10_downPVRefitBSHiggs; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet1_mvadm10_upPVRefitBSHiggs; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet1_mvadm10_downPVRefitBSHiggs; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet2_mvadm10_upPVRefitBSHiggs; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet2_mvadm10_downPVRefitBSHiggs; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_met_closure_systUpPVRefitBSHiggs; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_met_closure_systDownPVRefitBSHiggs; */
+
+  /* std::vector<TH2D> CMS_eff_t_pThigh_MVADM10_13TeVUpPVRefitBSZNominalHiggs; */
+  /* std::vector<TH2D> CMS_eff_t_pThigh_MVADM10_13TeVDownPVRefitBSZNominalHiggs; */
+  /* std::vector<TH2D> CMS_eff_t_trg_MVADM10_13TeVUpPVRefitBSZNominalHiggs; */
+  /* std::vector<TH2D> CMS_eff_t_trg_MVADM10_13TeVDownPVRefitBSZNominalHiggs; */
+  /* std::vector<TH2D> CMS_htt_dyShape_13TeVUpPVRefitBSZNominalHiggs; */
+  /* std::vector<TH2D> CMS_htt_dyShape_13TeVDownPVRefitBSZNominalHiggs; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet0_mvadm10_upPVRefitBSZNominalHiggs; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet0_mvadm10_downPVRefitBSZNominalHiggs; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet1_mvadm10_upPVRefitBSZNominalHiggs; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet1_mvadm10_downPVRefitBSZNominalHiggs; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet2_mvadm10_upPVRefitBSZNominalHiggs; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet2_mvadm10_downPVRefitBSZNominalHiggs; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_met_closure_systUpPVRefitBSZNominalHiggs; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_met_closure_systDownPVRefitBSZNominalHiggs; */
+
+  std::vector<TH2D> CMS_eff_t_pThigh_MVADM10_13TeVUpPVRefitWithTracksBSHiggs;
+  std::vector<TH2D> CMS_eff_t_pThigh_MVADM10_13TeVDownPVRefitWithTracksBSHiggs;
+  std::vector<TH2D> CMS_eff_t_trg_MVADM10_13TeVUpPVRefitWithTracksBSHiggs;
+  std::vector<TH2D> CMS_eff_t_trg_MVADM10_13TeVDownPVRefitWithTracksBSHiggs;
+  std::vector<TH2D> CMS_htt_dyShape_13TeVUpPVRefitWithTracksBSHiggs;
+  std::vector<TH2D> CMS_htt_dyShape_13TeVDownPVRefitWithTracksBSHiggs;
+  std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet0_mvadm10_upPVRefitWithTracksBSHiggs;
+  std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet0_mvadm10_downPVRefitWithTracksBSHiggs;
+  std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet1_mvadm10_upPVRefitWithTracksBSHiggs;
+  std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet1_mvadm10_downPVRefitWithTracksBSHiggs;
+  std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet2_mvadm10_upPVRefitWithTracksBSHiggs;
+  std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet2_mvadm10_downPVRefitWithTracksBSHiggs;
+  std::vector<TH2D> jetFakes_ff_tt_qcd_met_closure_systUpPVRefitWithTracksBSHiggs;
+  std::vector<TH2D> jetFakes_ff_tt_qcd_met_closure_systDownPVRefitWithTracksBSHiggs;
+
+
+  std::vector<TH2D> PrefiringUp_PVRefitWithTracksBSHiggs;
+  std::vector<TH2D> PrefiringDown_PVRefitWithTracksBSHiggs;
+
+  /* std::vector<TH2D> CMS_eff_t_pThigh_MVADM10_13TeVUpPVRefitWithTracksBSZNominalHiggs; */
+  /* std::vector<TH2D> CMS_eff_t_pThigh_MVADM10_13TeVDownPVRefitWithTracksBSZNominalHiggs; */
+  /* std::vector<TH2D> CMS_eff_t_trg_MVADM10_13TeVUpPVRefitWithTracksBSZNominalHiggs; */
+  /* std::vector<TH2D> CMS_eff_t_trg_MVADM10_13TeVDownPVRefitWithTracksBSZNominalHiggs; */
+  /* std::vector<TH2D> CMS_htt_dyShape_13TeVUpPVRefitWithTracksBSZNominalHiggs; */
+  /* std::vector<TH2D> CMS_htt_dyShape_13TeVDownPVRefitWithTracksBSZNominalHiggs; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet0_mvadm10_upPVRefitWithTracksBSZNominalHiggs; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet0_mvadm10_downPVRefitWithTracksBSZNominalHiggs; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet1_mvadm10_upPVRefitWithTracksBSZNominalHiggs; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet1_mvadm10_downPVRefitWithTracksBSZNominalHiggs; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet2_mvadm10_upPVRefitWithTracksBSZNominalHiggs; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet2_mvadm10_downPVRefitWithTracksBSZNominalHiggs; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_met_closure_systUpPVRefitWithTracksBSZNominalHiggs; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_met_closure_systDownPVRefitWithTracksBSZNominalHiggs; */
+
+
+  
+
+  /* std::vector<TH2D> CMS_eff_t_pThigh_MVADM10_13TeVUpJetFakes; */
+  /* std::vector<TH2D> CMS_eff_t_pThigh_MVADM10_13TeVDownJetFakes; */
+  /* std::vector<TH2D> CMS_eff_t_trg_MVADM10_13TeVUpJetFakes; */
+  /* std::vector<TH2D> CMS_eff_t_trg_MVADM10_13TeVDownJetFakes; */
+  /* std::vector<TH2D> CMS_htt_dyShape_13TeVUpJetFakes; */
+  /* std::vector<TH2D> CMS_htt_dyShape_13TeVDownJetFakes; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet0_mvadm10_upJetFakes; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet0_mvadm10_downJetFakes; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet1_mvadm10_upJetFakes; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet1_mvadm10_downJetFakes; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet2_mvadm10_upJetFakes; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet2_mvadm10_downJetFakes; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_met_closure_systUpJetFakes; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_met_closure_systDownJetFakes; */
+  
+  /* std::vector<TH2D> CMS_eff_t_pThigh_MVADM10_13TeVUpPVRefitBSJetFakes; */
+  /* std::vector<TH2D> CMS_eff_t_pThigh_MVADM10_13TeVDownPVRefitBSJetFakes; */
+  /* std::vector<TH2D> CMS_eff_t_trg_MVADM10_13TeVUpPVRefitBSJetFakes; */
+  /* std::vector<TH2D> CMS_eff_t_trg_MVADM10_13TeVDownPVRefitBSJetFakes; */
+  /* std::vector<TH2D> CMS_htt_dyShape_13TeVUpPVRefitBSJetFakes; */
+  /* std::vector<TH2D> CMS_htt_dyShape_13TeVDownPVRefitBSJetFakes; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet0_mvadm10_upPVRefitBSJetFakes; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet0_mvadm10_downPVRefitBSJetFakes; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet1_mvadm10_upPVRefitBSJetFakes; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet1_mvadm10_downPVRefitBSJetFakes; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet2_mvadm10_upPVRefitBSJetFakes; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet2_mvadm10_downPVRefitBSJetFakes; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_met_closure_systUpPVRefitBSJetFakes; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_met_closure_systDownPVRefitBSJetFakes; */
+
+  /* std::vector<TH2D> CMS_eff_t_pThigh_MVADM10_13TeVUpPVRefitBSZNominalJetFakes; */
+  /* std::vector<TH2D> CMS_eff_t_pThigh_MVADM10_13TeVDownPVRefitBSZNominalJetFakes; */
+  /* std::vector<TH2D> CMS_eff_t_trg_MVADM10_13TeVUpPVRefitBSZNominalJetFakes; */
+  /* std::vector<TH2D> CMS_eff_t_trg_MVADM10_13TeVDownPVRefitBSZNominalJetFakes; */
+  /* std::vector<TH2D> CMS_htt_dyShape_13TeVUpPVRefitBSZNominalJetFakes; */
+  /* std::vector<TH2D> CMS_htt_dyShape_13TeVDownPVRefitBSZNominalJetFakes; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet0_mvadm10_upPVRefitBSZNominalJetFakes; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet0_mvadm10_downPVRefitBSZNominalJetFakes; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet1_mvadm10_upPVRefitBSZNominalJetFakes; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet1_mvadm10_downPVRefitBSZNominalJetFakes; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet2_mvadm10_upPVRefitBSZNominalJetFakes; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet2_mvadm10_downPVRefitBSZNominalJetFakes; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_met_closure_systUpPVRefitBSZNominalJetFakes; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_met_closure_systDownPVRefitBSZNominalJetFakes; */
+
+  std::vector<TH2D> CMS_eff_t_pThigh_MVADM10_13TeVUpPVRefitWithTracksBSJetFakes;
+  std::vector<TH2D> CMS_eff_t_pThigh_MVADM10_13TeVDownPVRefitWithTracksBSJetFakes;
+  std::vector<TH2D> CMS_eff_t_trg_MVADM10_13TeVUpPVRefitWithTracksBSJetFakes;
+  std::vector<TH2D> CMS_eff_t_trg_MVADM10_13TeVDownPVRefitWithTracksBSJetFakes;
+  std::vector<TH2D> CMS_htt_dyShape_13TeVUpPVRefitWithTracksBSJetFakes;
+  std::vector<TH2D> CMS_htt_dyShape_13TeVDownPVRefitWithTracksBSJetFakes;
+  std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet0_mvadm10_upPVRefitWithTracksBSJetFakes;
+  std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet0_mvadm10_downPVRefitWithTracksBSJetFakes;
+  std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet1_mvadm10_upPVRefitWithTracksBSJetFakes;
+  std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet1_mvadm10_downPVRefitWithTracksBSJetFakes;
+  std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet2_mvadm10_upPVRefitWithTracksBSJetFakes;
+  std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet2_mvadm10_downPVRefitWithTracksBSJetFakes;
+  std::vector<TH2D> jetFakes_ff_tt_qcd_met_closure_systUpPVRefitWithTracksBSJetFakes;
+  std::vector<TH2D> jetFakes_ff_tt_qcd_met_closure_systDownPVRefitWithTracksBSJetFakes;
+
+  std::vector<TH2D> PrefiringUp_PVRefitWithTracksBSJetFakes;
+  std::vector<TH2D> PrefiringDown_PVRefitWithTracksBSJetFakes;
+  
+  /* std::vector<TH2D> CMS_eff_t_pThigh_MVADM10_13TeVUpPVRefitWithTracksBSZNominalJetFakes; */
+  /* std::vector<TH2D> CMS_eff_t_pThigh_MVADM10_13TeVDownPVRefitWithTracksBSZNominalJetFakes; */
+  /* std::vector<TH2D> CMS_eff_t_trg_MVADM10_13TeVUpPVRefitWithTracksBSZNominalJetFakes; */
+  /* std::vector<TH2D> CMS_eff_t_trg_MVADM10_13TeVDownPVRefitWithTracksBSZNominalJetFakes; */
+  /* std::vector<TH2D> CMS_htt_dyShape_13TeVUpPVRefitWithTracksBSZNominalJetFakes; */
+  /* std::vector<TH2D> CMS_htt_dyShape_13TeVDownPVRefitWithTracksBSZNominalJetFakes; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet0_mvadm10_upPVRefitWithTracksBSZNominalJetFakes; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet0_mvadm10_downPVRefitWithTracksBSZNominalJetFakes; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet1_mvadm10_upPVRefitWithTracksBSZNominalJetFakes; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet1_mvadm10_downPVRefitWithTracksBSZNominalJetFakes; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet2_mvadm10_upPVRefitWithTracksBSZNominalJetFakes; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet2_mvadm10_downPVRefitWithTracksBSZNominalJetFakes; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_met_closure_systUpPVRefitWithTracksBSZNominalJetFakes; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_met_closure_systDownPVRefitWithTracksBSZNominalJetFakes; */
+
+
+
+
+  /* std::vector<TH2D> CMS_eff_t_pThigh_MVADM10_13TeVUpZTT; */
+  /* std::vector<TH2D> CMS_eff_t_pThigh_MVADM10_13TeVDownZTT; */
+  /* std::vector<TH2D> CMS_eff_t_trg_MVADM10_13TeVUpZTT; */
+  /* std::vector<TH2D> CMS_eff_t_trg_MVADM10_13TeVDownZTT; */
+  /* std::vector<TH2D> CMS_htt_dyShape_13TeVUpZTT; */
+  /* std::vector<TH2D> CMS_htt_dyShape_13TeVDownZTT; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet0_mvadm10_upZTT; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet0_mvadm10_downZTT; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet1_mvadm10_upZTT; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet1_mvadm10_downZTT; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet2_mvadm10_upZTT; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet2_mvadm10_downZTT; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_met_closure_systUpZTT; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_met_closure_systDownZTT; */
+  
+  /* std::vector<TH2D> CMS_eff_t_pThigh_MVADM10_13TeVUpPVRefitBSZTT; */
+  /* std::vector<TH2D> CMS_eff_t_pThigh_MVADM10_13TeVDownPVRefitBSZTT; */
+  /* std::vector<TH2D> CMS_eff_t_trg_MVADM10_13TeVUpPVRefitBSZTT; */
+  /* std::vector<TH2D> CMS_eff_t_trg_MVADM10_13TeVDownPVRefitBSZTT; */
+  /* std::vector<TH2D> CMS_htt_dyShape_13TeVUpPVRefitBSZTT; */
+  /* std::vector<TH2D> CMS_htt_dyShape_13TeVDownPVRefitBSZTT; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet0_mvadm10_upPVRefitBSZTT; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet0_mvadm10_downPVRefitBSZTT; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet1_mvadm10_upPVRefitBSZTT; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet1_mvadm10_downPVRefitBSZTT; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet2_mvadm10_upPVRefitBSZTT; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet2_mvadm10_downPVRefitBSZTT; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_met_closure_systUpPVRefitBSZTT; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_met_closure_systDownPVRefitBSZTT; */
+
+  /* std::vector<TH2D> CMS_eff_t_pThigh_MVADM10_13TeVUpPVRefitBSZNominalZTT; */
+  /* std::vector<TH2D> CMS_eff_t_pThigh_MVADM10_13TeVDownPVRefitBSZNominalZTT; */
+  /* std::vector<TH2D> CMS_eff_t_trg_MVADM10_13TeVUpPVRefitBSZNominalZTT; */
+  /* std::vector<TH2D> CMS_eff_t_trg_MVADM10_13TeVDownPVRefitBSZNominalZTT; */
+  /* std::vector<TH2D> CMS_htt_dyShape_13TeVUpPVRefitBSZNominalZTT; */
+  /* std::vector<TH2D> CMS_htt_dyShape_13TeVDownPVRefitBSZNominalZTT; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet0_mvadm10_upPVRefitBSZNominalZTT; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet0_mvadm10_downPVRefitBSZNominalZTT; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet1_mvadm10_upPVRefitBSZNominalZTT; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet1_mvadm10_downPVRefitBSZNominalZTT; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet2_mvadm10_upPVRefitBSZNominalZTT; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet2_mvadm10_downPVRefitBSZNominalZTT; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_met_closure_systUpPVRefitBSZNominalZTT; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_met_closure_systDownPVRefitBSZNominalZTT; */
+
+  std::vector<TH2D> CMS_eff_t_pThigh_MVADM10_13TeVUpPVRefitWithTracksBSZTT;
+  std::vector<TH2D> CMS_eff_t_pThigh_MVADM10_13TeVDownPVRefitWithTracksBSZTT;
+  std::vector<TH2D> CMS_eff_t_trg_MVADM10_13TeVUpPVRefitWithTracksBSZTT;
+  std::vector<TH2D> CMS_eff_t_trg_MVADM10_13TeVDownPVRefitWithTracksBSZTT;
+  std::vector<TH2D> CMS_htt_dyShape_13TeVUpPVRefitWithTracksBSZTT;
+  std::vector<TH2D> CMS_htt_dyShape_13TeVDownPVRefitWithTracksBSZTT;
+  std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet0_mvadm10_upPVRefitWithTracksBSZTT;
+  std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet0_mvadm10_downPVRefitWithTracksBSZTT;
+  std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet1_mvadm10_upPVRefitWithTracksBSZTT;
+  std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet1_mvadm10_downPVRefitWithTracksBSZTT;
+  std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet2_mvadm10_upPVRefitWithTracksBSZTT;
+  std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet2_mvadm10_downPVRefitWithTracksBSZTT;
+  std::vector<TH2D> jetFakes_ff_tt_qcd_met_closure_systUpPVRefitWithTracksBSZTT;
+  std::vector<TH2D> jetFakes_ff_tt_qcd_met_closure_systDownPVRefitWithTracksBSZTT;
+
+  std::vector<TH2D> PrefiringUp_PVRefitWithTracksBSZTT;
+  std::vector<TH2D> PrefiringDown_PVRefitWithTracksBSZTT;
+  
+  /* std::vector<TH2D> CMS_eff_t_pThigh_MVADM10_13TeVUpPVRefitWithTracksBSZNominalZTT; */
+  /* std::vector<TH2D> CMS_eff_t_pThigh_MVADM10_13TeVDownPVRefitWithTracksBSZNominalZTT; */
+  /* std::vector<TH2D> CMS_eff_t_trg_MVADM10_13TeVUpPVRefitWithTracksBSZNominalZTT; */
+  /* std::vector<TH2D> CMS_eff_t_trg_MVADM10_13TeVDownPVRefitWithTracksBSZNominalZTT; */
+  /* std::vector<TH2D> CMS_htt_dyShape_13TeVUpPVRefitWithTracksBSZNominalZTT; */
+  /* std::vector<TH2D> CMS_htt_dyShape_13TeVDownPVRefitWithTracksBSZNominalZTT; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet0_mvadm10_upPVRefitWithTracksBSZNominalZTT; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet0_mvadm10_downPVRefitWithTracksBSZNominalZTT; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet1_mvadm10_upPVRefitWithTracksBSZNominalZTT; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet1_mvadm10_downPVRefitWithTracksBSZNominalZTT; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet2_mvadm10_upPVRefitWithTracksBSZNominalZTT; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_stat_njet2_mvadm10_downPVRefitWithTracksBSZNominalZTT; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_met_closure_systUpPVRefitWithTracksBSZNominalZTT; */
+  /* std::vector<TH2D> jetFakes_ff_tt_qcd_met_closure_systDownPVRefitWithTracksBSZNominalZTT; */
+};
+
+#endif

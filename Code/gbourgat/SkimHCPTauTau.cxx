@@ -147,7 +147,7 @@ void  SkimHCPTauTau::doEvent(){ //  Method called on every event
   std::vector<int> GoodTausIndex;
 
   for(unsigned int iDaughter=0;   iDaughter  <  IndexSelected.size() ;iDaughter++ ){  // loop over all daughters in the event
-      if(Ntp->tauBaselineSelection(Tau1IndexVect.at(iDaughter),40., 2.1, 0,0,0) && Ntp->tauBaselineSelection(Tau2IndexVect.at(iDaughter),40., 2.1, 0,0,0))
+      if(Ntp->tauBaselineSelection(Tau1IndexVect.at(iDaughter),38., 2.1, 0,0,0) && Ntp->tauBaselineSelection(Tau2IndexVect.at(iDaughter),38., 2.1, 0,0,0))
 	{
 	  GoodTausIndex.push_back(iDaughter);
 	}

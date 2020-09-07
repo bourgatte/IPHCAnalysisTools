@@ -568,16 +568,75 @@ if( $ARGV[0] eq "--Local" ){
 		if($l==0){
 		    #	print "true 2   l = $l\n";
 		    $max=$maxdata;
+		    #$max=2;
 		}
 		else{
 		    #	print "true 3   l = $l\n";
 		    $max=$maxmc;
-		    if($DS =~ m/embed/){
+		    if($DS =~ m/Embed/){
 			#	print "true 4";
 			$max=$maxemb;
 		    }
 		}
 		
+		if($DS =~ m/Filtered/)
+		{
+		    #$max=12;
+		    #$max=5;
+		    $max=10;
+		}
+
+		#2016
+
+		#if($DS =~ m/DataB/ || $DS =~ m/DataC/|| $DS =~ m/DataD/ || $DS =~ m/DataH/ ||$DS =~ m/JetsToLNu/)
+		#{
+		#    $max=$max*2;
+		#}
+		#if($DS =~ m/DataE/ || $DS =~ m/DataF/|| $DS =~ m/DY1JetsToLL_M-50/ || $DS =~ m/ST_t-channel_antitop_4f/)
+		#{
+		#    $max=$max/2;
+		#}
+
+		#2017
+
+		#if($DS =~ m/DY1JetsToLL_M-50/ || $DS =~ m/DY2JetsToLL_M-50/|| $DS =~ m/DY3JetsToLL_M-50/ ||$DS =~ m/DY4JetsToLL_M-50/ || $DS =~ m/DYJetsToLL_M-10to50/ || $DS =~ m/DYJetsToLL_M-50/ || $DS =~ m/GluGlu/ || $DS =~ m/VBFHTo/  || $DS =~ m/JetsToLNu/)
+		#{
+		#    $max=$max*2;
+		#}
+
+
+		#2018
+		
+		if( $DS =~ m/WZTo1L1Nu2Q/ || $DS =~ m/WWToLNuQQ/ || $DS =~ m/ZZTo2L2Q/ || $DS =~ m/W4/ || $DS =~ m/WZTo2L2Q/)
+		{
+		   $max=40;
+		}
+		if( $DS =~ m/ZZTo4L/)
+                {
+                    $max=$max/3;
+                }
+
+		if($DS =~ m/DYJets_ll_all_2018_V3/)
+                {
+                    $max=$max/6;
+                }
+
+		#if($DS =~ m/Data_A/ || $DS =~ m/Data_B/)
+                #{
+                #    $max=$max*2;
+                #}
+		
+		if($DS =~ m/Data_D/ || $DS =~ m/Data_C/)
+                {
+                    $max=20;
+                }
+
+	        if($DS =~ m/DY2JetsToLL/)
+		{
+		    $max=30;
+		}
+		
+
 		print "max  = $max;    maxmc = $maxmc \n";
 #		print "------- DS   $DS  \n";
 		printf("\n\nStarting Loop $l \n");

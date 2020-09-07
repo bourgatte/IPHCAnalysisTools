@@ -93,7 +93,6 @@ void Parameters::GetVectorString(TString p, std::vector<TString> &v, TString dv)
 template<typename T>
 void Parameters::GetParameter(TString p, T &v,T dv){
   // Open file
-  std::cout<<"file: "<<file<<std::endl;
   std::ifstream input_file;
   input_file.open(file, std::ios::in);
   if (!(input_file)){

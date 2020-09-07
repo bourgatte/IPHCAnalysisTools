@@ -60,6 +60,7 @@
 #include "TauIDSFs/interface/TauIDSFTool.h"
 //#include "TauIDSFTool.h"
 #include "RecoilCorrector.h"
+#include "MEtSys.h"
 
 #include "RooWorkspace.h"
 #include "RooFunctor.h"
@@ -107,17 +108,31 @@ class Ntuple_Controller{
   TauIDSFTool *tauSFTool2016=new TauIDSFTool("2016Legacy","DeepTau2017v2p1VSjet","Medium",true);
   TauIDSFTool *antiEleSFTool2016=new TauIDSFTool("2016Legacy","DeepTau2017v2p1VSe","VVLoose");
   TauIDSFTool *antiMuSFTool2016=new TauIDSFTool("2016Legacy","DeepTau2017v2p1VSmu","VLoose");
+  TauIDSFTool *tauEmbedSFTool2016=new TauIDSFTool("2016Legacy","DeepTau2017v2p1VSjet","Medium",true,true);
+  //TauIDSFTool *antiEleEmbedSFTool2016=new TauIDSFTool("2016Legacy","DeepTau2017v2p1VSe","VVLoose",false,true);
+  //TauIDSFTool *antiMuEmbedSFTool2016=new TauIDSFTool("2016Legacy","DeepTau2017v2p1VSmu","VLoose",false,true);
   
-  // TauIDSFTool *tauSFTool2017=new TauIDSFTool("2017ReReco","DeepTau2017v2p1VSjet","Medium",true);
-  // TauIDSFTool *antiEleSFTool2017=new TauIDSFTool("2017ReReco","DeepTau2017v2p1VSe","VVLoose");
-  // TauIDSFTool *antiMuSFTool2017=new TauIDSFTool("2017ReReco","DeepTau2017v2p1VSmu","VLoose");
-  // TauIDSFTool *tauSFTool2018=new TauIDSFTool("2018ReReco","DeepTau2017v2p1VSjet","Medium",true);
-  // TauIDSFTool *antiEleSFTool2018=new TauIDSFTool("2018ReReco","DeepTau2017v2p1VSe","VVLoose");
-  // TauIDSFTool *antiMuSFTool2018=new TauIDSFTool("2018ReReco","DeepTau2017v2p1VSmu","VLoose");
+  TauIDSFTool *tauSFTool2017=new TauIDSFTool("2017ReReco","DeepTau2017v2p1VSjet","Medium",true);
+  TauIDSFTool *antiEleSFTool2017=new TauIDSFTool("2017ReReco","DeepTau2017v2p1VSe","VVLoose");
+  TauIDSFTool *antiMuSFTool2017=new TauIDSFTool("2017ReReco","DeepTau2017v2p1VSmu","VLoose");
+  TauIDSFTool *tauEmbedSFTool2017=new TauIDSFTool("2017ReReco","DeepTau2017v2p1VSjet","Medium",true,true);
+  TauIDSFTool *tauSFTool2018=new TauIDSFTool("2018ReReco","DeepTau2017v2p1VSjet","Medium",true);
+  TauIDSFTool *antiEleSFTool2018=new TauIDSFTool("2018ReReco","DeepTau2017v2p1VSe","VVLoose");
+  TauIDSFTool *antiMuSFTool2018=new TauIDSFTool("2018ReReco","DeepTau2017v2p1VSmu","VLoose");
+  TauIDSFTool *tauEmbedSFTool2018=new TauIDSFTool("2018ReReco","DeepTau2017v2p1VSjet","Medium",true,true);
 
   RecoilCorrector *recoilPuppiMetCorrector2016;
+  RecoilCorrector *recoilPuppiMetCorrector2017;
+  RecoilCorrector *recoilPuppiMetCorrector2018;
   
+  MEtSys *recoilPuppiMetShifter2016;
+  MEtSys *recoilPuppiMetShifter2017;
+  MEtSys *recoilPuppiMetShifter2018;
+
   RooWorkspace *w2016;
+  RooWorkspace *w2017;
+  RooWorkspace *w2018;
+  
 
   /* TString SWorkSpace2017 = (std::string)std::getenv("workdir")+"Code/LegacyCorrectionsWorkspace/output/htt_scalefactors_legacy_2017.root"; */
   /* TFile * WorkSpace2017 = new TFile(SWorkSpace2017, "read"); */
@@ -129,6 +144,11 @@ class Ntuple_Controller{
   
   TFile *filePUdistribution2016_data;
   TFile *filePUdistribution2016_MC;
+  TFile *filePUdistribution2017_data;
+  TFile *filePUdistribution2017_MC;
+  TFile *filePUdistribution2018_data;
+  TFile *filePUdistribution2018_MC;
+  
   /* TString rfilename2017_data = (std::string)std::getenv("workdir")+"Code/CommonFiles/weights/PU/data_pileup_pudistributions_data_2017.root"; */
   /* TString rfilename2017_mc = (std::string)std::getenv("workdir")+"Code/CommonFiles/weights/PU/data_pileup_pudistributions_mc_2017.root"; */
   /* TFile *filePUdistribution2017_data = new TFile(rfilename2017_data, "read"); */
@@ -140,9 +160,18 @@ class Ntuple_Controller{
 
   TFile * TES2016;
   TFile * FES2016;
-  TH1* histTES;
-  TGraph* histFES;
+  TFile * TES2017;
+  TFile * FES2017;
+  TFile * TES2018;
+  TFile * FES2018;
   
+  TH1* histTES2016;
+  TGraph* histFES2016;
+  TH1* histTES2017;
+  TGraph* histFES2017;
+  TH1* histTES2018;
+  TGraph* histFES2018;
+
   bool cannotObtainHiggsMass; // avoid repeated printing of warning when running locally
 
   // Ntuple Access Functions
@@ -540,6 +569,13 @@ TauSpinerInt.SetTauSignalCharge(signalcharge);
    double RefitPVBS_x(unsigned int k){return Ntp->RefitPVBS_x->at(k);}
    double RefitPVBS_y(unsigned int k){return Ntp->RefitPVBS_y->at(k);}
    double RefitPVBS_z(unsigned int k){return Ntp->RefitPVBS_z->at(k);}
+
+   double RefitPVWithTracksBS_x(){return Ntp->RefitPVWithTracksBS_x;}
+   double RefitPVWithTracksBS_y(){return Ntp->RefitPVWithTracksBS_y;}
+   double RefitPVWithTracksBS_z(){return Ntp->RefitPVWithTracksBS_z;}
+   double RefitPVWithTracksBS_xError(){return Ntp->RefitPVWithTracksBS_xError;}
+   double RefitPVWithTracksBS_yError(){return Ntp->RefitPVWithTracksBS_yError;}
+   double RefitPVWithTracksBS_zError(){return Ntp->RefitPVWithTracksBS_zError;}   
    
    unsigned int   NPVRefitNoBS(){return Ntp->RefitPVNoBS_x->size();}
    unsigned int   NPVRefitBS(){return Ntp->RefitPVBS_x->size();}
@@ -626,6 +662,8 @@ TauSpinerInt.SetTauSignalCharge(signalcharge);
    //Float_t         PUReweight(){return Ntp->PUReweight;}
    double         PUReweight();
    double         prefiringweight(){return Ntp->prefiringweight;}
+   double         prefiringweightup(){return Ntp->prefiringweightup;}
+   double         prefiringweightdown(){return Ntp->prefiringweightdown;}
    Int_t           PUNumInteractions(){return Ntp->PUNumInteractions;}
    Float_t         rho(){return Ntp->rho;}
 
@@ -655,6 +693,15 @@ TauSpinerInt.SetTauSignalCharge(signalcharge);
    Float_t         MC_weight_scale_muF2(){return Ntp->MC_weight_scale_muF2;}
    Float_t         MC_weight_scale_muR0p5(){return Ntp->MC_weight_scale_muR0p5;}
    Float_t         MC_weight_scale_muR2(){return Ntp->MC_weight_scale_muR2;}
+   Double_t        nominal_wt(){return Ntp->nominal_wt;}
+   
+   int             TheoreticalPSUncSize(){return Ntp->TheoreticalPSUnc->size();}
+   Double_t        TheoreticalPSUnc(int t){return Ntp->TheoreticalPSUnc->at(t);}
+   Double_t        TheoreticalScaleUnc1005(){return Ntp->TheoreticalScaleUnc1005;}
+   Double_t        TheoreticalScaleUnc1009(){return Ntp->TheoreticalScaleUnc1009;}
+   Double_t        TheoreticalScaleUnc5(){return Ntp->TheoreticalScaleUnc5;}
+   Double_t        TheoreticalScaleUnc9(){return Ntp->TheoreticalScaleUnc9;}
+   
    Float_t         lheHt(){return Ntp->lheHt;}
    Int_t            lheNOutPartons(){return Ntp->lheNOutPartons;}
    Int_t            lheNOutB(){return Ntp->lheNOutB;}
@@ -687,7 +734,8 @@ TauSpinerInt.SetTauSignalCharge(signalcharge);
    int Genjet_partonFlavour(unsigned int i){return Ntp->genjet_partonFlavour->at(i);}
    int Genjet_hadronFlavour(unsigned int i){return Ntp->genjet_hadronFlavour->at(i);}
    TLorentzVector TauP4_Corrected(unsigned int i);
-   TLorentzVector P4Corrected(unsigned int i);
+   TLorentzVector P4Corrected(unsigned int i,int genmatch,string Unc="Nom");
+   int GetGenMatch(int tauindex);
  
    Int_t NUP(){return Ntp->NUP;}
    /* bool isSVFitInfoAvailable(){if(Ntp->SVfit_fitMETPhiTauUp->size()!=0) return true; return false;} */
@@ -726,7 +774,7 @@ TauSpinerInt.SetTauSignalCharge(signalcharge);
 
 
 
-   void RecoilCorr(TLorentzVector Gen,TLorentzVector Vis,int Index,float &PUPPImetCorr_px,float &PUPPImetCorr_py);
+   void RecoilCorr(TLorentzVector Gen,TLorentzVector Vis, int Index,float &PUPPImetCorr_px,float &PUPPImetCorr_py, string JER="Nom", string METScale="Nom", string METReso="Nom");
    float  METx(unsigned int i){return Ntp->METx->at(i);}   // index here is a pair
    float  METy(unsigned int i){return Ntp->METy->at(i);}
    //float  uncorrMETx(unsigned int i){return Ntp->uncorrMETx->at(i);}
@@ -773,6 +821,7 @@ TauSpinerInt.SetTauSignalCharge(signalcharge);
 bool  Daughters_iseleWP80(unsigned int i){return Ntp->daughters_iseleWP80->at(i);}
 bool  Daughters_iseleWP90(unsigned int i){return Ntp->daughters_iseleWP90->at(i);}
 bool  Daughters_iseleNoIsoWP90(unsigned int i){return Ntp->daughters_iseleNoIsoWP90->at(i);}
+bool  Daughters_iseleNoIsoWPLoose(unsigned int i){return Ntp->daughters_iseleNoIsoWPLoose->at(i);}
 float Daughters_eleMVAnt(unsigned int i){return Ntp->daughters_eleMVAnt->at(i);}
 float Daughters_eleMVA_HZZ(unsigned int i){return Ntp->daughters_eleMVA_HZZ->at(i);}
 bool  Daughters_passConversionVeto(unsigned int i){return Ntp->daughters_passConversionVeto->at(i);}
@@ -998,8 +1047,15 @@ float  Daughters_jetBTagCSV(unsigned int i){return Ntp->daughters_jetBTagCSV->at
 
  
  //Int_t           JetsNumber(){return Ntp->JetsNumber;}
+ bool tightJetID(unsigned int i){return Ntp->tightJetID->at(i);}
  unsigned int NJets(){return Ntp->jets_px->size();}
+ unsigned int NJetsDown(){return Ntp->jetsDown_px->size();}
+ unsigned int NJetsUp(){return Ntp->jetsUp_px->size();}
+ 
  TLorentzVector Jet_P4(unsigned int i){return TLorentzVector(Ntp->jets_px->at(i), Ntp->jets_py->at(i), Ntp->jets_pz->at(i),Ntp->jets_e->at(i));}
+ TLorentzVector JetDown_P4(unsigned int i){return TLorentzVector(Ntp->jetsDown_px->at(i), Ntp->jetsDown_py->at(i), Ntp->jetsDown_pz->at(i),Ntp->jetsDown_e->at(i));}
+ TLorentzVector JetUp_P4(unsigned int i){return TLorentzVector(Ntp->jetsUp_px->at(i), Ntp->jetsUp_py->at(i), Ntp->jetsUp_pz->at(i),Ntp->jetsUp_e->at(i));}
+ 
  // float jets_rawPt(unsigned int i){return Ntp->jets_rawPt->at(i);}
  float jets_area(unsigned int i){return Ntp->jets_area->at(i);}
  float jets_mT(unsigned int i){return Ntp->jets_mT->at(i);}
@@ -1025,6 +1081,30 @@ float  Daughters_jetBTagCSV(unsigned int i){return Ntp->daughters_jetBTagCSV->at
  int   jets_neMult(unsigned int i){return Ntp->_jets_neMult->at(i);}
  int   jets_chMult(unsigned int i){return Ntp->_jets_chMult->at(i);}
  float jets_jecUnc(unsigned int i){return Ntp->jets_jecUnc->at(i);}
+ int jets_jetUnc_AbsoluteSize_up(){return Ntp->jets_jetUnc_Absolute_up->size();}
+ float jets_jetUnc_Absolute_up(int i){return Ntp->jets_jetUnc_Absolute_up->at(i);}
+ float jets_jetUnc_FlavorQCD_up(int i){return Ntp->jets_jetUnc_FlavorQCD_up->at(i);}
+ float jets_jetUnc_RelativeBal_up(int i){return Ntp->jets_jetUnc_RelativeBal_up->at(i);}
+ float jets_jetUnc_HF_up(int i){return Ntp->jets_jetUnc_HF_up->at(i);}
+ float jets_jetUnc_BBEC1_up(int i){return Ntp->jets_jetUnc_BBEC1_up->at(i);}
+ float jets_jetUnc_EC2_up(int i){return Ntp->jets_jetUnc_EC2_up->at(i);}
+ float jets_jetUnc_BBEC1_YEAR_up(int i){return Ntp->jets_jetUnc_BBEC1_YEAR_up->at(i);}
+ float jets_jetUnc_EC2_YEAR_up(int i){return Ntp->jets_jetUnc_EC2_YEAR_up->at(i);}
+ float jets_jetUnc_Absolute_YEAR_up(int i){return Ntp->jets_jetUnc_Absolute_YEAR_up->at(i);}
+ float jets_jetUnc_HF_YEAR_up(int i){return Ntp->jets_jetUnc_HF_YEAR_up->at(i);}
+ float jets_jetUnc_RelativeSample_YEAR_up(int i){return Ntp->jets_jetUnc_RelativeSample_YEAR_up->at(i);}
+ float jets_jetUnc_Absolute_dw(int i){return Ntp->jets_jetUnc_Absolute_dw->at(i);}
+ float jets_jetUnc_FlavorQCD_dw(int i){return Ntp->jets_jetUnc_FlavorQCD_dw->at(i);}
+ float jets_jetUnc_RelativeBal_dw(int i){return Ntp->jets_jetUnc_RelativeBal_dw->at(i);}
+ float jets_jetUnc_HF_dw(int i){return Ntp->jets_jetUnc_HF_dw->at(i);}
+ float jets_jetUnc_BBEC1_dw(int i){return Ntp->jets_jetUnc_BBEC1_dw->at(i);}
+ float jets_jetUnc_EC2_dw(int i){return Ntp->jets_jetUnc_EC2_dw->at(i);}
+ float jets_jetUnc_BBEC1_YEAR_dw(int i){return Ntp->jets_jetUnc_BBEC1_YEAR_dw->at(i);}
+ float jets_jetUnc_EC2_YEAR_dw(int i){return Ntp->jets_jetUnc_EC2_YEAR_dw->at(i);}
+ float jets_jetUnc_Absolute_YEAR_dw(int i){return Ntp->jets_jetUnc_Absolute_YEAR_dw->at(i);}
+ float jets_jetUnc_HF_YEAR_dw(int i){return Ntp->jets_jetUnc_HF_YEAR_dw->at(i);}
+ float jets_jetUnc_RelativeSample_YEAR_dw(int i){return Ntp->jets_jetUnc_RelativeSample_YEAR_dw->at(i);}
+ 
  float  bDiscriminator(unsigned int i){return Ntp->bDiscriminator->at(i);}
  float  bCSVscore(unsigned int i){return Ntp->bCSVscore->at(i);}
  float  DeepCSV_probb(unsigned int i){return Ntp->bDeepCSV_probb->at(i);}
@@ -1053,7 +1133,11 @@ float  Daughters_jetBTagCSV(unsigned int i){return Ntp->daughters_jetBTagCSV->at
  float subjets_CSV(unsigned int i){return Ntp->subjets_CSV->at(i);}
  int subjets_ak8MotherIdx(unsigned int i){return Ntp->subjets_ak8MotherIdx->at(i);}
 
- bool CHECK_BIT(int var, int pos){  return ((var & (1 << pos)) == (1 << pos)); }
+ bool CHECK_BIT(unsigned long long var, int pos){  
+   unsigned long long CHECK1=(unsigned long long)(var & ((unsigned long long)(1) << pos));
+   unsigned long long CHECK2=(unsigned long long)((unsigned long long)(1) << pos);
+   return ( CHECK1==CHECK2 );
+ }
  //
  double stitch_weight(bool isDY1050);
  
@@ -1081,11 +1165,13 @@ float  Daughters_jetBTagCSV(unsigned int i){return Ntp->daughters_jetBTagCSV->at
  Float_t antieweight_2(int k){return Ntp->antieweight_2->at(k);}
  Float_t antimuweight_2(int k){return Ntp->antimuweight_2->at(k);}
 
- double IDSF(int i);
- double TriggerSF(int i);
+ double IDSF(int i, int genmatch, string TES="Nom", string particle="tau", string Unc="Nom");
+ double TriggerSF(int i,int genmatch,string TES="Nom", string Unc="Nom");
  double ZPtReweight(TLorentzVector GenP4);
- 
- /* Float_t pt_tt(int k){return Ntp->pt_tt->at(k);} */
+ double EmbeddingSelectionSF(int imc1, int imc2);
+ void FillHist(unsigned int t, int idx, bool isOS, bool GenMatchSelection, double value, std::pair<float, int> max_pair, double w, double wData, double wMC, std::vector<TH2D> *histHiggs=nullptr, std::vector<TH2D> *histJetFakes=nullptr, std::vector<TH2D> *histZTT=nullptr, std::vector<TH2D> *histWfakesHiggs=nullptr, std::vector<TH2D> *histWfakesJetFakes=nullptr, std::vector<TH2D> *histWfakesZTT=nullptr, std::vector<TH2D> *histHiggsQCDMC=nullptr, std::vector<TH2D> *histJetFakesQCDMC=nullptr, std::vector<TH2D> *histZTTQCDMC=nullptr);
+
+ //Float_t pt_tt(int k){return Ntp->pt_tt->at(k);} 
  /* Float_t pt_vis(int k){return Ntp->pt_vis->at(k);} */
  Float_t mt_tot(int k){return Ntp->mt_tot->at(k);}
  // Float_t m_vis(int k){return Ntp->m_vis->at(k);}
@@ -1093,25 +1179,51 @@ float  Daughters_jetBTagCSV(unsigned int i){return Ntp->daughters_jetBTagCSV->at
  Float_t MET(){return Ntp->met;}
  Float_t METphi(){return Ntp->metphi;}
  Float_t PUPPImet(){return Ntp->PUPPImet;}
+ Float_t puppimet_ex_UnclusteredEnUp(){return Ntp->puppimet_ex_UnclusteredEnUp;}
+ Float_t puppimet_ey_UnclusteredEnUp(){return Ntp->puppimet_ey_UnclusteredEnUp;}
+ Float_t puppimet_ex_UnclusteredEnDown(){return Ntp->puppimet_ex_UnclusteredEnDown;}
+ Float_t puppimet_ey_UnclusteredEnDown(){return Ntp->puppimet_ey_UnclusteredEnDown;}
  Float_t PUPPImetphi(){return Ntp->PUPPImetphi;}
  Float_t PFMETCov00(){return Ntp->PFMETCov00;}
  Float_t PFMETCov01(){return Ntp->PFMETCov01;}
  Float_t PFMETCov10(){return Ntp->PFMETCov10;}
  Float_t PFMETCov11(){return Ntp->PFMETCov11;}
-  
+ Float_t PUPPIMETCov00(){return Ntp->PUPPIMETCov00;}
+ Float_t PUPPIMETCov01(){return Ntp->PUPPIMETCov01;}
+ Float_t PUPPIMETCov10(){return Ntp->PUPPIMETCov10;}
+ Float_t PUPPIMETCov11(){return Ntp->PUPPIMETCov11;}
+
  Float_t mjj(int k){return Ntp->mjj->at(k);}
  Float_t jdeta(int k){return Ntp->jdeta->at(k);}
+ Float_t mjjDown(int k){return Ntp->mjjDown->at(k);}
+ Float_t jdetaDown(int k){return Ntp->jdetaDown->at(k);}
+ Float_t mjjUp(int k){return Ntp->mjjUp->at(k);}
+ Float_t jdetaUp(int k){return Ntp->jdetaUp->at(k);}
+ 
  Int_t njetingap(int k){return Ntp->njetingap->at(k);}
  Int_t njetingap20(int k){return Ntp->njetingap20->at(k);}
  Float_t jdphi(int k){return Ntp->jdphi->at(k);}
  Float_t dijetpt(int k){return Ntp->dijetpt->at(k);}
  Float_t dijetphi(int k){return Ntp->dijetphi->at(k);}
  //Float_t ptvis(int k){return Ntp->ptvis->at(k);}
-
  Int_t nbtag(int k){return Ntp->nbtag->at(k);}
+ Int_t njetsSize(){return Ntp->njets->size();}
  Int_t njets(int k){return Ntp->njets->at(k);}
+ Int_t njetspt20Size(){return Ntp->njetspt20->size();}
  Int_t njetspt20(int k){return Ntp->njetspt20->at(k);}
+ Int_t njetsSizeUp(){return Ntp->njetsUp->size();}
+ Int_t njetsUp(int k){return Ntp->njetsUp->at(k);}
+ Int_t njetspt20Up(int k){return Ntp->njetspt20Up->at(k);}
+ Int_t njetspt20SizeUp(){return Ntp->njetspt20Up->size();}
+ Int_t njetsSizeDown(){return Ntp->njetsDown->size();}
+ Int_t njetsDown(int k){return Ntp->njetsDown->at(k);}
+ Int_t njetspt20Down(int k){return Ntp->njetspt20Down->at(k);}
+ Int_t njetspt20SizeDown(){return Ntp->njetspt20Down->size();}
+ int jptSize_1(){return Ntp->jpt_1->size();}
  Float_t jpt_1(int k){return Ntp->jpt_1->at(k);}
+ Float_t jptDown_1(int k){return Ntp->jptDown_1->at(k);}
+ Float_t jptUp_1(int k){return Ntp->jptUp_1->at(k);}
+ 
  Float_t jeta_1(int k){return Ntp->jeta_1->at(k);}
  Float_t jphi_1(int k){return Ntp->jphi_1->at(k);}
  Float_t jcsv_1(int k){return Ntp->jcsv_1->at(k);}
@@ -1339,7 +1451,7 @@ float  Daughters_jetBTagCSV(unsigned int i){return Ntp->daughters_jetBTagCSV->at
    bool           isIsolatedTau(int i, TString isotype);
 
 
-   bool           tauBaselineSelection(int i, double cutPt, double cutEta, int aele, int amu, int ajet);
+   bool           tauBaselineSelection(int i, int genmatch, double cutPt, double cutEta, int aele, int amu, int ajet, string TES="Nom");
    bool           muonBaselineSelection(int i, float ptMin, float etaMax, int muWP);
    bool           electronBaselineSelection( int i, double cutPt, double cutEta);
 
@@ -1354,7 +1466,7 @@ float  Daughters_jetBTagCSV(unsigned int i){return Ntp->daughters_jetBTagCSV->at
    bool           DiEleVeto();
    
    
-
+   static  bool ComparePairsbyPt(TLorentzVector i, TLorentzVector j);
    std::vector<int>  SortTauHTauHPair (std::vector<int>  PairIndices);
    std::vector<int>  SortPair(std::vector<int>  PairIndices,  std::vector<int>  PairsIndex1, std::vector<int>  PairsIndex2);
 
