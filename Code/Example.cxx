@@ -92,7 +92,7 @@ void  Example::doEvent(){
   
   double wobs=1;
   double w;
-  if(!Ntp->isData()){w = Ntp->PUReweight();}
+  if(!Ntp->isData()){/*w = Ntp->PUReweight(Ntp->year())*/;}
   else{w=1;}
 
 

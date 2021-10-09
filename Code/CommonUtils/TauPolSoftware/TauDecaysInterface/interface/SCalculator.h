@@ -24,6 +24,7 @@
 #include <vector>
 #include "TLorentzVector.h"
 #include "PolarimetricA1.h"
+#include "boost/functional/hash.hpp"
 using namespace std;
 
 
@@ -40,6 +41,10 @@ class SCalculator {
   TVector3 Rotate(TVector3 LVec, TVector3 Rot);
   TVector3 pv();
   void SortPions(std::vector<TLorentzVector >& pionsvec, std::vector<double>& charges);
+  bool isOk(TString type1, TString type2, TLorentzVector tauMinus, std::vector<TLorentzVector> sumPionsMinus, std::vector<double> sumPionsChargeMinus, TLorentzVector tauPlus, std::vector<TLorentzVector> sumPionsPlus, std::vector<double> sumPionsChargePlus);
+  double AcopAngle(TString type1, TString type2, TLorentzVector tauMinus, std::vector<TLorentzVector> sumPionsMinus, std::vector<double> sumPionsChargeMinus, TLorentzVector tauPlus, std::vector<TLorentzVector> sumPionsPlus, std::vector<double> sumPionsChargePlus);
+  static double M(TLorentzVector LV);
+  //static TVector3 GetRefittedPV(vector<size_t> hashes, TVector3 PVNominal, vector<double> PVRefit_X , vector<double> PVRefit_Y ,vector<double> PVRefit_Z ,vector<size_t> VertexHash1, vector<size_t> VertexHash2);
 
   //====================
 
@@ -53,5 +58,6 @@ class SCalculator {
   TLorentzVector TauLV;
   bool debug;
   TMatrixT<double> convertToMatrix(TVectorT<double> V);
+
 };
 #endif

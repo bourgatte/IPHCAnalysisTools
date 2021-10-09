@@ -9,6 +9,8 @@
 #include <algorithm>
 #include <iostream>
 
+using namespace std;
+
 bool stringCompare(TString left_, TString right_) {
 	const string left(left_, left_.Sizeof());
 	const string right(right_, right_.Sizeof());

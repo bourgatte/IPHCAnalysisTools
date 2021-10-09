@@ -1,20 +1,6 @@
 #include "Parameters.h"
 #include "SimpleFits/FitSoftware/interface/Logger.h"
 
-#include <cstdlib>
-#include <algorithm>                                     
-#include <iostream>
-#include <iomanip>
-#include <string>
-#include <fstream>
-#include <sstream>
-#include "Riostream.h"
-#include <fstream>
-#include <istream>
-#include <strstream>
-#include <cstdlib>
-#include <math.h>
-
 // Static var
 TString Parameters::file = "Tools/Par.dat";
 
@@ -30,7 +16,7 @@ Parameters::~Parameters(){
 
 
 void Parameters::SetFile(TString f){
-  file=f;
+  file=f;  
 }
 
 TString Parameters::GetFile(){
@@ -64,7 +50,7 @@ void Parameters::GetDouble(TString p, double &v, double dv){
 void Parameters::GetVectorString(TString p, std::vector<TString> &v, TString dv){
   v.clear();
   // Open File
-  ifstream input_file;
+  std::ifstream input_file;
   input_file.open(file, std::ios::in);
   if (!(input_file)){
     Logger(Logger::Error) << "Opening xml file "<< file <<" for Parameters has failed." << std::endl;
@@ -106,16 +92,14 @@ void Parameters::GetVectorString(TString p, std::vector<TString> &v, TString dv)
 
 template<typename T>
 void Parameters::GetParameter(TString p, T &v,T dv){
-
-  // Open File
-  ifstream input_file;
+  // Open file
+  std::ifstream input_file;
   input_file.open(file, std::ios::in);
   if (!(input_file)){
-	  Logger(Logger::Error) << "Opening xml file "<< file <<" for Parameters has failed." << std::endl;
+    Logger(Logger::Error) << "Opening xml file "<< file <<" for Parameters has failed." << std::endl;
     return;
   }
   Logger(Logger::Verbose) << "Opened Parameters xml file: "<< file <<"." << std::endl;
-
   std::string s;
   unsigned int a=0;
   while(getline(input_file, s)){
@@ -144,7 +128,7 @@ void Parameters::GetVectorStringDouble(TString p, std::vector<TString> &v1, std:
   v1.clear();
   v2.clear();
   // Open File
-  ifstream input_file;
+  std::ifstream input_file;
   input_file.open(file, std::ios::in);
   if (!(input_file)){
 	Logger(Logger::Error) << "Opening xml file "<< file <<" for Parameters has failed." << std::endl;

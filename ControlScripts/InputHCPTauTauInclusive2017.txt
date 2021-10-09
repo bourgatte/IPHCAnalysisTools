@@ -1,0 +1,16 @@
+Thin: False
+Skim: False
+HistoFile: InputData/HistoHCPTauTauInclusive_2017.txt
+Analysis: HCPTauTau
+UncertType: default
+SkimInfo: InputData/SkimSummary_2017_final4.log
+Lumi: 41530.000
+PlotStyle: style2
+
+
+# Everything below is only needed if you intend to use SVFit
+# DO NOT modify the fields in curly brackets {xyz}, they are set by the framework
+InputFileSVFit: 
+OutputFileSVFit: 
+GRIDSite: grid-srm.physik.rwth-aachen.de
+InputNtuples: {FileDir}

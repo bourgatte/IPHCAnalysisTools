@@ -23,17 +23,39 @@ Ntuple_Controller::Ntuple_Controller(std::vector<TString> RootFiles):
   ,cannotObtainHiggsMass(false)
   ,ObjEvent(-1)
   ,isInit(false)
-{
+{  
   // TChains the ROOTuple file
-  TChain *chain = new TChain("HTauTauTree");
+  TChain *chain = NULL;
+  chain=new TChain("HTauTauTree/HTauTauTree");
   Logger(Logger::Verbose) << "Loading " << RootFiles.size() << " files" << std::endl;
+  int chainsize=0;
+  bool failed=false;
   for(unsigned int i=0; i<RootFiles.size(); i++){
-    chain->Add(RootFiles[i]);
+    chainsize=chain->Add(RootFiles[i]);
+    if(chainsize!=1)
+      {
+	sleep(10);
+	chainsize=chain->Add(RootFiles[i]);
+	if(chainsize!=1)
+	  {
+	    sleep(10);
+	    chainsize=chain->Add(RootFiles[i]);
+	    if(chainsize!=1)
+	      {
+		sleep(10);
+		chainsize=chain->Add(RootFiles[i]);
+		if(chainsize!=1)failed=true; 
+	      }
+	  }
+      }
   }
+  if(failed==true)Logger(Logger::Error) << "Some root files are not added!!!" << std::endl;
   TTree *tree = (TTree*)chain;
   if(chain==0){
 	Logger(Logger::Error) << "chain points to NULL" << std::endl;
   }
+  tree->SetBranchStatus("daughters_byIsolationMVA*old*",0);
+  //tree->SetBranchStatus("trigger_name",0);
   Logger(Logger::Info) << "Number of Events in Ntuple: " << chain->GetEntries() << std::endl;
   Ntp=new NtupleReader(tree);
   nbytes=0; 
@@ -62,6 +84,68 @@ Ntuple_Controller::Ntuple_Controller(std::vector<TString> RootFiles):
   muonCorrection = "";
   elecCorrection = "";
   jetCorrection = "";
+
+
+
+  TFile *WorkSpace2016=TFile::Open(((std::string)std::getenv("workdir")+"Code/LegacyCorrectionsWorkspace/output/htt_scalefactors_legacy_2016.root").c_str(), "READ");
+  w2016= (RooWorkspace*)gDirectory->Get("w");
+  WorkSpace2016->Close();
+  
+  TFile *WorkSpace2017=TFile::Open(((std::string)std::getenv("workdir")+"Code/LegacyCorrectionsWorkspace/output/htt_scalefactors_legacy_2017.root").c_str(), "READ");
+  w2017= (RooWorkspace*)gDirectory->Get("w");
+  WorkSpace2017->Close();
+
+  TFile *WorkSpace2018=TFile::Open(((std::string)std::getenv("workdir")+"Code/LegacyCorrectionsWorkspace/output/htt_scalefactors_legacy_2018.root").c_str(), "READ");
+  w2018= (RooWorkspace*)gDirectory->Get("w");
+  WorkSpace2018->Close();
+
+  
+  recoilPuppiMetCorrector2016=new RecoilCorrector((std::string)std::getenv("workdir")+"Code/CommonUtils/HTT-utilities/RecoilCorrections/data/Type1_PuppiMET_2016.root");
+  
+  recoilPuppiMetCorrector2017=new RecoilCorrector((std::string)std::getenv("workdir")+"Code/CommonUtils/HTT-utilities/RecoilCorrections/data/Type1_PuppiMET_2017.root");
+
+  recoilPuppiMetCorrector2018=new RecoilCorrector((std::string)std::getenv("workdir")+"Code/CommonUtils/HTT-utilities/RecoilCorrections/data/Type1_PuppiMET_2018.root");
+
+  recoilPuppiMetShifter2016=new MEtSys((std::string)std::getenv("workdir")+"Code/CommonUtils/HTT-utilities/RecoilCorrections/data/PuppiMETSys_2016.root");
+  
+  recoilPuppiMetShifter2017=new MEtSys((std::string)std::getenv("workdir")+"Code/CommonUtils/HTT-utilities/RecoilCorrections/data/PuppiMETSys_2017.root");
+
+  recoilPuppiMetShifter2018=new MEtSys((std::string)std::getenv("workdir")+"Code/CommonUtils/HTT-utilities/RecoilCorrections/data/PuppiMETSys_2018.root");
+  
+
+  filePUdistribution2016_data=TFile::Open(((std::string)std::getenv("workdir")+"Code/CommonFiles/weights/PU/Data_Pileup_2016_271036-284044_80bins.root").c_str(), "READ");
+  filePUdistribution2016_MC=TFile::Open(((std::string)std::getenv("workdir")+"Code/CommonFiles/weights/PU/MC_Moriond17_PU25ns_V1.root").c_str(), "READ");
+  
+
+  filePUdistribution2017_data=TFile::Open(((std::string)std::getenv("workdir")+"Code/CommonFiles/weights/PU/pu_distributions_data_2017.root").c_str(), "READ");
+  if(GetInputNtuplePath().Contains("DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8"))filePUdistribution2017_MC=TFile::Open(((std::string)std::getenv("workdir")+"Code/CommonFiles/weights/PU/forBuggy/pileup_2017_DYJetsToLL-LO.root").c_str(), "READ");
+  else if(GetInputNtuplePath().Contains("W3JetsToLNu_TuneCP5_13TeV-madgraphMLM-pythia8"))filePUdistribution2017_MC=TFile::Open(((std::string)std::getenv("workdir")+"Code/CommonFiles/weights/PU/forBuggy/pileup_2017_W3JetsToLNu-LO.root").c_str(), "READ");
+  else if(GetInputNtuplePath().Contains("WWTo1L1Nu2Q_13TeV_amcatnloFXFX_madspin_pythia8"))filePUdistribution2017_MC=TFile::Open(((std::string)std::getenv("workdir")+"Code/CommonFiles/weights/PU/forBuggy/pileup_2017_WWTo1L1Nu2Q.root").c_str(), "READ");
+  else if(GetInputNtuplePath().Contains("WminusHToTauTau_M125_13TeV_powheg_pythia8"))filePUdistribution2017_MC=TFile::Open(((std::string)std::getenv("workdir")+"Code/CommonFiles/weights/PU/forBuggy/pileup_2017_WminusHToTauTau_M-125.root").c_str(), "READ");
+  else if(GetInputNtuplePath().Contains("WplusHToTauTau_M125_13TeV_powheg_pythia8"))filePUdistribution2017_MC=TFile::Open(((std::string)std::getenv("workdir")+"Code/CommonFiles/weights/PU/forBuggy/pileup_2017_WplusHToTauTau_M-125.root").c_str(), "READ");
+  else filePUdistribution2017_MC=TFile::Open(((std::string)std::getenv("workdir")+"Code/CommonFiles/weights/PU/pileup_2017_DYJetsToLL-ext.root").c_str(), "READ");
+
+  filePUdistribution2018_data=TFile::Open(((std::string)std::getenv("workdir")+"Code/CommonFiles/weights/PU/pileUp_data_Autumn18.root").c_str(), "READ");
+  filePUdistribution2018_MC=TFile::Open(((std::string)std::getenv("workdir")+"Code/CommonFiles/weights/PU/pileUp_MC_Autumn18.root").c_str(), "READ");
+  
+
+  TES2016=TFile::Open(((std::string)std::getenv("workdir")+"Code/CommonUtils/TauIDSFs/data/TauES_dm_DeepTau2017v2p1VSjet_2016Legacy.root").c_str(),"READ");
+  FES2016=TFile::Open(((std::string)std::getenv("workdir")+"Code/CommonUtils/TauIDSFs/data/TauFES_eta-dm_DeepTau2017v2p1VSe_2016Legacy.root").c_str(),"READ");
+  histTES2016 = dynamic_cast<TH1*>((const_cast<TFile*>(TES2016))->Get("tes"));
+  histFES2016 = dynamic_cast<TGraph*>((const_cast<TFile*>(FES2016))->Get("fes"));
+
+  TES2017=TFile::Open(((std::string)std::getenv("workdir")+"Code/CommonUtils/TauIDSFs/data/TauES_dm_DeepTau2017v2p1VSjet_2017ReReco.root").c_str(),"READ");
+  FES2017=TFile::Open(((std::string)std::getenv("workdir")+"Code/CommonUtils/TauIDSFs/data/TauFES_eta-dm_DeepTau2017v2p1VSe_2017ReReco.root").c_str(),"READ");
+  histTES2017 = dynamic_cast<TH1*>((const_cast<TFile*>(TES2017))->Get("tes"));
+  histFES2017 = dynamic_cast<TGraph*>((const_cast<TFile*>(FES2017))->Get("fes"));
+
+  TES2018=TFile::Open(((std::string)std::getenv("workdir")+"Code/CommonUtils/TauIDSFs/data/TauES_dm_DeepTau2017v2p1VSjet_2018ReReco.root").c_str(),"READ");
+  FES2018=TFile::Open(((std::string)std::getenv("workdir")+"Code/CommonUtils/TauIDSFs/data/TauFES_eta-dm_DeepTau2017v2p1VSe_2018ReReco.root").c_str(),"READ");
+  histTES2018 = dynamic_cast<TH1*>((const_cast<TFile*>(TES2018))->Get("tes"));
+  histFES2018 = dynamic_cast<TGraph*>((const_cast<TFile*>(FES2018))->Get("fes"));
+
+  if (GetInputNtuplePath().Contains("Embed"))EmbedID=36;
+  else EmbedID=-1;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -149,6 +233,48 @@ void Ntuple_Controller::Branch_Setup(TString B_Name, int type){
 ///////////////////////////////////////////////////////////////////////
 Ntuple_Controller::~Ntuple_Controller() {
   Logger(Logger::Verbose) << "Cleaning up" << std::endl;
+  delete tauSFTool2016;
+  delete antiEleSFTool2016;
+  delete antiMuSFTool2016;
+  delete tauEmbedSFTool2016;
+  delete TES2016;
+  delete FES2016;
+  delete recoilPuppiMetCorrector2016;
+  delete recoilPuppiMetShifter2016;
+  filePUdistribution2016_data->Close();
+  filePUdistribution2016_MC->Close();
+  delete filePUdistribution2016_data;
+  delete filePUdistribution2016_MC;
+  delete w2016;
+
+  delete tauSFTool2017;
+  delete antiEleSFTool2017;
+  delete antiMuSFTool2017;
+  delete tauEmbedSFTool2017;
+  delete TES2017;
+  delete FES2017;
+  delete recoilPuppiMetCorrector2017;
+  delete recoilPuppiMetShifter2017;
+  filePUdistribution2017_data->Close();
+  filePUdistribution2017_MC->Close();
+  delete filePUdistribution2017_data;
+  delete filePUdistribution2017_MC;
+  delete w2017;
+
+  delete tauSFTool2018;
+  delete antiEleSFTool2018;
+  delete antiMuSFTool2018;
+  delete tauEmbedSFTool2018;
+  delete TES2018;
+  delete FES2018;
+  delete recoilPuppiMetCorrector2018;
+  delete recoilPuppiMetShifter2018;
+  filePUdistribution2018_data->Close();
+  filePUdistribution2018_MC->Close();
+  delete filePUdistribution2018_data;
+  delete filePUdistribution2018_MC;
+  delete w2018;
+
   delete Ntp;
   //  delete rmcor;
   Logger(Logger::Verbose) << "Complete." << std::endl;
@@ -157,8 +283,50 @@ Ntuple_Controller::~Ntuple_Controller() {
 
 void Ntuple_Controller::CloneTree(TString n){
   if(!copyTree){
-	Logger(Logger::Info) << "Starting D3PD cloning" << std::endl;
-    newfile = new TFile(n+".root","recreate");
+    Logger(Logger::Info) << "Starting D3PD cloning" << std::endl;
+    
+    newfile = TFile::Open(n+".root","recreate");
+    if(newfile->IsZombie())Logger(Logger::Info) << "Zombie Output" << endl;
+    if(!newfile->IsOpen())Logger(Logger::Info) << "Output not openned" << endl;
+    Ntp->fChain->SetBranchStatus("daughters_byIsolationMVArun2v1DBoldDMwLTrawc",0);
+    Ntp->fChain->SetBranchStatus("isOSCand",0);
+    Ntp->fChain->SetBranchStatus("*_UP_*",0);
+    Ntp->fChain->SetBranchStatus("*TauUp*",0);
+    Ntp->fChain->SetBranchStatus("*EleUp*",0);
+    Ntp->fChain->SetBranchStatus("*_DOWN_*",0);
+    Ntp->fChain->SetBranchStatus("*Down*",0);
+    Ntp->fChain->SetBranchStatus("*_cov*",0);
+    Ntp->fChain->SetBranchStatus("MET_significance",0);
+    Ntp->fChain->SetBranchStatus("mT_Dau*",0);
+    Ntp->fChain->SetBranchStatus("aMCatNLOweight",0);
+    Ntp->fChain->SetBranchStatus("PFTau_Track_*",0);
+    Ntp->fChain->SetBranchStatus("susyModel",0);
+    Ntp->fChain->SetBranchStatus("*jets_deepFlavor_*",0);
+    Ntp->fChain->SetBranchStatus("ak8jets_PrunedMass",0);
+    Ntp->fChain->SetBranchStatus("ak8jets_TrimmedMass",0);
+    Ntp->fChain->SetBranchStatus("ak8jets_FilteredMass",0);
+    Ntp->fChain->SetBranchStatus("VertexHash*TracksRemovedOld*",0);
+    Ntp->fChain->SetBranchStatus("trg_*",0);
+    Ntp->fChain->SetBranchStatus("trg_doubletau",1);
+    Ntp->fChain->SetBranchStatus("byIsolationMVA3oldDMwLTraw_*",0);
+    Ntp->fChain->SetBranchStatus("ptvis",0);
+    Ntp->fChain->SetBranchStatus("*p*id_*",0);
+    Ntp->fChain->SetBranchStatus("*_sv",0);
+    Ntp->fChain->SetBranchStatus("deepTauVs*Raw_*",0);
+    Ntp->fChain->SetBranchStatus("pvx",0);
+    Ntp->fChain->SetBranchStatus("pvy",0);
+    Ntp->fChain->SetBranchStatus("pvz",0);
+    Ntp->fChain->SetBranchStatus("n*_*",0);
+    Ntp->fChain->SetBranchStatus("sv*_*",0);
+    Ntp->fChain->SetBranchStatus("pt_*",0);
+    Ntp->fChain->SetBranchStatus("eta_*",0);
+    Ntp->fChain->SetBranchStatus("phi_*",0);
+    Ntp->fChain->SetBranchStatus("m_*",0);
+    Ntp->fChain->SetBranchStatus("q_*",0);
+    Ntp->fChain->SetBranchStatus("d0_*",0);
+    Ntp->fChain->SetBranchStatus("dz_*",0);
+    Ntp->fChain->SetBranchStatus("iso_*",0);
+    
     SkimmedTree=Ntp->fChain->CloneTree(0);
     copyTree=true;
   }
@@ -229,29 +397,29 @@ Long64_t  Ntuple_Controller::GetMCID(){
 	// //customize your event ID here 
 	// if(DataMCTypeFromTupel==10230533 or DataMCTypeFromTupel==10130533 or DataMCTypeFromTupel==10330533 or DataMCTypeFromTupel==10430533) return 10230533;
 	
-	//if(DataMCTypeFromTupel==10110133 ) return DataMCTypeFromTupel;
-	//if(DataMCTypeFromTupel==10210233 ) return DataMCTypeFromTupel;
+	// //if(DataMCTypeFromTupel==10110133 ) return DataMCTypeFromTupel;
+	// //if(DataMCTypeFromTupel==10210233 ) return DataMCTypeFromTupel;
 	
-	if(DataMCTypeFromTupel==10110233 ) return DataMCTypeFromTupel;
-	if(DataMCTypeFromTupel==10110333 ) return DataMCTypeFromTupel;
-	if(DataMCTypeFromTupel==10110433 ) return DataMCTypeFromTupel;
-	if(DataMCTypeFromTupel==10130533 ) return DataMCTypeFromTupel;
+	// if(DataMCTypeFromTupel==10110233 ) return DataMCTypeFromTupel;
+	// if(DataMCTypeFromTupel==10110333 ) return DataMCTypeFromTupel;
+	// if(DataMCTypeFromTupel==10110433 ) return DataMCTypeFromTupel;
+	// if(DataMCTypeFromTupel==10130533 ) return DataMCTypeFromTupel;
 
 	
-	if(DataMCTypeFromTupel==10210333 ) return DataMCTypeFromTupel;
-	if(DataMCTypeFromTupel==10210433 ) return DataMCTypeFromTupel;
-	if(DataMCTypeFromTupel==10230533 ) return DataMCTypeFromTupel;
+	// if(DataMCTypeFromTupel==10210333 ) return DataMCTypeFromTupel;
+	// if(DataMCTypeFromTupel==10210433 ) return DataMCTypeFromTupel;
+	// if(DataMCTypeFromTupel==10230533 ) return DataMCTypeFromTupel;
 	
-	if(DataMCTypeFromTupel==10310333 ) return DataMCTypeFromTupel;
-	if(DataMCTypeFromTupel==10330533 ) return DataMCTypeFromTupel;
+	// if(DataMCTypeFromTupel==10310333 ) return DataMCTypeFromTupel;
+	// if(DataMCTypeFromTupel==10330533 ) return DataMCTypeFromTupel;
 
 	
-	if(DataMCTypeFromTupel==10410433 ) return DataMCTypeFromTupel;
-	if(DataMCTypeFromTupel==10410333 ) return DataMCTypeFromTupel;
-	if(DataMCTypeFromTupel==10430533 ) return DataMCTypeFromTupel;
+	// if(DataMCTypeFromTupel==10410433 ) return DataMCTypeFromTupel;
+	// if(DataMCTypeFromTupel==10410333 ) return DataMCTypeFromTupel;
+	// if(DataMCTypeFromTupel==10430533 ) return DataMCTypeFromTupel;
 
 	
-	if(DataMCTypeFromTupel==30530533 ) return DataMCTypeFromTupel;
+	// if(DataMCTypeFromTupel==30530533 ) return DataMCTypeFromTupel;
 
 
 	
@@ -288,10 +456,19 @@ Long64_t  Ntuple_Controller::GetMCID(){
 	//}
 	//else {
 	//// strip off JAK-Id from DataMCType
-	 if (HistoC.hasID(DataMCTypeFromTupel % 100)) {
-	dmcType = DataMCTypeFromTupel % 100;
-	 }
-	 return dmcType;
+	if (HistoC.hasID(DataMCTypeFromTupel % 100)) {
+	  dmcType = DataMCTypeFromTupel % 100;
+	}
+	else dmcType=DataMCTypeFromTupel % 100;
+	if (DataMCTypeFromTupel==701)return 701;
+	else if (DataMCTypeFromTupel==702)return 702;
+	else if (DataMCTypeFromTupel==703)return 703;
+	else if (dmcType==2)return 202;
+	else if (dmcType==1 && DataMCTypeFromTupel!=1)return 201;
+	else if (dmcType==3)return 203;
+	else if (dmcType==61)return 461;
+	else if (dmcType==60 && DataMCTypeFromTupel!=60)return 460;
+	else return dmcType;
 }
 
 // return DataMCType without mass information
@@ -429,15 +606,16 @@ int Ntuple_Controller::getHiggsSampleMassFromGenInfo(){
 //   return false;
 // }
 
- bool Ntuple_Controller::isTau(int i){
+bool Ntuple_Controller::isTau(int i){
   // https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideMuonIdRun2  
-   if(particleType(i)==2){
-     if(Daughters_decayModeFindingOldDMs(i)>0.5){
-	     return true;
-     }
-   }
-   return false;
- }
+  if(particleType(i)==2){
+    //if(Daughters_decayModeFindingOldDMs(i)>0.5){
+    if(Daughters_decayModeFindingNewDMs(i)>0.5 && decayMode(i) !=5 && decayMode(i) !=6){                                   
+      return true;
+    }
+  }
+  return false;
+}
 
 
 
@@ -447,12 +625,15 @@ int Ntuple_Controller::getHiggsSampleMassFromGenInfo(){
 
      //     std::cout<<
 
-     if(Daughters_decayModeFindingOldDMs(i)>0.5)
+     //if(Daughters_decayModeFindingOldDMs(i)>0.5)
+     if(Daughters_decayModeFindingNewDMs(i)>0.5 && decayMode(i) !=5 && decayMode(i) !=6)
        {
 	 //       if(((tauID(i) & (1 << Bit_byLooseIsolationMVArun2v1DBoldDMwLT))==(1 << Bit_byLooseIsolationMVArun2v1DBoldDMwLT)))
 	 {
-	 if( ((tauID(i) & (1 << Bit_againstMuonLoose3))==(1 << Bit_againstMuonLoose3))){
-	   if( ((tauID(i) & (1 << Bit_againstElectronVLooseMVA6))==(1 << Bit_againstElectronVLooseMVA6))){
+	 // if( ((tauID(i) & (1 << Bit_againstMuonLoose3))==(1 << Bit_againstMuonLoose3))){
+	 //   if( ((tauID(i) & (1 << Bit_againstElectronVLooseMVA6))==(1 << Bit_againstElectronVLooseMVA6))){
+	   if( ((tauID(i) & (1UL << Bit_byVLooseDeepTau2017v2p1VSmu))==(1UL << Bit_byVLooseDeepTau2017v2p1VSmu))){
+	     if( ((tauID(i) & (1UL << Bit_byVVVLooseDeepTau2017v2p1VSe))==(1UL << Bit_byVVVLooseDeepTau2017v2p1VSe))){
 	     return true;
 	   }
 	 }
@@ -490,9 +671,12 @@ int Ntuple_Controller::getHiggsSampleMassFromGenInfo(){
   // https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideMuonIdRun2  
    int tauIDmaskMedium(0);
    if(particleType(i)==2){
-     tauIDmaskMedium|= (1<<Bit_againstMuonTight3);
-     tauIDmaskMedium|= (1<<Bit_againstElectronMediumMVA6);
-     if(Daughters_decayModeFindingOldDMs(i)>0.5){
+     // tauIDmaskMedium|= (1<<Bit_againstMuonTight3);
+     // tauIDmaskMedium|= (1<<Bit_againstElectronMediumMVA6);
+     tauIDmaskMedium|= (1UL<<Bit_byMediumDeepTau2017v2p1VSmu);
+     tauIDmaskMedium|= (1UL<<Bit_byMediumDeepTau2017v2p1VSe);
+     //if(Daughters_decayModeFindingOldDMs(i)>0.5){
+     if(Daughters_decayModeFindingNewDMs(i)>0.5 && decayMode(i) !=5 && decayMode(i) !=6){
        if((tauID(i) & tauIDmaskMedium) == tauIDmaskMedium){
      
 	     return true;
@@ -506,11 +690,13 @@ int Ntuple_Controller::getHiggsSampleMassFromGenInfo(){
   // https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideMuonIdRun2
    int tauIDmaskTight(0);
    if(particleType(i)==2){
-     tauIDmaskTight|= (1<<Bit_againstMuonTight3);
-     tauIDmaskTight|= (1<<Bit_againstElectronTightMVA6);
-    
+     // tauIDmaskTight|= (1<<Bit_againstMuonTight3);
+     // tauIDmaskTight|= (1<<Bit_againstElectronTightMVA6);
+     tauIDmaskTight|= (1UL<<Bit_byTightDeepTau2017v2p1VSmu);
+     tauIDmaskTight|= (1UL<<Bit_byTightDeepTau2017v2p1VSe);
 
-     if(Daughters_decayModeFindingOldDMs(i)>0.5){
+     //if(Daughters_decayModeFindingOldDMs(i)>0.5){
+     if(Daughters_decayModeFindingNewDMs(i)>0.5 && decayMode(i) !=5 && decayMode(i) !=6){
        if((tauID(i) & tauIDmaskTight) == tauIDmaskTight){
 	 return true;
        }
@@ -536,16 +722,454 @@ int Ntuple_Controller::getHiggsSampleMassFromGenInfo(){
 
 bool Ntuple_Controller::isIsolatedTau(int i, TString isotype){
   if(particleType(i)!=2){ std::cout<<"candidate is  not a tau  "<< i <<std::endl; return false;} 
-  if(isotype.Contains("Loose")) return  CHECK_BIT(tauID(i),Bit_byLooseIsolationMVArun2v1DBoldDMwLT);
-  if(isotype.Contains("Medium")) return  CHECK_BIT(tauID(i),Bit_byMediumIsolationMVArun2v1DBoldDMwLT);
-  if(isotype.Contains("Tight")) return  CHECK_BIT(tauID(i),Bit_byTightIsolationMVArun2v1DBoldDMwLT);
-  if(isotype.Contains("VTight")) return  CHECK_BIT(tauID(i),Bit_byVTightIsolationMVArun2v1DBoldDMwLT);
+  // if(isotype.Contains("Loose")) return  CHECK_BIT(tauID(i),Bit_byLooseIsolationMVArun2v1DBoldDMwLT);
+  // if(isotype.Contains("Medium")) return  CHECK_BIT(tauID(i),Bit_byMediumIsolationMVArun2v1DBoldDMwLT);
+  // if(isotype.Contains("Tight")) return  CHECK_BIT(tauID(i),Bit_byTightIsolationMVArun2v1DBoldDMwLT);
+  // if(isotype.Contains("VTight")) return  CHECK_BIT(tauID(i),Bit_byVTightIsolationMVArun2v1DBoldDMwLT);
+  if(isotype.Contains("VVVLoose")) return  CHECK_BIT(tauID(i),Bit_byVVVLooseDeepTau2017v2p1VSjet);
+  if(isotype.Contains("VVLoose")) return  CHECK_BIT(tauID(i),Bit_byVVLooseDeepTau2017v2p1VSjet); 
+  if(isotype.Contains("VLoose")) return  CHECK_BIT(tauID(i),Bit_byVLooseDeepTau2017v2p1VSjet);  
+  if(isotype.Contains("Loose")) return  CHECK_BIT(tauID(i),Bit_byLooseDeepTau2017v2p1VSjet);   
+  if(isotype.Contains("Medium")) return  CHECK_BIT(tauID(i),Bit_byMediumDeepTau2017v2p1VSjet);  
+  if(isotype.Contains("Tight")) return  CHECK_BIT(tauID(i),Bit_byTightDeepTau2017v2p1VSjet);   
+  if(isotype.Contains("VTight")) return  CHECK_BIT(tauID(i),Bit_byVTightDeepTau2017v2p1VSjet);  
+  if(isotype.Contains("VVTight")) return  CHECK_BIT(tauID(i),Bit_byVVTightDeepTau2017v2p1VSjet); 
   return true;
 }
+
+TLorentzVector Ntuple_Controller::P4Corrected(unsigned int i, int genmatch,string Unc){
+
+  double  NomTESCorrDM0=0;
+  double  NomTESCorrDM1=0;
+  double  NomTESCorrDM10=0; 
+  double  NomTESCorrDM11=0;
+  // double  NomEFakeESCorrDM0B;
+  // double  NomEFakeESCorrDM1B; 
+  // double  NomEFakeESCorrDM0E;
+  // double  NomEFakeESCorrDM1E;
+  double  UncTESCorrDM0=0;
+  double  UncTESCorrDM1=0;
+  double  UncTESCorrDM10=0;
+  double  UncTESCorrDM11=0;
+  if(year()==2016){
+    Int_t binTES = histTES2016->GetXaxis()->FindBin(decayMode(i));
+
+    if(decayMode(i)==0)NomTESCorrDM0=histTES2016->GetBinContent(binTES);
+    if(decayMode(i)==1)NomTESCorrDM1=histTES2016->GetBinContent(binTES);
+    if(decayMode(i)==10)NomTESCorrDM10=histTES2016->GetBinContent(binTES);
+    if(decayMode(i)==11)NomTESCorrDM11=histTES2016->GetBinContent(binTES);
+    if(decayMode(i)==0)UncTESCorrDM0=histTES2016->GetBinError(binTES);
+    if(decayMode(i)==1)UncTESCorrDM1=histTES2016->GetBinError(binTES);
+    if(decayMode(i)==10)UncTESCorrDM10=histTES2016->GetBinError(binTES);
+    if(decayMode(i)==11)UncTESCorrDM11=histTES2016->GetBinError(binTES);
+    // NomEFakeESCorrDM0B=histFES2016->GetY()[0];
+    // NomEFakeESCorrDM1B=histFES2016->GetY()[1];
+    // NomEFakeESCorrDM0E=histFES2016->GetY()[2];
+    // NomEFakeESCorrDM1E=histFES2016->GetY()[3];
+	
+  }
+  else if(year()==2017){
+    Int_t binTES = histTES2017->GetXaxis()->FindBin(decayMode(i));
+
+    if(decayMode(i)==0)NomTESCorrDM0=histTES2017->GetBinContent(binTES);
+    if(decayMode(i)==1)NomTESCorrDM1=histTES2017->GetBinContent(binTES);
+    if(decayMode(i)==10)NomTESCorrDM10=histTES2017->GetBinContent(binTES);
+    if(decayMode(i)==11)NomTESCorrDM11=histTES2017->GetBinContent(binTES);
+    if(decayMode(i)==0)UncTESCorrDM0=histTES2017->GetBinError(binTES);
+    if(decayMode(i)==1)UncTESCorrDM1=histTES2017->GetBinError(binTES);
+    if(decayMode(i)==10)UncTESCorrDM10=histTES2017->GetBinError(binTES);
+    if(decayMode(i)==11)UncTESCorrDM11=histTES2017->GetBinError(binTES);
+    
+    // NomEFakeESCorrDM0B=histFES2017->GetY()[0];
+    // NomEFakeESCorrDM1B=histFES2017->GetY()[1];
+    // NomEFakeESCorrDM0E=histFES2017->GetY()[2];
+    // NomEFakeESCorrDM1E=histFES2017->GetY()[3];
+    
+  }
+  else if(year()==2018){
+    Int_t binTES = histTES2018->GetXaxis()->FindBin(decayMode(i));
+
+    if(decayMode(i)==0)NomTESCorrDM0=histTES2018->GetBinContent(binTES);
+    if(decayMode(i)==1)NomTESCorrDM1=histTES2018->GetBinContent(binTES);
+    if(decayMode(i)==10)NomTESCorrDM10=histTES2018->GetBinContent(binTES);
+    if(decayMode(i)==11)NomTESCorrDM11=histTES2018->GetBinContent(binTES);
+    if(decayMode(i)==0)UncTESCorrDM0=histTES2018->GetBinError(binTES);
+    if(decayMode(i)==1)UncTESCorrDM1=histTES2018->GetBinError(binTES);
+    if(decayMode(i)==10)UncTESCorrDM10=histTES2018->GetBinError(binTES);
+    if(decayMode(i)==11)UncTESCorrDM11=histTES2018->GetBinError(binTES);
+    
+    // NomEFakeESCorrDM0B=histFES2018->GetY()[0];
+    // NomEFakeESCorrDM1B=histFES2018->GetY()[1];
+    // NomEFakeESCorrDM0E=histFES2018->GetY()[2];
+    // NomEFakeESCorrDM1E=histFES2018->GetY()[3];
+    
+  }
+  
+  double Shift1Pr    = 1.;
+  double Shift1PrPi0 = 1.;
+  double Shift3Pr    = 1.;
+  double Shift3PrPi0  = 1.;
+
+  double EFakeShift1PrB    = 1.;
+  double EFakeShift1PrE    = 1.;
+  double EFakeShift1PrPi0B = 1.;
+  double EFakeShift1PrPi0E = 1.;
+  double shiftP = 1.;
+  double shiftMass = 1.;
+  
+  if(Unc=="Nom")
+    {
+       Shift1Pr    = NomTESCorrDM0;
+       Shift1PrPi0 = NomTESCorrDM1;
+       Shift3Pr    = NomTESCorrDM10;
+       Shift3PrPi0  = NomTESCorrDM11;
+       
+       // cout<<"Shift1Pr: "<<Shift1Pr<<endl;
+       // cout<<"Shift1PrPi0: "<<Shift1PrPi0<<endl;
+       // cout<<"Shift3Pr: "<<Shift3Pr<<endl;
+       // cout<<"Shift3PrPi0: "<<Shift3PrPi0<<endl;
+       
+    }
+  else if(Unc=="Up")
+    {
+       Shift1Pr    = NomTESCorrDM0 + UncTESCorrDM0;
+       Shift1PrPi0 = NomTESCorrDM1 + UncTESCorrDM1;
+       Shift3Pr    = NomTESCorrDM10 + UncTESCorrDM10;
+       Shift3PrPi0  = NomTESCorrDM11 + UncTESCorrDM11;
+    }
+  else if(Unc=="Down")
+    {
+      Shift1Pr    = NomTESCorrDM0 - UncTESCorrDM0;
+      Shift1PrPi0 = NomTESCorrDM1 - UncTESCorrDM1;
+      Shift3Pr    = NomTESCorrDM10 - UncTESCorrDM10;
+      Shift3PrPi0  = NomTESCorrDM11 - UncTESCorrDM11;
+    }
+  if(EmbedID==36 && year()==2016){
+    if(Unc=="Nom")
+      {
+	Shift1Pr    = 0.998;
+	Shift1PrPi0 = 0.9978;
+	Shift3Pr    = 0.9874;
+	Shift3PrPi0  = 0.9874;
+	EFakeShift1PrB = 0.9976;
+	EFakeShift1PrE = 0.993;
+	EFakeShift1PrPi0B = 0.9976;
+	EFakeShift1PrPi0E = 0.993;
+      }
+    else if(Unc=="Up")
+      {
+	Shift1Pr    = 1.0026;
+	Shift1PrPi0 = 1.;
+	Shift3Pr    = 0.9907;
+	Shift3PrPi0  = 0.9907;
+	EFakeShift1PrB = 1.0026;
+	EFakeShift1PrE = 1.0055;
+	EFakeShift1PrPi0B = 1.0026;
+	EFakeShift1PrPi0E = 1.0055;
+      }
+    else if(Unc=="Down")
+      {
+	Shift1Pr    = 0.9934;
+	Shift1PrPi0 = 0.9953;
+	Shift3Pr    = 0.9823;
+	Shift3PrPi0  = 0.9823;
+	EFakeShift1PrB = 0.9926;
+	EFakeShift1PrE = 0.9805;
+	EFakeShift1PrPi0B = 0.9926;
+	EFakeShift1PrPi0E = 0.9805;
+      }
+  }
+
+  if(EmbedID==36 && year()==2017){
+    if(Unc=="Nom")
+      {
+	Shift1Pr    = 0.9996;
+	Shift1PrPi0 = 0.988;
+	Shift3Pr    = 0.9925;
+	Shift3PrPi0  = 0.9925;
+	EFakeShift1PrB = 0.9993;
+	EFakeShift1PrE = 0.9887;
+	EFakeShift1PrPi0B = 0.9993;
+	EFakeShift1PrPi0E = 0.9887;
+      }
+    else if(Unc=="Up")
+      {
+	Shift1Pr    = 1.0037;
+	Shift1PrPi0 = 0.9932;
+	Shift3Pr    = 0.9969;
+	Shift3PrPi0  = 0.9969;
+	EFakeShift1PrB = 1.0043;
+	EFakeShift1PrE = 1.0012;
+	EFakeShift1PrPi0B = 1.0043;
+	EFakeShift1PrPi0E = 1.0012;
+      }
+    else if(Unc=="Down")
+      {
+	Shift1Pr    = 0.9954;
+	Shift1PrPi0 = 0.9859;
+	Shift3Pr    = 0.9879;
+	Shift3PrPi0  = 0.9879;
+	EFakeShift1PrB = 0.9943;
+	EFakeShift1PrE = 0.9762;
+	EFakeShift1PrPi0B = 0.9943;
+	EFakeShift1PrPi0E = 0.9762;
+      }
+  }
+
+  if(EmbedID==36 && year()==2018){
+    if(Unc=="Nom")
+      {
+	Shift1Pr    = 0.9967;
+	Shift1PrPi0 = 0.9943;
+	Shift3Pr    = 0.9926;
+	Shift3PrPi0  = 0.9926;
+	EFakeShift1PrB = 0.9967;
+	EFakeShift1PrE = 0.9944;
+	EFakeShift1PrPi0B = 0.9967;
+	EFakeShift1PrPi0E = 0.9944;
+      }
+    else if(Unc=="Up")
+      {
+	Shift1Pr    = 1.0006;
+	Shift1PrPi0 = 0.998;
+	Shift3Pr    = 0.9958;
+	Shift3PrPi0  = 0.9958;
+	EFakeShift1PrB = 1.0017;
+	EFakeShift1PrE = 1.0069;
+	EFakeShift1PrPi0B = 1.0017;
+	EFakeShift1PrPi0E = 1.0069;
+      }
+    else if(Unc=="Down")
+      {
+	Shift1Pr    = 0.9928;
+	Shift1PrPi0 = 0.9912;
+	Shift3Pr    = 0.9894;
+	Shift3PrPi0  = 0.9894;
+	EFakeShift1PrB = 0.9917;
+	EFakeShift1PrE = 0.9819;
+	EFakeShift1PrPi0B = 0.9917;
+	EFakeShift1PrPi0E = 0.9819;
+      }
+  }
+
+  if(genmatch==5)
+    {
+      if (decayMode(i)==0) // 1prong
+	{
+	  shiftP    = Shift1Pr;
+	  shiftMass = 1.;
+	}
+      else if ( (decayMode(i)==1) || (decayMode(i)==2) )  // 1prong+pi0 or 1prong+2pi0
+	{
+	  shiftP    = Shift1PrPi0;
+	  shiftMass = Shift1PrPi0;
+	}
+      else if (decayMode(i)==10) // 3prong
+	{
+	  shiftP    = Shift3Pr;
+	  shiftMass = Shift3Pr;
+	}
+      else if (decayMode(i)==11) // 3prong+pi0
+	{
+	  shiftP    = Shift3PrPi0;
+	  shiftMass = Shift3PrPi0;
+	}
+    }
+  if ((genmatch == 1 || genmatch == 3) && decayMode(i)==0)  {
+    shiftP    = EFakeShift1PrB;     // 1prong
+    if (fabs(Daughters_P4(i).Eta())> 1.479) shiftP    = EFakeShift1PrE;
+    shiftMass = 1.;
+  }
+  if ((genmatch == 1 || genmatch == 3) && decayMode(i)==1) {
+    shiftP    = EFakeShift1PrPi0B;  // 1prong+pi0
+    shiftMass = EFakeShift1PrPi0B;
+    if (fabs(Daughters_P4(i).Eta())> 1.479) {
+      shiftP    = EFakeShift1PrPi0E;
+      shiftMass = EFakeShift1PrPi0E;
+    }
+  }
+  
+  //cout<<"Shift: " <<shiftP<<endl;
+  double pxS_Nominal = Daughters_P4(i).Px()*shiftP;
+  double pyS_Nominal = Daughters_P4(i).Py()*shiftP;
+  double pzS_Nominal = Daughters_P4(i).Pz()*shiftP;
+  double massS_Nominal = Daughters_P4(i).M()*shiftMass;
+  double enS_Nominal = TMath::Sqrt(pxS_Nominal*pxS_Nominal + pyS_Nominal*pyS_Nominal + pzS_Nominal*pzS_Nominal + massS_Nominal*massS_Nominal);
+
+  return TLorentzVector (pxS_Nominal, pyS_Nominal, pzS_Nominal, enS_Nominal);
+}
+
+int Ntuple_Controller::GetGenMatch(int tauindex)
+{
+  //cout<<"-----------"<<endl;
+  if(isData() && EmbedID!=36) return 6;
+  int genMatch=6;
+  int index=Daughters_genindex(tauindex);
+  if (index==-1) return 6;
+  else {
+    float drmin=0.2;
+    int pdgid=Genpart_pdg(index);      
+    if(abs(pdgid)==11 || abs(pdgid)==13 ||abs(pdgid)==15){
+      if ((Genpart_P4(index).DeltaR(Daughters_P4(tauindex)) < drmin)) {
+	//drmin=Genpart_P4(index).DeltaR(Daughters_P4(tauindex));
+	if(decayMode(tauindex)==0||decayMode(tauindex)==1||decayMode(tauindex)==2||decayMode(tauindex)==10||decayMode(tauindex)==11){
+	  
+	  bool type1 = abs(pdgid)==11 && CHECK_BIT(Genpart_flags(index),0) && Genpart_P4(index).Pt()>8;
+	  bool type2 = abs(pdgid)==13 && CHECK_BIT(Genpart_flags(index),0) && Genpart_P4(index).Pt()>8;
+	  bool type3 = abs(pdgid)==11 && CHECK_BIT(Genpart_flags(index),5) && Genpart_P4(index).Pt()>8;
+	  bool type4 = abs(pdgid)==13 && CHECK_BIT(Genpart_flags(index),5) && Genpart_P4(index).Pt()>8;
+	  bool type5 = abs(pdgid)==15 && CHECK_BIT(Genpart_flags(index),0) && Genpart_P4(index).Pt()>15.;
+	  
+	  if (type1) genMatch = 1;
+	  else if (type2) genMatch = 2;
+	  else if (type3) genMatch = 3;
+	  else if (type4) genMatch = 4;
+	  else if (type5) genMatch = 5; 
+	}
+      }
+    }
+  }
+  //cout<<"+++++++++++++++++++++++"<<endl;
+  return genMatch;
+}
+
+double Ntuple_Controller::IDSF(int i,int genmatch,string TES,string particle,  string Unc){
+
+  double t_pt=P4Corrected(i,genmatch,TES).Pt();
+  double t_mvadm=MVADM2017(i);
+  auto pt_mvadm = std::vector<double>{t_pt,t_mvadm};
+  if(year()==2016)
+    {
+      if(EmbedID!=36){
+	if(particle=="tau" && genmatch==5)
+	  {
+	    double result= std::shared_ptr<RooFunctor>(w2016->function("t_deeptauid_mvadm_medium")->functor(w2016->argSet("t_pt,t_mvadm")))->eval(pt_mvadm.data());
+	    if(Unc=="Up")
+	      {
+		result = std::shared_ptr<RooFunctor>(w2016->function("t_deeptauid_mvadm_medium_highpt_mvadm10_up")->functor(w2016->argSet("t_pt,t_mvadm")))->eval(pt_mvadm.data());
+		return result;
+	      }
+	    else if(Unc=="Down")
+	      {
+		result = std::shared_ptr<RooFunctor>(w2016->function("t_deeptauid_mvadm_medium_highpt_mvadm10_down")->functor(w2016->argSet("t_pt,t_mvadm")))->eval(pt_mvadm.data());
+		return result;
+	      }
+	    else return result;
+	  }
+	else if(particle=="mu")return antiMuSFTool2016->getSFvsEta(abs(P4Corrected(i,genmatch,TES).Eta()),genmatch);
+	else if(particle=="ele")return antiEleSFTool2016->getSFvsEta(abs(P4Corrected(i,genmatch,TES).Eta()),genmatch);
+      }
+      else{
+	if(particle=="tau" && genmatch==5)
+	  {
+	    double result= std::shared_ptr<RooFunctor>(w2016->function("t_deeptauid_mvadm_embed_medium")->functor(w2016->argSet("t_pt,t_mvadm")))->eval(pt_mvadm.data());
+	    if(Unc=="Up")
+	      {
+		result = std::shared_ptr<RooFunctor>(w2016->function("t_deeptauid_mvadm_embed_medium_highpt_mvadm10_up")->functor(w2016->argSet("t_pt,t_mvadm")))->eval(pt_mvadm.data());
+		return result;
+	      }
+	    else if(Unc=="Down")
+	      {
+		result = std::shared_ptr<RooFunctor>(w2016->function("t_deeptauid_mvadm_embed_medium_highpt_mvadm10_down")->functor(w2016->argSet("t_pt,t_mvadm")))->eval(pt_mvadm.data());
+		return result;
+	      }
+	    else return result;
+	  }
+	else if(particle=="mu")return antiMuSFTool2016->getSFvsEta(abs(P4Corrected(i,genmatch,TES).Eta()),genmatch);
+	else if(particle=="ele")return antiEleSFTool2016->getSFvsEta(abs(P4Corrected(i,genmatch,TES).Eta()),genmatch);
+      }
+    }
+  else if(year()==2017)
+    {
+      if(EmbedID!=36){
+	if(particle=="tau" && genmatch==5)
+	  {
+	    double result= std::shared_ptr<RooFunctor>(w2017->function("t_deeptauid_mvadm_medium")->functor(w2017->argSet("t_pt,t_mvadm")))->eval(pt_mvadm.data());
+	    if(Unc=="Up")
+	      {
+		result = std::shared_ptr<RooFunctor>(w2017->function("t_deeptauid_mvadm_medium_highpt_mvadm10_up")->functor(w2017->argSet("t_pt,t_mvadm")))->eval(pt_mvadm.data());
+		return result;
+	      }
+	    else if(Unc=="Down")
+	      {
+		result = std::shared_ptr<RooFunctor>(w2017->function("t_deeptauid_mvadm_medium_highpt_mvadm10_down")->functor(w2017->argSet("t_pt,t_mvadm")))->eval(pt_mvadm.data());
+		return result;
+	      }
+	    else return result;
+	  }
+	else if(particle=="mu")return antiMuSFTool2017->getSFvsEta(abs(P4Corrected(i,genmatch,TES).Eta()),genmatch);
+	else if(particle=="ele")return antiEleSFTool2017->getSFvsEta(abs(P4Corrected(i,genmatch,TES).Eta()),genmatch);
+      }
+      else{
+	if(particle=="tau" && genmatch==5)
+	  {
+	    double result= std::shared_ptr<RooFunctor>(w2017->function("t_deeptauid_mvadm_embed_medium")->functor(w2017->argSet("t_pt,t_mvadm")))->eval(pt_mvadm.data());
+	    //cout<<"poids: "<<result<<endl;
+	    if(Unc=="Up")
+	      {
+		result = std::shared_ptr<RooFunctor>(w2017->function("t_deeptauid_mvadm_embed_medium_highpt_mvadm10_up")->functor(w2017->argSet("t_pt,t_mvadm")))->eval(pt_mvadm.data());
+		return result;
+	      }
+	    else if(Unc=="Down")
+	      {
+		result = std::shared_ptr<RooFunctor>(w2017->function("t_deeptauid_mvadm_embed_medium_highpt_mvadm10_down")->functor(w2017->argSet("t_pt,t_mvadm")))->eval(pt_mvadm.data());
+		return result;
+	      }
+	    else return result;
+	  }
+	else if(particle=="mu")return antiMuSFTool2017->getSFvsEta(abs(P4Corrected(i,genmatch,TES).Eta()),genmatch);
+	else if(particle=="ele")return antiEleSFTool2017->getSFvsEta(abs(P4Corrected(i,genmatch,TES).Eta()),genmatch);
+      }
+    }
+  else if(year()==2018)
+    {
+      if(EmbedID!=36){
+	if(particle=="tau" && genmatch==5)
+	  {
+	    double result= std::shared_ptr<RooFunctor>(w2018->function("t_deeptauid_mvadm_medium")->functor(w2018->argSet("t_pt,t_mvadm")))->eval(pt_mvadm.data());
+	    if(Unc=="Up")
+	      {
+		result = std::shared_ptr<RooFunctor>(w2018->function("t_deeptauid_mvadm_medium_highpt_mvadm10_up")->functor(w2018->argSet("t_pt,t_mvadm")))->eval(pt_mvadm.data());
+		return result;
+	      }
+	    else if(Unc=="Down")
+	      {
+		result = std::shared_ptr<RooFunctor>(w2018->function("t_deeptauid_mvadm_medium_highpt_mvadm10_down")->functor(w2018->argSet("t_pt,t_mvadm")))->eval(pt_mvadm.data());
+		return result;
+	      }
+	    else return result;
+	  }
+	else if(particle=="mu")return antiMuSFTool2018->getSFvsEta(abs(P4Corrected(i,genmatch,TES).Eta()),genmatch);
+	else if(particle=="ele")return antiEleSFTool2018->getSFvsEta(abs(P4Corrected(i,genmatch,TES).Eta()),genmatch);
+      }
+      else{
+	if(particle=="tau" && genmatch==5)
+	  {
+	    double result= std::shared_ptr<RooFunctor>(w2018->function("t_deeptauid_mvadm_embed_medium")->functor(w2018->argSet("t_pt,t_mvadm")))->eval(pt_mvadm.data());
+	    if(Unc=="Up")
+	      {
+		result = std::shared_ptr<RooFunctor>(w2018->function("t_deeptauid_mvadm_embed_medium_highpt_mvadm10_up")->functor(w2018->argSet("t_pt,t_mvadm")))->eval(pt_mvadm.data());
+		return result;
+	      }
+	    else if(Unc=="Down")
+	      {
+		result = std::shared_ptr<RooFunctor>(w2018->function("t_deeptauid_mvadm_embed_medium_highpt_mvadm10_down")->functor(w2018->argSet("t_pt,t_mvadm")))->eval(pt_mvadm.data());
+		return result;
+	      }
+	    else return result;
+	  }
+	else if(particle=="mu")return antiMuSFTool2018->getSFvsEta(abs(P4Corrected(i,genmatch,TES).Eta()),genmatch);
+	else if(particle=="ele")return antiEleSFTool2018->getSFvsEta(abs(P4Corrected(i,genmatch,TES).Eta()),genmatch);
+      }
+    }
+  
+  return 1.;
+}
+
 TLorentzVector Ntuple_Controller::TauP4_Corrected(unsigned int i){
   //   https://twiki.cern.ch/twiki/bin/view/CMS/TauIDRecommendation13TeV#Tau_energy_scale
   double scalecorr(1);  // in %
-  if(particleType(i)==2 && Daughters_decayModeFindingOldDMs(i) > 0.5){
+  if(particleType(i)==2 && Daughters_decayModeFindingNewDMs(i)>0.5 && decayMode(i) !=5 && decayMode(i) !=6 /*Daughters_decayModeFindingOldDMs(i) > 0.5*/){
     if(decayMode(i)==10) scalecorr = 0.004;
     if(decayMode(i)==1) scalecorr = 0.01;
     if(decayMode(i)==0) scalecorr = -0.018;
@@ -554,26 +1178,168 @@ TLorentzVector Ntuple_Controller::TauP4_Corrected(unsigned int i){
   return p4New;
 }
 
+double Ntuple_Controller::TriggerSF(int i,int genmatch,string TES,string Unc)
+{
+  double t_pt=P4Corrected(i,genmatch,TES).Pt();
+  double t_mvadm=MVADM2017(i);
+  auto pt_mvadm = std::vector<double>{t_pt,t_mvadm};
+  if(year()==2016)
+    {
+      if(EmbedID!=36){
+	if(Unc=="Nom")return std::shared_ptr<RooFunctor>(w2016->function("t_trg_ic_deeptau_medium_mvadm_ditau_ratio")->functor(w2016->argSet("t_pt,t_mvadm")))->eval(pt_mvadm.data());
+	else if(Unc=="Up")return std::shared_ptr<RooFunctor>(w2016->function("t_trg_ic_deeptau_medium_mvadm_ditau_ratio_mvadm10_up")->functor(w2016->argSet("t_pt,t_mvadm")))->eval(pt_mvadm.data());
+	else if(Unc=="Down")return std::shared_ptr<RooFunctor>(w2016->function("t_trg_ic_deeptau_medium_mvadm_ditau_ratio_mvadm10_down")->functor(w2016->argSet("t_pt,t_mvadm")))->eval(pt_mvadm.data());
+      }
+      else{
+	if(Unc=="Nom")return std::shared_ptr<RooFunctor>(w2016->function("t_trg_ic_deeptau_medium_mvadm_ditau_embed_ratio")->functor(w2016->argSet("t_pt,t_mvadm")))->eval(pt_mvadm.data());
+	else if(Unc=="Up")return std::shared_ptr<RooFunctor>(w2016->function("t_trg_ic_deeptau_medium_mvadm_ditau_embed_ratio_mvadm10_up")->functor(w2016->argSet("t_pt,t_mvadm")))->eval(pt_mvadm.data());
+	else if(Unc=="Down")return std::shared_ptr<RooFunctor>(w2016->function("t_trg_ic_deeptau_medium_mvadm_ditau_embed_ratio_mvadm10_down")->functor(w2016->argSet("t_pt,t_mvadm")))->eval(pt_mvadm.data());
+      }
+    }
 
-bool Ntuple_Controller::tauBaselineSelection(int i, double cutPt, double cutEta, int aele, int amu){
-  bool agEleVal(false), agMuVal(false), kin(false), dm(false), vertexS(false), charge(false);
+  else if(year()==2017)
+    {
+      if(EmbedID!=36){
+	if(Unc=="Nom")return std::shared_ptr<RooFunctor>(w2017->function("t_trg_ic_deeptau_medium_mvadm_ditau_ratio")->functor(w2017->argSet("t_pt,t_mvadm")))->eval(pt_mvadm.data());
+	else if(Unc=="Up")return std::shared_ptr<RooFunctor>(w2017->function("t_trg_ic_deeptau_medium_mvadm_ditau_ratio_mvadm10_up")->functor(w2017->argSet("t_pt,t_mvadm")))->eval(pt_mvadm.data());
+	else if(Unc=="Down")return std::shared_ptr<RooFunctor>(w2017->function("t_trg_ic_deeptau_medium_mvadm_ditau_ratio_mvadm10_down")->functor(w2017->argSet("t_pt,t_mvadm")))->eval(pt_mvadm.data());
+      }
+      else{
+	if(Unc=="Nom")return std::shared_ptr<RooFunctor>(w2017->function("t_trg_ic_deeptau_medium_mvadm_ditau_embed_ratio")->functor(w2017->argSet("t_pt,t_mvadm")))->eval(pt_mvadm.data());
+	else if(Unc=="Up")return std::shared_ptr<RooFunctor>(w2017->function("t_trg_ic_deeptau_medium_mvadm_ditau_embed_ratio_mvadm10_up")->functor(w2017->argSet("t_pt,t_mvadm")))->eval(pt_mvadm.data());
+	else if(Unc=="Down")return std::shared_ptr<RooFunctor>(w2017->function("t_trg_ic_deeptau_medium_mvadm_ditau_embed_ratio_mvadm10_down")->functor(w2017->argSet("t_pt,t_mvadm")))->eval(pt_mvadm.data());
+      }
+    }
+  else if(year()==2018)
+    {
+      if(EmbedID!=36){
+	if(Unc=="Nom")return std::shared_ptr<RooFunctor>(w2018->function("t_trg_ic_deeptau_medium_mvadm_ditau_ratio")->functor(w2018->argSet("t_pt,t_mvadm")))->eval(pt_mvadm.data());
+	else if(Unc=="Up")return std::shared_ptr<RooFunctor>(w2018->function("t_trg_ic_deeptau_medium_mvadm_ditau_ratio_mvadm10_up")->functor(w2018->argSet("t_pt,t_mvadm")))->eval(pt_mvadm.data());
+	else if(Unc=="Down")return std::shared_ptr<RooFunctor>(w2018->function("t_trg_ic_deeptau_medium_mvadm_ditau_ratio_mvadm10_down")->functor(w2018->argSet("t_pt,t_mvadm")))->eval(pt_mvadm.data());
+      }
+      else{
+	if(Unc=="Nom")return std::shared_ptr<RooFunctor>(w2018->function("t_trg_ic_deeptau_medium_mvadm_ditau_embed_ratio")->functor(w2018->argSet("t_pt,t_mvadm")))->eval(pt_mvadm.data());
+	else if(Unc=="Up")return std::shared_ptr<RooFunctor>(w2018->function("t_trg_ic_deeptau_medium_mvadm_ditau_embed_ratio_mvadm10_up")->functor(w2018->argSet("t_pt,t_mvadm")))->eval(pt_mvadm.data());
+	else if(Unc=="Down")return std::shared_ptr<RooFunctor>(w2018->function("t_trg_ic_deeptau_medium_mvadm_ditau_embed_ratio_mvadm10_down")->functor(w2018->argSet("t_pt,t_mvadm")))->eval(pt_mvadm.data());
+      }
+    }
+
+
+  return 0;
+}
+
+double Ntuple_Controller::ZPtReweight(TLorentzVector GenP4)
+{
+  auto arg = std::vector<double>{GenP4.Pt(),GenP4.M()};
+  if(year()==2016)return std::shared_ptr<RooFunctor>(w2016->function("zptmass_weight_nom")->functor(w2016->argSet("z_gen_pt,z_gen_mass")))->eval(arg.data());
+  if(year()==2017)return std::shared_ptr<RooFunctor>(w2017->function("zptmass_weight_nom")->functor(w2017->argSet("z_gen_pt,z_gen_mass")))->eval(arg.data());
+  if(year()==2018)return std::shared_ptr<RooFunctor>(w2018->function("zptmass_weight_nom")->functor(w2018->argSet("z_gen_pt,z_gen_mass")))->eval(arg.data());
+  else return 0;
+}
+
+double Ntuple_Controller::EmbeddingSelectionSF(int imc1, int imc2){
+  double etagen1=Genpart_P4(imc1).Eta();
+  double ptgen1=Genpart_P4(imc1).Pt();
+  double etagen2=Genpart_P4(imc2).Eta();
+  double ptgen2=Genpart_P4(imc2).Pt();
+
+  auto eta_pt1 = std::vector<double>{ptgen1,etagen1};
+  auto eta_pt2 = std::vector<double>{ptgen2,etagen2};
+  auto pt_eta_pt_eta = std::vector<double>{ptgen1,etagen1,ptgen2,etagen2};
+  if(year()==2016)return std::shared_ptr<RooFunctor>(w2016->function("m_sel_id_ic_ratio")->functor(w2016->argSet("gt_eta,gt_pt")))->eval(eta_pt1.data())*std::shared_ptr<RooFunctor>(w2016->function("m_sel_id_ic_ratio")->functor(w2016->argSet("gt_eta,gt_pt")))->eval(eta_pt2.data())*std::shared_ptr<RooFunctor>(w2016->function("m_sel_trg_ic_ratio")->functor(w2016->argSet("gt1_pt,gt1_eta,gt2_pt,gt2_eta")))->eval(pt_eta_pt_eta.data());
+  if(year()==2017)return std::shared_ptr<RooFunctor>(w2017->function("m_sel_id_ic_ratio")->functor(w2017->argSet("gt_eta,gt_pt")))->eval(eta_pt1.data())*std::shared_ptr<RooFunctor>(w2017->function("m_sel_id_ic_ratio")->functor(w2017->argSet("gt_eta,gt_pt")))->eval(eta_pt2.data())*std::shared_ptr<RooFunctor>(w2017->function("m_sel_trg_ic_ratio")->functor(w2017->argSet("gt1_pt,gt1_eta,gt2_pt,gt2_eta")))->eval(pt_eta_pt_eta.data());
+  if(year()==2018)return std::shared_ptr<RooFunctor>(w2018->function("m_sel_id_ic_ratio")->functor(w2018->argSet("gt_eta,gt_pt")))->eval(eta_pt1.data())*std::shared_ptr<RooFunctor>(w2018->function("m_sel_id_ic_ratio")->functor(w2018->argSet("gt_eta,gt_pt")))->eval(eta_pt2.data())*std::shared_ptr<RooFunctor>(w2018->function("m_sel_trg_ic_ratio")->functor(w2018->argSet("gt1_pt,gt1_eta,gt2_pt,gt2_eta")))->eval(pt_eta_pt_eta.data());
+  return 0;
+}
+
+void Ntuple_Controller::FillHist(unsigned int t, int idx, bool isOS, bool GenMatchSelection, double value, std::pair<float, int>  max_pair, double w, double wData, double wMC, std::vector<TH2D> *histHiggs, std::vector<TH2D> *histJetFakes, std::vector<TH2D> *histZTT, std::vector<TH2D> *histWfakesHiggs, std::vector<TH2D> *histWfakesJetFakes, std::vector<TH2D> *histWfakesZTT, std::vector<TH2D> *histHiggsQCDMC, std::vector<TH2D> *histJetFakesQCDMC, std::vector<TH2D> *histZTTQCDMC){
+  
+  int genmatch1=6;
+  int genmatch2=6;
+  if(!isData() || EmbedID==36){
+    genmatch1=gen_match_1(idx);
+    genmatch2=gen_match_2(idx);
+  }
+  //cout<<"value: "<<value<<"  w: "<<w<<endl;
+ 
+  if(isData() && EmbedID!=36 && !byMediumDeepTau2017v2p1VSjet_1(idx) && byVVVLooseDeepTau2017v2p1VSjet_1(idx) && byMediumDeepTau2017v2p1VSjet_2(idx)) {
+
+    if(max_pair.second==0)histHiggs->at(1).Fill(value,max_pair.first, wData);
+    if(max_pair.second==1)histJetFakes->at(1).Fill(value,max_pair.first, wData);	 
+    if(max_pair.second==2)histZTT->at(1).Fill(value,max_pair.first, wData);
+
+  }
+  if((!isData()/* || GetMCID()==36*/) && !byMediumDeepTau2017v2p1VSjet_1(idx) && byVVVLooseDeepTau2017v2p1VSjet_1(idx)  && byMediumDeepTau2017v2p1VSjet_2(idx) && histHiggsQCDMC->size() &&histJetFakesQCDMC->size() &&histZTTQCDMC->size()) {
+    if(genmatch1!=6) {
+
+      if(max_pair.second==0)histHiggsQCDMC->at(t).Fill(value,max_pair.first, wMC);
+      if(max_pair.second==1)histJetFakesQCDMC->at(t).Fill(value,max_pair.first, wMC);
+      if(max_pair.second==2)histZTTQCDMC->at(t).Fill(value,max_pair.first, wMC);
+
+    }
+  }
+
+  if((!isData()/*|| GetMCID()==36*/) && (byMediumDeepTau2017v2p1VSjet_1(idx) && byMediumDeepTau2017v2p1VSjet_2(idx)) &&  histWfakesHiggs->size() &&histWfakesJetFakes->size() &&histWfakesZTT->size()){
+    if(genmatch1!=6 && genmatch2==6){
+
+      if(max_pair.second==0)histWfakesHiggs->at(t).Fill(value,max_pair.first, w);
+      if(max_pair.second==1)histWfakesJetFakes->at(t).Fill(value,max_pair.first, w);		 
+      if(max_pair.second==2)histWfakesZTT->at(t).Fill(value,max_pair.first, w);
+
+    }
+  }
+  if(isOS && (byMediumDeepTau2017v2p1VSjet_1(idx) && byMediumDeepTau2017v2p1VSjet_2(idx)) && GenMatchSelection){
+    
+    if(max_pair.second==0)histHiggs->at(t).Fill(value,max_pair.first, w);
+    if(max_pair.second==1)histJetFakes->at(t).Fill(value,max_pair.first, w);		 
+    if(max_pair.second==2)histZTT->at(t).Fill(value,max_pair.first, w);
+  }
+}
+
+
+bool Ntuple_Controller::tauBaselineSelection(int i, int genmatch, double cutPt, double cutEta, int aele, int amu, int ajet, string TES){
+  bool agEleVal(false), agMuVal(false), agJetVal(false), kin(false), dm(false), vertexS(false), charge(false);
+
   // ag ele:
-  if (aele== 0)      agEleVal = CHECK_BIT(tauID(i),Bit_againstElectronVLooseMVA6);
-  else if ( aele== 1) agEleVal = CHECK_BIT(tauID(i),Bit_againstElectronLooseMVA6);
-  else if ( aele== 2) agEleVal = CHECK_BIT(tauID(i),Bit_againstElectronMediumMVA6);
-  else if ( aele== 3) agEleVal = CHECK_BIT(tauID(i),Bit_againstElectronTightMVA6);
-  else if ( aele== 4) agEleVal = CHECK_BIT(tauID(i),Bit_againstElectronVTightMVA6);
+  //if (aele== 0)      agEleVal = CHECK_BIT(tauID(i),Bit_againstElectronVLooseMVA6);
+  // else if ( aele== 1) agEleVal = CHECK_BIT(tauID(i),Bit_againstElectronLooseMVA6);
+  // else if ( aele== 2) agEleVal = CHECK_BIT(tauID(i),Bit_againstElectronMediumMVA6);
+  // else if ( aele== 3) agEleVal = CHECK_BIT(tauID(i),Bit_againstElectronTightMVA6);
+  // else if ( aele== 4) agEleVal = CHECK_BIT(tauID(i),Bit_againstElectronVTightMVA6);
+  if (aele== 0)       agEleVal = CHECK_BIT(tauID(i),Bit_byVVVLooseDeepTau2017v2p1VSe);
+  else if ( aele== 1) agEleVal = CHECK_BIT(tauID(i),Bit_byVVLooseDeepTau2017v2p1VSe);
+  else if ( aele== 2) agEleVal = CHECK_BIT(tauID(i),Bit_byVLooseDeepTau2017v2p1VSe);
+  else if ( aele== 3) agEleVal = CHECK_BIT(tauID(i),Bit_byLooseDeepTau2017v2p1VSe);
+  else if ( aele== 4) agEleVal = CHECK_BIT(tauID(i),Bit_byMediumDeepTau2017v2p1VSe);
+  else if ( aele== 5) agEleVal = CHECK_BIT(tauID(i),Bit_byTightDeepTau2017v2p1VSe);
+  else if ( aele== 6) agEleVal = CHECK_BIT(tauID(i),Bit_byVTightDeepTau2017v2p1VSe);
+  else if ( aele== 7) agEleVal = CHECK_BIT(tauID(i),Bit_byVVTightDeepTau2017v2p1VSe);
   // ag mu:
-  if ( amu== 0)      agMuVal = CHECK_BIT(tauID(i),Bit_againstMuonLoose3);
-  else if ( amu== 1) agMuVal = CHECK_BIT(tauID(i),Bit_againstMuonTight3);
+  // if ( amu== 0)      agMuVal = CHECK_BIT(tauID(i),Bit_againstMuonLoose3);
+  // else if ( amu== 1) agMuVal = CHECK_BIT(tauID(i),Bit_againstMuonTight3);
+  if ( amu== 0)      agMuVal = CHECK_BIT(tauID(i),Bit_byVLooseDeepTau2017v2p1VSmu);
+  else if ( amu== 1) agMuVal = CHECK_BIT(tauID(i),Bit_byLooseDeepTau2017v2p1VSmu);
+  else if ( amu== 2) agMuVal = CHECK_BIT(tauID(i),Bit_byMediumDeepTau2017v2p1VSmu);
+  else if ( amu== 3) agMuVal = CHECK_BIT(tauID(i),Bit_byTightDeepTau2017v2p1VSmu);
+  
+  // ag jet:
+  if ( ajet== 0)      agJetVal = CHECK_BIT(tauID(i),Bit_byVVVLooseDeepTau2017v2p1VSjet);
+  else if ( ajet== 1) agJetVal = CHECK_BIT(tauID(i),Bit_byVVLooseDeepTau2017v2p1VSjet);
+  else if ( ajet== 2) agJetVal = CHECK_BIT(tauID(i),Bit_byVLooseDeepTau2017v2p1VSjet);
+  else if ( ajet== 3) agJetVal = CHECK_BIT(tauID(i),Bit_byLooseDeepTau2017v2p1VSjet);
+  else if ( ajet== 4) agJetVal = CHECK_BIT(tauID(i),Bit_byMediumDeepTau2017v2p1VSjet);
+  else if ( ajet== 5) agJetVal = CHECK_BIT(tauID(i),Bit_byTightDeepTau2017v2p1VSjet);
+  else if ( ajet== 6) agJetVal = CHECK_BIT(tauID(i),Bit_byVTightDeepTau2017v2p1VSjet);
+  else if ( ajet== 7) agJetVal = CHECK_BIT(tauID(i),Bit_byVVTightDeepTau2017v2p1VSjet);
 
-  kin     = (TauP4_Corrected(i).Pt() >cutPt && fabs(TauP4_Corrected(i).Eta())<cutEta );
+  kin     = (P4Corrected(i,genmatch,TES).Pt() >cutPt && fabs(P4Corrected(i,genmatch,TES).Eta())<cutEta );
   vertexS = (fabs(dz(i)) < 0.2); 
-  dm      = (particleType(i)==2 && Daughters_decayModeFindingOldDMs(i) > 0.5);
+  //dm      = (particleType(i)==2 && Daughters_decayModeFindingOldDMs(i) > 0.5);
+  dm      = (particleType(i)==2 && Daughters_decayModeFindingNewDMs(i) > 0.5 && decayMode(i) != 5 && decayMode(i) != 6 && MVADM2017(i)!=-1);
 
-  charge  = fabs(Daughters_charge(i))==1 ;
+  charge  = fabs(Daughters_charge(i))==1;
 
-  if(kin && agEleVal && agMuVal && dm && vertexS && charge) return true;
+  if(kin /*&& agEleVal && agMuVal  && agJetVal */&& dm && vertexS && charge) return true;
   return false;
 } 
 
@@ -607,19 +1373,26 @@ bool Ntuple_Controller::electronBaselineSelection(int i,double cutPt, double cut
 }	   
 
 
- double Ntuple_Controller::DeltaPhi(double angle1,double angle2)
-  {
-    double diff=angle1-angle2;
-    while(diff>=TMath::Pi())diff=diff-TMath::TwoPi();
-    while(diff<=-TMath::Pi())diff=diff+TMath::TwoPi();
-    //if (((angle1-angle2)>=TMath::Pi()) ||((angle1-angle2)<=-TMath::Pi())) diff=-diff;
-   //while(diff<=-TMath::Pi())diff+=2*TMath::Pi();
-   //while(diff>=TMath::Pi())diff-=2*TMath::Pi();
+double Ntuple_Controller::DeltaPhi(double angle1,double angle2)
+{
+  double diff=angle1-angle2;
+  while(diff>=TMath::Pi())diff=diff-TMath::TwoPi();
+  while(diff<=-TMath::Pi())diff=diff+TMath::TwoPi();
+  //if (((angle1-angle2)>=TMath::Pi()) ||((angle1-angle2)<=-TMath::Pi())) diff=-diff;
+  //while(diff<=-TMath::Pi())diff+=2*TMath::Pi();
+  //while(diff>=TMath::Pi())diff-=2*TMath::Pi();
    //int sign=(((angle1-angle2)>=0 && (angle1-angle2)<=TMath::Pi()) ||((angle1-angle2)<=-TMath::Pi() && (angle1-angle2)>=-2*TMath::Pi()))? 1 : -1;
    //result*=sign;
-   return diff;
-  }
+  return diff;
+}
 
+bool Ntuple_Controller::ComparePairsbyPt(TLorentzVector i, TLorentzVector j){
+  
+  if(i.Pt()<j.Pt()) return false;
+  if(i.Pt()>j.Pt()) return true; 
+
+  return true;
+}
 
 std::vector<int>  Ntuple_Controller::SortTauHTauHPair (std::vector<int>  PairIndices)
 {
@@ -645,8 +1418,8 @@ std::vector<int>  Ntuple_Controller::SortTauHTauHPair (std::vector<int>  PairInd
       TLorentzVector p4_1 =   Daughters_P4(indexDau1(ipair));
       TLorentzVector p4_2 =   Daughters_P4(indexDau2(ipair));
   
-      float iso1 = Daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits(indexDau1(ipair));
-      float iso2 = Daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits(indexDau2(ipair));
+      float iso1 = Daughters_byDeepTau2017v2p1VSjetraw(indexDau1(ipair));
+      float iso2 = Daughters_byDeepTau2017v2p1VSjetraw(indexDau2(ipair));
       // Daughters_byIsolationMVArun2v1DBoldDMwLTraw   - this is negative!
       // Daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits  --  optional raw isolation
      // first one is highest pt
@@ -714,8 +1487,8 @@ std::vector<int>  Ntuple_Controller::SortPair (std::vector<int>  PairIndices,  s
       TLorentzVector p4_1 =  Daughters_P4(PairsIndex1.at(ipair));// Daughters_P4(indexDau1(ipair));
       TLorentzVector p4_2 = Daughters_P4(PairsIndex2.at(ipair));//Daughters_P4(indexDau2(ipair));
   
-      float iso1 = Daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits(PairsIndex1.at(ipair));//indexDau1
-      float iso2 = Daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits(PairsIndex2.at(ipair));//indexDau2
+      float iso1 = Daughters_byDeepTau2017v2p1VSjetraw(PairsIndex1.at(ipair));//indexDau1
+      float iso2 = Daughters_byDeepTau2017v2p1VSjetraw(PairsIndex2.at(ipair));//indexDau2
       // Daughters_byIsolationMVArun2v1DBoldDMwLTraw   - this is negative!
       // Daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits  --  optional raw isolation
      // first one is highest pt
@@ -746,8 +1519,6 @@ std::vector<int>  Ntuple_Controller::SortPair (std::vector<int>  PairIndices,  s
     }
     sortp.push_back(vPairs.at(index).at(6));
   }
-
-
    
   // now sort by iso, then pt criteria
   stable_sort(vPairs.begin(), vPairs.end(), pairSort);
@@ -878,18 +1649,29 @@ bool Ntuple_Controller::tauBaseline (int iDau, float ptMin,
     int agMuVal = 0;
     
     // ag ele:
-    if (againstEleWP == 0)      agEleVal = CHECK_BIT(tauID(iDau),Bit_againstElectronVLooseMVA6);
-    else if (againstEleWP == 1) agEleVal = CHECK_BIT(tauID(iDau),Bit_againstElectronLooseMVA6);
-    else if (againstEleWP == 2) agEleVal = CHECK_BIT(tauID(iDau),Bit_againstElectronMediumMVA6);
-    else if (againstEleWP == 3) agEleVal = CHECK_BIT(tauID(iDau),Bit_againstElectronTightMVA6);
-    else if (againstEleWP == 4) agEleVal = CHECK_BIT(tauID(iDau),Bit_againstElectronVTightMVA6);
-
+    // if (againstEleWP == 0)      agEleVal = CHECK_BIT(tauID(iDau),Bit_againstElectronVLooseMVA6);
+    // else if (againstEleWP == 1) agEleVal = CHECK_BIT(tauID(iDau),Bit_againstElectronLooseMVA6);
+    // else if (againstEleWP == 2) agEleVal = CHECK_BIT(tauID(iDau),Bit_againstElectronMediumMVA6);
+    // else if (againstEleWP == 3) agEleVal = CHECK_BIT(tauID(iDau),Bit_againstElectronTightMVA6);
+    // else if (againstEleWP == 4) agEleVal = CHECK_BIT(tauID(iDau),Bit_againstElectronVTightMVA6);
+    if (againstEleWP== 0)      agEleVal = CHECK_BIT(tauID(iDau),Bit_byVVVLooseDeepTau2017v2p1VSe);
+    else if ( againstEleWP== 1) agEleVal = CHECK_BIT(tauID(iDau),Bit_byVVLooseDeepTau2017v2p1VSe);
+    else if ( againstEleWP== 2) agEleVal = CHECK_BIT(tauID(iDau),Bit_byVLooseDeepTau2017v2p1VSe);
+    else if ( againstEleWP== 3) agEleVal = CHECK_BIT(tauID(iDau),Bit_byLooseDeepTau2017v2p1VSe);
+    else if ( againstEleWP== 4) agEleVal = CHECK_BIT(tauID(iDau),Bit_byMediumDeepTau2017v2p1VSe);
+    else if ( againstEleWP== 5) agEleVal = CHECK_BIT(tauID(iDau),Bit_byTightDeepTau2017v2p1VSe);
+    else if ( againstEleWP== 6) agEleVal = CHECK_BIT(tauID(iDau),Bit_byVTightDeepTau2017v2p1VSe);
+    else if ( againstEleWP== 7) agEleVal = CHECK_BIT(tauID(iDau),Bit_byVVTightDeepTau2017v2p1VSe);
     // ag mu:
-    if (againstMuWP == 0)      agMuVal = CHECK_BIT(tauID(iDau),Bit_againstMuonLoose3);
-    else if (againstMuWP == 1) agMuVal = CHECK_BIT(tauID(iDau),Bit_againstMuonTight3);
+    // if (againstMuWP == 0)      agMuVal = CHECK_BIT(tauID(iDau),Bit_againstMuonLoose3);
+    // else if (againstMuWP == 1) agMuVal = CHECK_BIT(tauID(iDau),Bit_againstMuonTight3);
+    if ( againstMuWP== 0)      agMuVal = CHECK_BIT(tauID(iDau),Bit_byVLooseDeepTau2017v2p1VSmu);
+    else if ( againstMuWP== 1) agMuVal = CHECK_BIT(tauID(iDau),Bit_byLooseDeepTau2017v2p1VSmu);
+    else if ( againstMuWP== 2) agMuVal = CHECK_BIT(tauID(iDau),Bit_byMediumDeepTau2017v2p1VSmu);
+    else if ( againstMuWP== 3) agMuVal = CHECK_BIT(tauID(iDau),Bit_byTightDeepTau2017v2p1VSmu);
 
     //bool dmfS = (tree->daughters_decayModeFindingOldDMs->at(iDau) == 1 || tree->daughters_decayModeFindingNewDMs->at(iDau) == 1) || byp_dmfS;
-    bool dmfS = (Daughters_decayModeFindingOldDMs(iDau) >0.5/* == 1*/) || byp_dmfS;
+    bool dmfS = (Daughters_decayModeFindingNewDMs(iDau)>0.5 && decayMode(iDau) !=5 && decayMode(iDau) !=6/*Daughters_decayModeFindingOldDMs(iDau) >0.5*//* == 1*/) || byp_dmfS;
     // bool vertexS = (tree->dxy->at(iDau) < 0.045 && tree->dz->at(iDau) < 0.2) || byp_vertexS;
     bool vertexS = (fabs(dz(iDau)) < 0.2) || byp_vertexS;
     bool agEleS = (agEleVal > 0.5/*==1*/) || byp_agEleS; 
@@ -1059,98 +1841,98 @@ int Ntuple_Controller::getPairType (int type1, int type2)
     return -1;
 }
 
-bool Ntuple_Controller::pairPassBaseline (int iPair, TString whatApply, bool debug)
-{
-    int dau1index = indexDau1(iPair);
-    int dau2index = indexDau2(iPair);
-    int type1 = particleType(dau1index);
-    int type2 = particleType(dau2index);
-    int pairType = getPairType (type1, type2);
+// bool Ntuple_Controller::pairPassBaseline (int iPair, TString whatApply, bool debug)
+// {
+//     int dau1index = indexDau1(iPair);
+//     int dau2index = indexDau2(iPair);
+//     int type1 = particleType(dau1index);
+//     int type2 = particleType(dau2index);
+//     int pairType = getPairType (type1, type2);
 
-    if (debug) cout << ".. checking baseline of pair " << iPair << " idx=(" << dau1index << "," << dau2index << ")" << endl;
+//     if (debug) cout << ".. checking baseline of pair " << iPair << " idx=(" << dau1index << "," << dau2index << ")" << endl;
         
-    float dR = DeltaRDau(dau1index, dau2index);
-    bool drMin = (dR > 0.1);
-    if (!drMin && debug)
-      cout << "failed dR min as dR=" << dR << endl;
+//     float dR = DeltaRDau(dau1index, dau2index);
+//     bool drMin = (dR > 0.1);
+//     if (!drMin && debug)
+//       cout << "failed dR min as dR=" << dR << endl;
 
-    bool isOS = isOSCand(iPair);
-    if (whatApply.Contains("OScharge") && !isOS) {
-      if (debug) cout<<"check baseline: OSCharge failed"<<endl;
-        return false; // do not even check the rest if requiring the charge
-      }
-    if (whatApply.Contains("SScharge") && isOS) {
-      if (debug) cout<<"check baseline: SSCharge failed"<<endl;
-        return false; // for the same sign selection at the moment full selection over SS pairs
-      }
+//     bool isOS = isOSCand(iPair);
+//     if (whatApply.Contains("OScharge") && !isOS) {
+//       if (debug) cout<<"check baseline: OSCharge failed"<<endl;
+//         return false; // do not even check the rest if requiring the charge
+//       }
+//     if (whatApply.Contains("SScharge") && isOS) {
+//       if (debug) cout<<"check baseline: SSCharge failed"<<endl;
+//         return false; // for the same sign selection at the moment full selection over SS pairs
+//       }
 
-    // pairs are always ordered as: e mu | e tau | mu tau  (e < mu < tau)
-    // if same type of particle, highest pt one is the first
-    bool leg1=false;
-    bool leg2=false;
-    if (pairType == MuHad)
-    {
-        float tauIso = whatApply.Contains("TauRlxIzo") ? 7.0 : 3.0 ;
-        leg1 = muBaseline (dau1index, 23., 2.1, 0.15, MuTight, whatApply, debug);
-        leg2 = tauBaseline (dau2index, 20., 2.3, aeleVLoose, amuTight, tauIso, whatApply, debug);
-    }
+//     // pairs are always ordered as: e mu | e tau | mu tau  (e < mu < tau)
+//     // if same type of particle, highest pt one is the first
+//     bool leg1=false;
+//     bool leg2=false;
+//     if (pairType == MuHad)
+//     {
+//         float tauIso = whatApply.Contains("TauRlxIzo") ? 7.0 : 3.0 ;
+//         leg1 = muBaseline (dau1index, 23., 2.1, 0.15, MuTight, whatApply, debug);
+//         leg2 = tauBaseline (dau2index, 20., 2.3, aeleVLoose, amuTight, tauIso, whatApply, debug);
+//     }
 
-    if (pairType == EHad)
-    {
-        float tauIso = whatApply.Contains("TauRlxIzo") ? 7.0 : 3.0 ;
-        leg1 = eleBaseline (dau1index, 27., 2.1, 0.1, EMVATight, whatApply, debug);
-        leg2 = tauBaseline (dau2index, 20., 2.3, aeleTight, amuLoose, tauIso, whatApply, debug);
-    }
+//     if (pairType == EHad)
+//     {
+//         float tauIso = whatApply.Contains("TauRlxIzo") ? 7.0 : 3.0 ;
+//         leg1 = eleBaseline (dau1index, 27., 2.1, 0.1, EMVATight, whatApply, debug);
+//         leg2 = tauBaseline (dau2index, 20., 2.3, aeleTight, amuLoose, tauIso, whatApply, debug);
+//     }
 
-    // ordered by pT and not by most isolated, but baseline asked in sync is the same...
-    if (pairType == HadHad)
-    {
-        float tauIso = whatApply.Contains("TauRlxIzo") ? 7.0 : 2.0 ;
-        leg1 = tauBaseline (dau1index, 40., 2.1, aeleVLoose, amuLoose, tauIso, whatApply, debug);
-        leg2 = tauBaseline (dau2index, 40., 2.1, aeleVLoose, amuLoose, tauIso, whatApply, debug);
-    }
+//     // ordered by pT and not by most isolated, but baseline asked in sync is the same...
+//     if (pairType == HadHad)
+//     {
+//         float tauIso = whatApply.Contains("TauRlxIzo") ? 7.0 : 2.0 ;
+//         leg1 = tauBaseline (dau1index, 40., 2.1, aeleVLoose, amuLoose, tauIso, whatApply, debug);
+//         leg2 = tauBaseline (dau2index, 40., 2.1, aeleVLoose, amuLoose, tauIso, whatApply, debug);
+//     }
 
-    if (pairType == EMu)
-    {
-        // leg1 = eleBaseline (dau1index, 13., 0.15, EMVALoose, whatApply, debug);
-        // leg2 = muBaseline ( dau2index, 9., 2.4, 0.15, MuTight, whatApply, debug);
-    }
+//     if (pairType == EMu)
+//     {
+//         // leg1 = eleBaseline (dau1index, 13., 0.15, EMVALoose, whatApply, debug);
+//         // leg2 = muBaseline ( dau2index, 9., 2.4, 0.15, MuTight, whatApply, debug);
+//     }
     
-    // e e, mu mu are still preliminary (not from baseline)
-    if (pairType == EE)
-    {
-      // leg1 = eleBaseline ( dau1index, 25., 0.15, EMVALoose, whatApply, debug);
-      // leg2 = eleBaseline ( dau2index, 25., 0.15, EMVALoose, whatApply, debug);
-    }
+//     // e e, mu mu are still preliminary (not from baseline)
+//     if (pairType == EE)
+//     {
+//       // leg1 = eleBaseline ( dau1index, 25., 0.15, EMVALoose, whatApply, debug);
+//       // leg2 = eleBaseline ( dau2index, 25., 0.15, EMVALoose, whatApply, debug);
+//     }
     
-    if (pairType == MuMu)
-    {
-      leg1 = muBaseline ( dau1index, 10., 2.4, 0.15, MuTight, whatApply, debug);
-      leg2 = muBaseline ( dau2index, 10., 2.4, 0.15, MuTight, whatApply, debug);
-      bool leg1ER = muBaseline ( dau1index, 23., 2.1, 0.15, MuTight, whatApply, debug);
-      bool leg2ER = muBaseline ( dau2index, 23., 2.1, 0.15, MuTight, whatApply, debug);
+//     if (pairType == MuMu)
+//     {
+//       leg1 = muBaseline ( dau1index, 10., 2.4, 0.15, MuTight, whatApply, debug);
+//       leg2 = muBaseline ( dau2index, 10., 2.4, 0.15, MuTight, whatApply, debug);
+//       bool leg1ER = muBaseline ( dau1index, 23., 2.1, 0.15, MuTight, whatApply, debug);
+//       bool leg2ER = muBaseline ( dau2index, 23., 2.1, 0.15, MuTight, whatApply, debug);
       
-      //bool Is1in2p1 = leg1ER ;
-      //bool Is2in2p1 = leg2ER ;
-      return ( ((leg1ER && leg2) || (leg2ER && leg1)) && drMin );
-    }
+//       //bool Is1in2p1 = leg1ER ;
+//       //bool Is2in2p1 = leg2ER ;
+//       return ( ((leg1ER && leg2) || (leg2ER && leg1)) && drMin );
+//     }
     
-    bool result = (leg1 && leg2);
-    if(!leg1 && debug){
-      cout<<"check baseline: leg1 failed"<<endl;
-    }
-    if(!leg2 && debug){
-      cout<<"check baseline: leg2 failed"<<endl;
-    }
+//     bool result = (leg1 && leg2);
+//     if(!leg1 && debug){
+//       cout<<"check baseline: leg1 failed"<<endl;
+//     }
+//     if(!leg2 && debug){
+//       cout<<"check baseline: leg2 failed"<<endl;
+//     }
     
-    if (leg1&&leg2&&debug)
-      cout << "check baseline: leg1 AND leg2 ok" << endl;
+//     if (leg1&&leg2&&debug)
+//       cout << "check baseline: leg1 AND leg2 ok" << endl;
 
-    // bool drMin = (dR > 0.5);
-    result = (result && drMin);
+//     // bool drMin = (dR > 0.5);
+//     result = (result && drMin);
 
-    return result;
-}
+//     return result;
+// }
 
 
 float Ntuple_Controller::DeltaRDau(int dau1idx, int dau2idx)
@@ -1198,8 +1980,8 @@ bool Ntuple_Controller::ElectronVeto(unsigned int i){
       if(fabs(dz(i))<0.2 &&  fabs(dxy(i))<0.045 ){
 	if(Daughters_passConversionVeto(i)){
 	  if(Daughters_eleMissingHits(i) <=1){
-	    if(Daughters_iseleWP90(i)){
-	      if(combreliso(i) < 0.3){
+	    if(Daughters_iseleNoIsoWP90(i)){
+	      if(combreliso(i) < (0.3*Daughters_P4(i).Pt())){
 		return true;
 	      }
 	    }
@@ -1212,28 +1994,32 @@ bool Ntuple_Controller::ElectronVeto(unsigned int i){
 }
 
 bool Ntuple_Controller::DiEleVeto() {
-  bool kin=false, vertex=false, /*isele=false, */iso=false;
+  bool kin=false, vertex=false, isele=false, iso=false;
   int elem, elep;
+  //cout<<"----------"<<endl;
   for(unsigned int iDaughter=0;   iDaughter  <  NDaughters() ;iDaughter++ ) {
-    {
-      for(unsigned int jDaughter=0;   jDaughter  <  NDaughters() ;jDaughter++ ) {
+    for(unsigned int jDaughter=0;   jDaughter  <  NDaughters() ;jDaughter++ ) {
+      if(iDaughter!=jDaughter){
+	//if(GetMCID()==30)cout<<"ParticleType: "<<particleType(iDaughter)<<particleType(jDaughter)<<endl;
+	//if(GetMCID()==30)cout<<"Charge: "<<(Daughters_charge(iDaughter))<<" "<< (Daughters_charge(jDaughter))<<endl;
 	if(particleType(jDaughter)==1 && particleType(iDaughter)==1 &&  ((Daughters_charge(iDaughter)/abs(Daughters_charge(iDaughter))) != (Daughters_charge(jDaughter)/abs(Daughters_charge(jDaughter))))){
 	  elem=jDaughter;
 	  elep=iDaughter;
-	  {
-	    if(DeltaRDau(iDaughter,jDaughter)>0.15)
-	      {
-		kin = ((Daughters_P4(elem).Pt()>15) && (Daughters_P4(elep).Pt()>15) && fabs(Daughters_P4(elem).Eta()<2.5) && fabs(Daughters_P4(elep).Eta()<2.5));
-		vertex = ((fabs(dxy(elem))<0.045) && (fabs(dxy(elep))< 0.045) && (fabs(dz(elem)) < 0.2) && (fabs(dz(elep)) < 0.2));
-		
-		iso= (combreliso03(elem) < 0.3 && combreliso(elep)<0.3);
-		if((kin && vertex/* && isele*/ && iso)==0)return true;
-	      }
-	  }
+	  //if(GetMCID()==30)cout<<"DR: "<<DeltaRDau(iDaughter,jDaughter)<<endl;
+	  if(DeltaRDau(iDaughter,jDaughter)>0.15)
+	    {
+	      kin = ((Daughters_P4(elem).Pt()>15) && (Daughters_P4(elep).Pt()>15) && fabs(Daughters_P4(elem).Eta()<2.5) && fabs(Daughters_P4(elep).Eta()<2.5));
+	      vertex = ((fabs(dxy(elem))<0.045) && (fabs(dxy(elep))< 0.045) && (fabs(dz(elem)) < 0.2) && (fabs(dz(elep)) < 0.2));
+	      isele=(Daughters_iseleNoIsoWPLoose(elem) && Daughters_iseleNoIsoWPLoose(elep));
+	      iso= (combreliso(elem) < (0.3*Daughters_P4(elem).Pt()) && combreliso(elep)<(0.3*Daughters_P4(elep).Pt()));
+	      //if(GetMCID()==30)cout <<Daughters_iseleNoIsoWPLoose(elem)<<Daughters_iseleNoIsoWPLoose(elep) <<endl;
+	      if((kin && vertex && isele && iso)==1)return true;
+	    }
 	}
       }
     }
-  }return false;
+  }
+  return false;
 }
 
 bool Ntuple_Controller::MuonVeto(unsigned int i){
@@ -1246,7 +2032,7 @@ bool Ntuple_Controller::MuonVeto(unsigned int i){
   if(particleType(i)==0){
     if(Daughters_P4(i).Pt()>10 && fabs(Daughters_P4(i).Eta())<2.4){
       if(fabs(dz(i))<0.2 &&  fabs(dxy(i))<0.045 ){
-	if(combreliso(i) < 0.3){
+	if(combreliso(i) < (0.3*Daughters_P4(i).Pt())){
 	  if(CHECK_BIT(Daughters_muonID(i), muIDWP::MuMedium) ){
 	    return true;
 	  }
@@ -1264,16 +2050,14 @@ bool Ntuple_Controller::DiMuonVeto() {
       if(particleType(jDaughter)==0 && particleType(iDaughter)==0 &&  ((Daughters_charge(iDaughter)/abs(Daughters_charge(iDaughter))) != (Daughters_charge(jDaughter)/abs(Daughters_charge(jDaughter))))){
 	muonm=jDaughter;
 	muonp=iDaughter;
-	{
-	  if(DeltaRDau(iDaughter,jDaughter)>0.15)
-	    {
-	      kin = ((Daughters_P4(muonm).Pt()>15) && (Daughters_P4(muonp).Pt()>15) && fabs(Daughters_P4(muonm).Eta()<2.4) && fabs(Daughters_P4(muonp).Eta()<2.4));
-	      vertex = ((fabs(dxy(muonm))<0.045) && (fabs(dxy(muonp))< 0.045) && (fabs(dz(muonm)) < 0.2) && (fabs(dz(muonp)) < 0.2));
-	      ismuon=((Daughters_typeOfMuon(muonm) & (1<< 0)) == (1<< 0))  &&  ((Daughters_typeOfMuon(muonm) & (1<< 1)) == (1<< 1)) &&((Daughters_typeOfMuon(muonm) & (1<< 2)) == (1<< 2)) && ((Daughters_typeOfMuon(muonp) & (1<< 0)) == (1<< 0)) && ((Daughters_typeOfMuon(muonp) & (1<< 1)) == (1<< 1))  &&  ((Daughters_typeOfMuon(muonp) & (1<< 2)) == (1<< 2));
-	      iso= (combreliso(muonm) < 0.3 && combreliso(muonp)<0.3);
-	      if((kin && vertex && ismuon && iso)==0)return true;
-	    }
-	}
+	if(DeltaRDau(iDaughter,jDaughter)>0.15)
+	  {
+	    kin = ((Daughters_P4(muonm).Pt()>15) && (Daughters_P4(muonp).Pt()>15) && fabs(Daughters_P4(muonm).Eta()<2.4) && fabs(Daughters_P4(muonp).Eta()<2.4));
+	    vertex = ((fabs(dxy(muonm))<0.045) && (fabs(dxy(muonp))< 0.045) && (fabs(dz(muonm)) < 0.2) && (fabs(dz(muonp)) < 0.2));
+	    ismuon=((Daughters_typeOfMuon(muonm) & (1<< 0)) == (1<< 0))  &&  ((Daughters_typeOfMuon(muonm) & (1<< 1)) == (1<< 1)) &&((Daughters_typeOfMuon(muonm) & (1<< 2)) == (1<< 2)) && ((Daughters_typeOfMuon(muonp) & (1<< 0)) == (1<< 0)) && ((Daughters_typeOfMuon(muonp) & (1<< 1)) == (1<< 1))  &&  ((Daughters_typeOfMuon(muonp) & (1<< 2)) == (1<< 2));
+	    iso= (combreliso(muonm) < (0.3*Daughters_P4(muonm).Pt()) && combreliso(muonp)<(0.3*Daughters_P4(muonp).Pt()));
+	    if((kin && vertex && ismuon && iso)==1)return true;
+	  }
       }
     }
   }
@@ -2309,7 +3093,7 @@ std::string Ntuple_Controller::MCParticleToString(unsigned int par, bool printSt
 	return out.str();
 }
 bool Ntuple_Controller::CheckDecayID(unsigned  int jak1, unsigned int jak2){
-  if(isData()) return false;
+  if(isData() && EmbedID!=36) return false;
   // jak  = 2 - muon
   // jak  = 3 - pion
   // jak  = 4 - rho
@@ -2320,7 +3104,7 @@ bool Ntuple_Controller::CheckDecayID(unsigned  int jak1, unsigned int jak2){
     // std::cout<<"NC: Ntp->MCSignalParticle_p4->size()  "<<Ntp->MCSignalParticle_p4->size()<<std::endl;
     // std::cout<<"NC: Ntp->MCSignalParticle_Tauidx->at(iz).size()  "<<Ntp->MCSignalParticle_Tauidx->at(iz).size()<<std::endl;
     // std::cout<<"  MCSignalParticle_pdgid->at(iz)  "<< Ntp-> MCSignalParticle_pdgid->at(iz) <<std::endl;
-    if(fabs(Ntp->MCSignalParticle_pdgid->at(iz) )!=25 && fabs(Ntp->MCSignalParticle_pdgid->at(iz) )!=23) return false;
+    if(fabs(Ntp->MCSignalParticle_pdgid->at(iz) )!=25 && fabs(Ntp->MCSignalParticle_pdgid->at(iz) )!=23) return false; //GB modified 23
     if(Ntp->MCSignalParticle_Tauidx->at(iz).size()!=0){
       //     std::cout<<" Ntp->MCTau_JAK-> "<< Ntp->MCTau_JAK->size()<<std::endl;
       if(Ntp->MCTau_JAK->at(0) == jak1 and Ntp->MCTau_JAK->at(1) ==jak2 ){ decayid = true;}
@@ -2329,6 +3113,7 @@ bool Ntuple_Controller::CheckDecayID(unsigned  int jak1, unsigned int jak2){
   }
   return decayid;
 }
+
 TLorentzVector Ntuple_Controller::GetTruthTauLV(unsigned int jak,unsigned int number){
   //number = 0 or 1 respectively for the first tau or for the second tau;
   TLorentzVector tau(0,0,0,0);
@@ -2342,7 +3127,6 @@ TLorentzVector Ntuple_Controller::GetTruthTauLV(unsigned int jak,unsigned int nu
         tau = TLorentzVector(Ntp->MCTauandProd_p4->at(Ntp->MCSignalParticle_Tauidx->at(iz).at(tauIndex)).at(0).at(1),Ntp->MCTauandProd_p4->at(Ntp->MCSignalParticle_Tauidx->at(iz).at(tauIndex)).at(0).at(2),
                              Ntp->MCTauandProd_p4->at(Ntp->MCSignalParticle_Tauidx->at(iz).at(tauIndex)).at(0).at(3),Ntp->MCTauandProd_p4->at(Ntp->MCSignalParticle_Tauidx->at(iz).at(tauIndex)).at(0).at(0));
       }
-
       if((Ntp->MCTau_JAK->at(0)==Ntp->MCTau_JAK->at(1)) && (Ntp->MCTau_JAK->at(0)==jak))
 	{
 	  tau = TLorentzVector(Ntp->MCTauandProd_p4->at(Ntp->MCSignalParticle_Tauidx->at(iz).at(number)).at(0).at(1),Ntp->MCTauandProd_p4->at(Ntp->MCSignalParticle_Tauidx->at(iz).at(number)).at(0).at(2),
@@ -2352,7 +3136,6 @@ TLorentzVector Ntuple_Controller::GetTruthTauLV(unsigned int jak,unsigned int nu
   }
   return tau;
 }
-
 
 TLorentzVector Ntuple_Controller::GetTruthTauProductLV(unsigned int jak, int pdgID,unsigned int number){
   TLorentzVector tauProd(0,0,0,0);
@@ -2769,25 +3552,25 @@ std::vector<TLorentzVector> Ntuple_Controller::GetTruthPionsFromA1(unsigned int 
 // 	return matchTrigger(obj, dr_cut, triggerVec, objectType);
 // }
 
-bool Ntuple_Controller::isPVCovAvailable(){ // sometimes returns zero size matrix (rare)
-  if(Ntp->pv_cov->size()!=6)  return false; 
-  return true;
+// bool Ntuple_Controller::isPVCovAvailable(){ // sometimes returns zero size matrix (rare)
+//   if(Ntp->pv_cov->size()!=6)  return false; 
+//   return true;
 
-}
-TMatrixTSym<float> Ntuple_Controller::PFTau_TIP_primaryVertex_cov(){
-  TMatrixTSym<float> V_cov(LorentzVectorParticle::NVertex);
-  int l=0;
-  for(int j=0;j<LorentzVectorParticle::NVertex;j++){
-    for(int k=j;k<LorentzVectorParticle::NVertex;k++){
-      //if(j==k) V_cov(i,j)=pow(0.0001,2.0);
-      V_cov(j,k)=Ntp->pv_cov->at(l);
-      V_cov(k,j)=Ntp->pv_cov->at(l);
-      l++;
-    }
-  }
-  //  std::cout<<"  pv is good"<< std::endl; V_cov.Print();
-  return  V_cov;
-}
+// }
+// TMatrixTSym<float> Ntuple_Controller::PFTau_TIP_primaryVertex_cov(){
+//   TMatrixTSym<float> V_cov(LorentzVectorParticle::NVertex);
+//   int l=0;
+//   for(int j=0;j<LorentzVectorParticle::NVertex;j++){
+//     for(int k=j;k<LorentzVectorParticle::NVertex;k++){
+//       //if(j==k) V_cov(i,j)=pow(0.0001,2.0);
+//       V_cov(j,k)=Ntp->pv_cov->at(l);
+//       V_cov(k,j)=Ntp->pv_cov->at(l);
+//       l++;
+//     }
+//   }
+//   //  std::cout<<"  pv is good"<< std::endl; V_cov.Print();
+//   return  V_cov;
+// }
 
 TMatrixTSym<double> Ntuple_Controller::PFTau_TIP_secondaryVertex_cov(unsigned int i){
   TMatrixTSym<double> V_cov(LorentzVectorParticle::NVertex);
@@ -2803,55 +3586,120 @@ TMatrixTSym<double> Ntuple_Controller::PFTau_TIP_secondaryVertex_cov(unsigned in
   return  V_cov;
 }
 
- LorentzVectorParticle Ntuple_Controller::PFTau_a1_lvp(unsigned int i){
-   TMatrixT<double>    a1_par(LorentzVectorParticle::NLorentzandVertexPar,1);
-   TMatrixTSym<double> a1_cov(LorentzVectorParticle::NLorentzandVertexPar);
-   int l=0;
-   if(Ntp->PFTau_a1_lvp->at(i).size()==LorentzVectorParticle::NLorentzandVertexPar){
-     for(int k=0; k<LorentzVectorParticle::NLorentzandVertexPar; k++){
-       a1_par(k,0)=Ntp->PFTau_a1_lvp->at(i).at(k);
-       for(int j=k; j<LorentzVectorParticle::NLorentzandVertexPar; j++){
- 	a1_cov(k,j)=Ntp->PFTau_a1_cov->at(i).at(l);
- 	a1_cov(j,k)=Ntp->PFTau_a1_cov->at(i).at(l);
- 	l++;
-       } 
-     }
-   }
-   return LorentzVectorParticle(a1_par,a1_cov,Ntp->PFTau_a1_pdgid->at(i),Ntp->PFTau_a1_charge->at(i),Ntp->PFTau_a1_B->at(i));
- }
+ // LorentzVectorParticle Ntuple_Controller::PFTau_a1_lvp(unsigned int i){
+ //   TMatrixT<double>    a1_par(LorentzVectorParticle::NLorentzandVertexPar,1);
+ //   TMatrixTSym<double> a1_cov(LorentzVectorParticle::NLorentzandVertexPar);
+ //   int l=0;
+ //   if(Ntp->PFTau_a1_lvp->at(i).size()==LorentzVectorParticle::NLorentzandVertexPar){
+ //     for(int k=0; k<LorentzVectorParticle::NLorentzandVertexPar; k++){
+ //       a1_par(k,0)=Ntp->PFTau_a1_lvp->at(i).at(k);
+ //       for(int j=k; j<LorentzVectorParticle::NLorentzandVertexPar; j++){
+ // 	a1_cov(k,j)=Ntp->PFTau_a1_cov->at(i).at(l);
+ // 	a1_cov(j,k)=Ntp->PFTau_a1_cov->at(i).at(l);
+ // 	l++;
+ //       } 
+ //     }
+ //   }
+ //   return LorentzVectorParticle(a1_par,a1_cov,Ntp->PFTau_a1_pdgid->at(i),Ntp->PFTau_a1_charge->at(i),Ntp->PFTau_a1_B->at(i));
+ // }
 
 
-double Ntuple_Controller::stitch_weight(){
-  if(GetMCID() == 33 || GetMCID() == 30 || GetMCID() == 10110333 || GetMCID() == 10110433|| GetMCID() == 10130533|| GetMCID() ==10210333|| GetMCID() == 10210433|| GetMCID() == 10230533|| GetMCID() ==10310333 || GetMCID() ==10330533 || GetMCID() ==10410433 || GetMCID() == 10410333|| GetMCID() == 10430533|| GetMCID() == 30530533){
-    if(lheNOutPartons() >= 5) return 1.;
-    if(lheNOutPartons()==0) return 1.5296701743;
-    if(lheNOutPartons()==1) return 0.4931720511;
-    if(lheNOutPartons()==2) return 0.503391311;
-    if(lheNOutPartons()==3) return 0.517605041259574;
-    if(lheNOutPartons()==4) return 0.42436253222127;
-//if(lheNOutPartons()==3) return 0.5267843245;
-    //if(lheNOutPartons()==4) return 0.4250100447;
+double Ntuple_Controller::stitch_weight(bool isDY1050){
+  if(year()==2016)
+    {
+      if(GetMCID() == 33 || GetMCID() == 30 || GetMCID() == 10110333 || GetMCID() == 10110433|| GetMCID() == 10130533|| GetMCID() ==10210333|| GetMCID() == 10210433|| GetMCID() == 10230533|| GetMCID() ==10310333 || GetMCID() ==10330533 || GetMCID() ==10410433 || GetMCID() == 10410333|| GetMCID() == 10430533|| GetMCID() == 30530533) {
+	if(isDY1050 && GetMCID()==30) return 19.0080307;
+	else if (isDY1050 && GetMCID()!=30) return -9999;
+	if(lheNOutPartons()==0||lheNOutPartons() >= 5) return 1.49005321266736;
+	if(lheNOutPartons()==1) return 0.47521301562902;
+	if(lheNOutPartons()==2) return 0.492313539105283;
+	if(lheNOutPartons()==3) return 0.504730998787436;
+	if(lheNOutPartons()==4) return 0.414018612660014;
+      }
+      if(GetMCID() == 20 || GetMCID() ==23){
+	if(lheNOutPartons()==0||lheNOutPartons() >= 5) return 25.3889395535057;
+	if(lheNOutPartons()==1) return 6.82217925376281;
+	if(lheNOutPartons()==2) return 2.09118705989359;
+	if(lheNOutPartons()==3) return 0.686191177275517;
+	if(lheNOutPartons()==4) return 0.691068406413718;
+      }
+    }
 
-    // if(lheNOutPartons()==0 || lheNOutPartons() > 5 ) return 1.;
-    // if(lheNOutPartons()==1) return 0.78855280106;
-    // if(lheNOutPartons()==2) return 0.78086684643;
-    // if(lheNOutPartons()==3) return 0.76970531344;
-    // if(lheNOutPartons()==4) return 0.84032985204;
-  }
-  if(GetMCID() == 20){
-    if(lheNOutPartons() >= 5) return 1.;
-    if(lheNOutPartons()==0) return 25.4144948063724;
-    if(lheNOutPartons()==1) return 6.80919673019066;
-    if(lheNOutPartons()==2) return 2.09688449852003;
-    if(lheNOutPartons()==3) return 0.688086811704364;
-    if(lheNOutPartons()==4) return 0.689127024874269;
-  }
-  return 1;
+  if(year()==2017)
+    {
+      if(GetMCID() == 33 || GetMCID() == 30 || GetMCID() == 10110333 || GetMCID() == 10110433|| GetMCID() == 10130533|| GetMCID() ==10210333|| GetMCID() == 10210433|| GetMCID() == 10230533|| GetMCID() ==10310333 || GetMCID() ==10330533 || GetMCID() ==10410433 || GetMCID() == 10410333|| GetMCID() == 10430533|| GetMCID() == 30530533) {
+	if(isDY1050 && GetMCID()==30) return 19.5191962215717;
+	else if (isDY1050 && GetMCID()!=30) return -9999;
+	if(lheNOutPartons()==0||lheNOutPartons() >= 5) return 2.5973962888025;
+	if(lheNOutPartons()==1) return 0.453927720730712;
+	if(lheNOutPartons()==2) return 0.922892174009934;
+	if(lheNOutPartons()==3) return 0.5938168058852;
+	if(lheNOutPartons()==4) return 0.408277745068798;
+      }
+      if(GetMCID() == 20 || GetMCID() ==23){
+	if(lheNOutPartons()==0||lheNOutPartons() >= 5) return 4.96803789167669;
+	if(lheNOutPartons()==1) return 4.96803789167669;
+	if(lheNOutPartons()==2) return 14.8987957676995;
+	if(lheNOutPartons()==3) return 2.32379673645138;
+	if(lheNOutPartons()==4) return 2.14597542644866;
+      }
+    }
+
+
+  if(year()==2018)
+    {
+      if(GetMCID() == 33 || GetMCID() == 30 || GetMCID() == 10110333 || GetMCID() == 10110433|| GetMCID() == 10130533|| GetMCID() ==10210333|| GetMCID() == 10210433|| GetMCID() == 10230533|| GetMCID() ==10310333 || GetMCID() ==10330533 || GetMCID() ==10410433 || GetMCID() == 10410333|| GetMCID() == 10430533|| GetMCID() == 30530533) {
+	if(isDY1050 && GetMCID()==30) return 28.2040833505999;
+	else if (isDY1050 && GetMCID()!=30) return -9999;
+	if(lheNOutPartons()==0||lheNOutPartons() >= 5) return 3.62105387778545;
+	if(lheNOutPartons()==1) return 0.69924705836082;
+	if(lheNOutPartons()==2) return 0.791046490589383;
+	if(lheNOutPartons()==3) return 0.978992685464496;
+	if(lheNOutPartons()==4) return 0.821659745356239;
+      }
+      if(GetMCID() == 20 || GetMCID() ==23){
+	if(lheNOutPartons()==0||lheNOutPartons() >= 5) return 51.714857425559;
+	if(lheNOutPartons()==1) return 10.8715284468658;
+	if(lheNOutPartons()==2) return 8.26944354355374;
+	if(lheNOutPartons()==3) return 4.39072366992094;
+	if(lheNOutPartons()==4) return 3.28821099006665;
+      }
+    }
+
+  return 1.;
 }
 
 
+double Ntuple_Controller::PUReweight(){
 
+  PileUp *PUofficial = new PileUp();
+  TH1D *PU_data;
+  TH1D *PU_mc;
+  if(year()==2016)
+    {
+      PU_data=(TH1D *)filePUdistribution2016_data->Get("pileup");
+      PU_mc=(TH1D *)filePUdistribution2016_MC->Get("pileup");
+      PUofficial->set_h_data(PU_data);
+      PUofficial->set_h_MC(PU_mc);
+    }
 
+  if(year()==2017)
+    {
+      PU_data=(TH1D *)filePUdistribution2017_data->Get("pileup");      
+      PU_mc=(TH1D *)filePUdistribution2017_MC->Get("pileup");
+      PUofficial->set_h_data(PU_data);
+      PUofficial->set_h_MC(PU_mc);
+    }
+
+  if(year()==2018)
+    {
+      PU_data=(TH1D *)filePUdistribution2018_data->Get("pileup");
+      PU_mc=(TH1D *)filePUdistribution2018_MC->Get("pileup");
+      PUofficial->set_h_data(PU_data);
+      PUofficial->set_h_MC(PU_mc);
+    }
+  return float(PUofficial->get_PUweight(double(npu())));
+}
 // std::vector<TrackParticle> Ntuple_Controller::PFTau_daughterTracks(unsigned int i){
 //   std::vector<TrackParticle> daughter;
 //   for(unsigned int d=0;d<Ntp->PFTau_daughterTracks_poca->at(i).size();d++){
@@ -2879,6 +3727,238 @@ double Ntuple_Controller::stitch_weight(){
 //   return poca;
 // }
    
+void Ntuple_Controller::RecoilCorr(TLorentzVector Gen,TLorentzVector Vis,int Index,float &PUPPImetCorr_px,float &PUPPImetCorr_py, string JER, string METScale, string METReso)
+{
+  int Njets=0;
+  if(JER=="Up") Njets=njetsUp(Index);
+  if(JER=="Down") Njets=njetsDown(Index);
+  else Njets=njets(Index);
+
+  if(year()==2016)
+    {
+      if(METScale=="Up"){
+	recoilPuppiMetShifter2016->ApplyMEtSys(
+					       (float)PUPPImet()*cos(PUPPImetphi()), // uncorrected type I puppi met px (float)
+					       (float)PUPPImet()*sin(PUPPImetphi()), // uncorrected type I puppi met py (float)
+					       (float)Gen.Px(), // generator Z/W/Higgs px (float)
+					       (float)Gen.Py(), // generator Z/W/Higgs py (float)
+					       (float)Vis.Px(), // generator visible Z/W/Higgs px (float)
+					       (float)Vis.Py(), // generator visible Z/W/Higgs py (float)
+					       Njets,  // number of jets (hadronic jet multiplicity) (int)
+					       0, // shift for hadronic recoil response
+					       0, // upward shift
+					       PUPPImetCorr_px, // shifted type I puppi met px (float)
+					       PUPPImetCorr_py  // shifted type I puppi met py (float)
+					       );
+      }
+      else if(METScale=="Down"){
+	recoilPuppiMetShifter2016->ApplyMEtSys(
+					       (float)PUPPImet()*cos(PUPPImetphi()), // uncorrected type I puppi met px (float)
+					       (float)PUPPImet()*sin(PUPPImetphi()), // uncorrected type I puppi met py (float)
+					       (float)Gen.Px(), // generator Z/W/Higgs px (float)
+					       (float)Gen.Py(), // generator Z/W/Higgs py (float)
+					       (float)Vis.Px(), // generator visible Z/W/Higgs px (float)
+					       (float)Vis.Py(), // generator visible Z/W/Higgs py (float)
+					       Njets,  // number of jets (hadronic jet multiplicity) (int)
+					       0, // shift for hadronic recoil response
+					       1, // upward shift
+					       PUPPImetCorr_px, // shifted type I puppi met px (float)
+					       PUPPImetCorr_py  // shifted type I puppi met py (float)
+					       );
+      }
+      else if(METReso=="Up"){
+	recoilPuppiMetShifter2016->ApplyMEtSys(
+					       (float)PUPPImet()*cos(PUPPImetphi()), // uncorrected type I puppi met px (float)
+					       (float)PUPPImet()*sin(PUPPImetphi()), // uncorrected type I puppi met py (float)
+					       (float)Gen.Px(), // generator Z/W/Higgs px (float)
+					       (float)Gen.Py(), // generator Z/W/Higgs py (float)
+					       (float)Vis.Px(), // generator visible Z/W/Higgs px (float)
+					       (float)Vis.Py(), // generator visible Z/W/Higgs py (float)
+					       Njets,  // number of jets (hadronic jet multiplicity) (int)
+					       1, // shift for hadronic resolution
+					       0, // upward shift
+					       PUPPImetCorr_px, // shifted type I puppi met px (float)
+					       PUPPImetCorr_py  // shifted type I puppi met py (float)
+					       );
+      }
+      else if(METReso=="Down"){
+	recoilPuppiMetShifter2016->ApplyMEtSys(
+					       (float)PUPPImet()*cos(PUPPImetphi()), // uncorrected type I puppi met px (float)
+					       (float)PUPPImet()*sin(PUPPImetphi()), // uncorrected type I puppi met py (float)
+					       (float)Gen.Px(), // generator Z/W/Higgs px (float)
+					       (float)Gen.Py(), // generator Z/W/Higgs py (float)
+					       (float)Vis.Px(), // generator visible Z/W/Higgs px (float)
+					       (float)Vis.Py(), // generator visible Z/W/Higgs py (float)
+					       Njets,  // number of jets (hadronic jet multiplicity) (int)
+					       1, // shift for hadronic resolution
+					       1, // upward shift
+					       PUPPImetCorr_px, // shifted type I puppi met px (float)
+					       PUPPImetCorr_py  // shifted type I puppi met py (float)
+					       );
+      }
+      else recoilPuppiMetCorrector2016->CorrectWithHist(
+						   (float)PUPPImet()*cos(PUPPImetphi()), // uncorrected type I pf met px (float)
+						   (float)PUPPImet()*sin(PUPPImetphi()), // uncorrected type I pf met py (float)
+						   (float)Gen.Px(), // generator Z/W/Higgs px (float)
+						   (float)Gen.Py(), // generator Z/W/Higgs py (float)
+						   (float)Vis.Px(), // generator visible Z/W/Higgs px (float)
+						   (float)Vis.Py(), // generator visible Z/W/Higgs py (float)
+						   Njets,  // number of jets (hadronic jet multiplicity) (int)
+						   PUPPImetCorr_px, // corrected type I pf met px (float)
+						   PUPPImetCorr_py  // corrected type I pf met py (float)
+						   );
+    }
+  if(year()==2017)
+    {
+      if(METScale=="Up"){
+	recoilPuppiMetShifter2017->ApplyMEtSys(
+					       (float)PUPPImet()*cos(PUPPImetphi()), // uncorrected type I puppi met px (float)
+					       (float)PUPPImet()*sin(PUPPImetphi()), // uncorrected type I puppi met py (float)
+					       (float)Gen.Px(), // generator Z/W/Higgs px (float)
+					       (float)Gen.Py(), // generator Z/W/Higgs py (float)
+					       (float)Vis.Px(), // generator visible Z/W/Higgs px (float)
+					       (float)Vis.Py(), // generator visible Z/W/Higgs py (float)
+					       Njets,  // number of jets (hadronic jet multiplicity) (int)
+					       0, // shift for hadronic recoil response
+					       0, // upward shift
+					       PUPPImetCorr_px, // shifted type I puppi met px (float)
+					       PUPPImetCorr_py  // shifted type I puppi met py (float)
+					       );
+      }
+      else if(METScale=="Down"){
+	recoilPuppiMetShifter2017->ApplyMEtSys(
+					       (float)PUPPImet()*cos(PUPPImetphi()), // uncorrected type I puppi met px (float)
+					       (float)PUPPImet()*sin(PUPPImetphi()), // uncorrected type I puppi met py (float)
+					       (float)Gen.Px(), // generator Z/W/Higgs px (float)
+					       (float)Gen.Py(), // generator Z/W/Higgs py (float)
+					       (float)Vis.Px(), // generator visible Z/W/Higgs px (float)
+					       (float)Vis.Py(), // generator visible Z/W/Higgs py (float)
+					       Njets,  // number of jets (hadronic jet multiplicity) (int)
+					       0, // shift for hadronic recoil response
+					       1, // upward shift
+					       PUPPImetCorr_px, // shifted type I puppi met px (float)
+					       PUPPImetCorr_py  // shifted type I puppi met py (float)
+					       );
+      }
+      else if(METReso=="Up"){
+	recoilPuppiMetShifter2017->ApplyMEtSys(
+					       (float)PUPPImet()*cos(PUPPImetphi()), // uncorrected type I puppi met px (float)
+					       (float)PUPPImet()*sin(PUPPImetphi()), // uncorrected type I puppi met py (float)
+					       (float)Gen.Px(), // generator Z/W/Higgs px (float)
+					       (float)Gen.Py(), // generator Z/W/Higgs py (float)
+					       (float)Vis.Px(), // generator visible Z/W/Higgs px (float)
+					       (float)Vis.Py(), // generator visible Z/W/Higgs py (float)
+					       Njets,  // number of jets (hadronic jet multiplicity) (int)
+					       1, // shift for hadronic resolution
+					       0, // upward shift
+					       PUPPImetCorr_px, // shifted type I puppi met px (float)
+					       PUPPImetCorr_py  // shifted type I puppi met py (float)
+					       );
+      }
+      else if(METReso=="Down"){
+	recoilPuppiMetShifter2017->ApplyMEtSys(
+					       (float)PUPPImet()*cos(PUPPImetphi()), // uncorrected type I puppi met px (float)
+					       (float)PUPPImet()*sin(PUPPImetphi()), // uncorrected type I puppi met py (float)
+					       (float)Gen.Px(), // generator Z/W/Higgs px (float)
+					       (float)Gen.Py(), // generator Z/W/Higgs py (float)
+					       (float)Vis.Px(), // generator visible Z/W/Higgs px (float)
+					       (float)Vis.Py(), // generator visible Z/W/Higgs py (float)
+					       Njets,  // number of jets (hadronic jet multiplicity) (int)
+					       1, // shift for hadronic resolution
+					       1, // upward shift
+					       PUPPImetCorr_px, // shifted type I puppi met px (float)
+					       PUPPImetCorr_py  // shifted type I puppi met py (float)
+					       );
+      }
+      else recoilPuppiMetCorrector2017->CorrectWithHist(
+						   (float)PUPPImet()*cos(PUPPImetphi()), // uncorrected type I pf met px (float)
+						   (float)PUPPImet()*sin(PUPPImetphi()), // uncorrected type I pf met py (float)
+						   (float)Gen.Px(), // generator Z/W/Higgs px (float)
+						   (float)Gen.Py(), // generator Z/W/Higgs py (float)
+						   (float)Vis.Px(), // generator visible Z/W/Higgs px (float)
+						   (float)Vis.Py(), // generator visible Z/W/Higgs py (float)
+						   Njets,  // number of jets (hadronic jet multiplicity) (int)
+						   PUPPImetCorr_px, // corrected type I pf met px (float)
+						   PUPPImetCorr_py  // corrected type I pf met py (float)
+						   ) ;
+						   
+    }
+  if(year()==2018)
+    {
+      if(METScale=="Up"){
+	recoilPuppiMetShifter2018->ApplyMEtSys(
+					       (float)PUPPImet()*cos(PUPPImetphi()), // uncorrected type I puppi met px (float)
+					       (float)PUPPImet()*sin(PUPPImetphi()), // uncorrected type I puppi met py (float)
+					       (float)Gen.Px(), // generator Z/W/Higgs px (float)
+					       (float)Gen.Py(), // generator Z/W/Higgs py (float)
+					       (float)Vis.Px(), // generator visible Z/W/Higgs px (float)
+					       (float)Vis.Py(), // generator visible Z/W/Higgs py (float)
+					       Njets,  // number of jets (hadronic jet multiplicity) (int)
+					       0, // shift for hadronic recoil response
+					       0, // upward shift
+					       PUPPImetCorr_px, // shifted type I puppi met px (float)
+					       PUPPImetCorr_py  // shifted type I puppi met py (float)
+					       );
+      }
+      else if(METScale=="Down"){
+	recoilPuppiMetShifter2018->ApplyMEtSys(
+					       (float)PUPPImet()*cos(PUPPImetphi()), // uncorrected type I puppi met px (float)
+					       (float)PUPPImet()*sin(PUPPImetphi()), // uncorrected type I puppi met py (float)
+					       (float)Gen.Px(), // generator Z/W/Higgs px (float)
+					       (float)Gen.Py(), // generator Z/W/Higgs py (float)
+					       (float)Vis.Px(), // generator visible Z/W/Higgs px (float)
+					       (float)Vis.Py(), // generator visible Z/W/Higgs py (float)
+					       Njets,  // number of jets (hadronic jet multiplicity) (int)
+					       0, // shift for hadronic recoil response
+					       1, // upward shift
+					       PUPPImetCorr_px, // shifted type I puppi met px (float)
+					       PUPPImetCorr_py  // shifted type I puppi met py (float)
+					       );
+      }
+      else if(METReso=="Up"){
+	recoilPuppiMetShifter2018->ApplyMEtSys(
+					       (float)PUPPImet()*cos(PUPPImetphi()), // uncorrected type I puppi met px (float)
+					       (float)PUPPImet()*sin(PUPPImetphi()), // uncorrected type I puppi met py (float)
+					       (float)Gen.Px(), // generator Z/W/Higgs px (float)
+					       (float)Gen.Py(), // generator Z/W/Higgs py (float)
+					       (float)Vis.Px(), // generator visible Z/W/Higgs px (float)
+					       (float)Vis.Py(), // generator visible Z/W/Higgs py (float)
+					       Njets,  // number of jets (hadronic jet multiplicity) (int)
+					       1, // shift for hadronic resolution
+					       0, // upward shift
+					       PUPPImetCorr_px, // shifted type I puppi met px (float)
+					       PUPPImetCorr_py  // shifted type I puppi met py (float)
+					       );
+      }
+      else if(METReso=="Down"){
+	recoilPuppiMetShifter2018->ApplyMEtSys(
+					       (float)PUPPImet()*cos(PUPPImetphi()), // uncorrected type I puppi met px (float)
+					       (float)PUPPImet()*sin(PUPPImetphi()), // uncorrected type I puppi met py (float)
+					       (float)Gen.Px(), // generator Z/W/Higgs px (float)
+					       (float)Gen.Py(), // generator Z/W/Higgs py (float)
+					       (float)Vis.Px(), // generator visible Z/W/Higgs px (float)
+					       (float)Vis.Py(), // generator visible Z/W/Higgs py (float)
+					       Njets,  // number of jets (hadronic jet multiplicity) (int)
+					       1, // shift for hadronic resolution
+					       1, // upward shift
+					       PUPPImetCorr_px, // shifted type I puppi met px (float)
+					       PUPPImetCorr_py  // shifted type I puppi met py (float)
+					       );
+      }
+      else recoilPuppiMetCorrector2018->CorrectWithHist(
+						   (float)PUPPImet()*cos(PUPPImetphi()), // uncorrected type I pf met px (float)
+						   (float)PUPPImet()*sin(PUPPImetphi()), // uncorrected type I pf met py (float)
+						   (float)Gen.Px(), // generator Z/W/Higgs px (float)
+						   (float)Gen.Py(), // generator Z/W/Higgs py (float)
+						   (float)Vis.Px(), // generator visible Z/W/Higgs px (float)
+						   (float)Vis.Py(), // generator visible Z/W/Higgs py (float)
+						   Njets,  // number of jets (hadronic jet multiplicity) (int)
+						   PUPPImetCorr_px, // corrected type I pf met px (float)
+						   PUPPImetCorr_py  // corrected type I pf met py (float)
+						   );
+    }
+}
+
 double Ntuple_Controller::dxySigned(TLorentzVector fourvector, TVector3 poca, TVector3 vtx){
 	return (-(poca.X()-vtx.X())*fourvector.Py()+(poca.Y()-vtx.Y())*fourvector.Px())/fourvector.Pt();
 }

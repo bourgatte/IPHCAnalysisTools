@@ -36,6 +36,8 @@ void TauSpinerInterface::Initialize(){
   initialize_spinner(Ipp,Ipol,nonSM2,nonSMN,CMSENE);
   setHiggsParametersTR(-1.0, 1.0, 0.0, 0.0); // Scalar Higgs (Even)
   //setHiggsParametersTR(1.0, -1.0, 0.0, 0.0); // Pseudo-Scalar Higgs (Odd)
+  //double theta=TMath::Pi()/4.;
+  //setHiggsParametersTR(-cos(2*theta),cos(2*theta) ,-sin(2*theta),-sin(2*theta));
 }
 
 

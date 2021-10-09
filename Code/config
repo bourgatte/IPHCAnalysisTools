@@ -11,6 +11,7 @@ if [ "${1}"  == "--help" ]; then
     echo "--lebihan                 Configures the make file to compile files in the directory lebihan"
     echo "--gbourgat                Configures the make file to compile files in the directory gbourgat"
     echo "--cgrimault               Configures the make file to compile files in the directory cgrimault"
+    echo "--msessini                Configures the make file to compile files in the directory msessini"
 
 
 
@@ -19,12 +20,24 @@ else
     echo "Configuring Environment...."
     export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/CommonUtils/lib
     export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/DataFormats/lib
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/DataFormats
     export DATAFORMATS_LIB=$PWD/DataFormats/lib/libDataFormats.so
     export codedir=$PWD
     ## setup variables for make files
-    export ROOTSYS=/libcern/root/5.34.18/sl6.3-x86_64
-    source /libcern/gcc/4.9.3/sl6.5-x86_64/setup.sh
-    cernlib-use --version 5.34.18 root
+    #export ROOTSYS=/libcern/root/5.34.30/sl6.6-x86_64
+    #export ROOTSYS=/libcern/root/5.34.18/sl6.3-x86_64
+    export ROOTSYS=/libcern/root/6.14.06/centos7.6-x86_64
+    #source /libcern/gcc/4.9.3/sl6.5-x86_64/setup.sh
+    source /libcern/gcc/4.9.3/centos7.6-x86_64/setup.sh
+    cernlib-use --version 6.14.06 root
+    #source /libcern/root/6.06.08/sl6.6-x86_64/bin/thisroot.sh
+    #source /libcern/gcc/6.2.0/sl6.6-x86_64/setup.sh
+    
+    #cernlib-use --version 5.34.30 root
+    #source /libcern/gcc/4.9.3/sl6.5-x86_64/setup.sh
+    #cernlib-use --version 5.34.18 root
+    #cernlib-use root
+#    export ROOTSYS=/libcern/root/6.06.08/sl6.6-x86_64
 #    export ROOTSYS=/libcern/root/6.06.08/sl6.6-x86_64
 #    ROOT="$PWD/../root/"
     if [ "${1}"  == "--useRoot" ]; then
@@ -43,7 +56,8 @@ else
 	    rm -rf CommonUtils/SVfit_standalone
 	    rm -rf CommonUtils/lib
 	    rm -rf TauSpiner/hepmc
-	    rm -rf TauSpiner/HepMC-2.06.05*
+	    #rm -rf TauSpiner/HepMC-2.06.05*
+	    rm -rf TauSpiner/HepMC-2.06.11*
 	    rm -rf TauSpiner/pythia8*
 	    rm -rf TauSpiner/TAUOLA*
 	    rm -rf TauSpiner/lhapdf
@@ -90,13 +104,22 @@ else
 		echo "Configuring Code to use directory cgrimault"
 		echo "USE_cgrimault=1" >> make.inc
 	    fi
-
+	    if [ "${var}" == "--msessini" ]; then
+		echo "Configuring Code to use directory msessini"
+		echo "USE_msessini=1" >> make.inc
+	    fi
 	done
     fi
     
     ## now downloading required code from github
+    
+    LegacyCorrectionsWorkspace=$(ls | grep LegacyCorrectionsWorkspace | wc -l)
+    if [ $LegacyCorrectionsWorkspace == 0 ]; then
+	git clone -b legacy_newrepo https://github.com/danielwinterbottom/LegacyCorrectionsWorkspace.git LegacyCorrectionsWorkspace
+    fi
+
     cd CommonUtils
-    CommonUtils=$(ls | grep TauDataFormat | wc -l)
+    CommonUtils=$(ls | grep SimpleFits | wc -l)
     cd ..
     if [ $CommonUtils == 0 ]; then
 	cd CommonUtils
@@ -104,14 +127,15 @@ else
 	
 	git clone https://github.com/cherepan/SimpleFits.git SimpleFits
 	
-	git clone https://github.com/cherepan/TauDataFormat.git TauDataFormat
+	#git clone https://github.com/cherepan/TauDataFormat.git TauDataFormat
 	
 	git clone https://github.com/TauPolSoftware/TauDecaysInterface.git TauPolSoftware/TauDecaysInterface
 
 	if [ $UseSVfit == 1 ]; then
-	#	git clone -b svFit_2015Apr03  https://github.com/veelken/SVfit_standalone.git TauAnalysis/SVfitStandaloney
+	#	git clone -b svFit_2015Apr03  https://github.com/veelken/SVfit_standalone.git TauAnalysis/SVfitStandalone
 	    git clone -b svFit_2015Apr03  https://github.com/veelken/SVfit_standalone.git TauAnalysis/SVfitStandalone
-	    git clone -b release_2018Mar20  https://github.com/SVfit/ClassicSVfit.git TauAnalysis/ClassicSVfit # this is classic svfit
+	    #git clone -b release_2018Mar20  https://github.com/SVfit/ClassicSVfit.git TauAnalysis/ClassicSVfit # this is classic svfit
+	    git clone -b fastMTT_19_02_2019  https://github.com/SVfit/ClassicSVfit.git TauAnalysis/ClassicSVfit # this is classic svfit
 	fi
 	
 	cd ../
@@ -122,9 +146,10 @@ else
 	hepmc=$(ls TauSpiner/* | grep HepMC | wc -l) 
 	if [ $hepmc == 0 ]; then
 	    cd TauSpiner
-	    wget http://lcgapp.cern.ch/project/simu/HepMC/download/HepMC-2.06.05.tar.gz
-	    tar -xzvf HepMC-2.06.05.tar.gz
-	    rm HepMC-2.06.05.tar.gz
+	    wget http://hepmc.web.cern.ch/hepmc/releases/hepmc2.06.11.tgz
+	    #wget http://lcgapp.cern.ch/project/simu/HepMC/download/HepMC-2.06.05.tar.gz
+	    tar -xzvf hepmc2.06.11.tgz
+	    rm hepmc2.06.11.tgz
 	    mkdir hepmc
 	    cd hepmc/
 	    mkdir build install
@@ -144,8 +169,10 @@ else
 	pythia=$(ls TauSpiner/* | grep pythia8 | wc -l )
 	if [ $pythia == 0 ]; then 
 	    cd TauSpiner
-	    wget http://service-spi.web.cern.ch/service-spi/external/MCGenerators/distribution/pythia8/pythia8-176-src.tgz 
-	    tar -xzvf pythia8-176-src.tgz
+	    wget http://home.thep.lu.se/~torbjorn/pythia8/pythia8303.tgz
+	    #wget http://service-spi.web.cern.ch/service-spi/external/MCGenerators/distribution/pythia8/pythia8-176-src.tgz 
+	    #tar -xzvf pythia8-176-src.tgz
+	    tar xvfz pythia8303.tgz
 	    cd ..
 	fi
 	tauola=$(ls TauSpiner/* | grep TAUOLA | wc -l )
@@ -162,7 +189,8 @@ else
     
     export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/TauSpiner/TAUOLA/lib
     export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/TauSpiner/TAUOLA/TauSpinner/include/TauSpinner/
-    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/TauSpiner/pythia8/176/lib/
+    #export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/TauSpiner/pythia8/176/lib/
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/TauSpiner/pythia8303/
     export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/TauSpiner/lhapdf/lib/
     export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/TauSpiner/hepmc/install/lib/
     

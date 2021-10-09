@@ -109,16 +109,20 @@ class ZTauTau : public Selection {
 
   std::vector<TH1D> TauTauVisMass;
   std::vector<TH1D> TauTauTruthMass;
-  std::vector<TH1D> TauTauFullMass;
+  //std::vector<TH1D> TauTauFullMass;
  
   std::vector<TH1D> dRTauTau;
   std::vector<TH1D> QCDShape;
 
   std::vector<TH1D> NQCD;
-  std::vector<TH1D> TauTauFullMass_B;
-  std::vector<TH1D> TauTauFullMass_C;
-  std::vector<TH1D> TauTauFullMass_D;
+  /* std::vector<TH1D> TauTauFullMass_B; */
+  /* std::vector<TH1D> TauTauFullMass_C; */
+  /* std::vector<TH1D> TauTauFullMass_D; */
   
+  std::vector<TH1D> TauTauVisMass_B;
+  std::vector<TH1D> TauTauVisMass_C;
+  std::vector<TH1D> TauTauVisMass_D;
+
   std::vector<TH1D> MET;
   std::vector<TH1D> METphi;
   std::vector<TH1D> PUPPImet;

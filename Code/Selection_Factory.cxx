@@ -28,12 +28,11 @@
 #endif
 
 #ifdef USE_gbourgat
-#include "gbourgat/ZTauTau.h"
-#include "gbourgat/ZMuTau.h"
-#include "gbourgat/HTauTau.h"
-#include "gbourgat/SVFitIPHC.h"
-#include "gbourgat/SkimNtupleDiTauHTrigger.h"
-#include "gbourgat/SingleMuSkim.h"
+
+//#include "gbourgat/HTauTau.h"
+#include "gbourgat/HCPTauTau.h"
+#include "gbourgat/HCPMuTau.h"
+#include "gbourgat/HCPPiTau.h"
 
 #endif
 
@@ -41,7 +40,11 @@
 
 #endif
 
+#ifdef USE_msessini
 
+#include "msessini/HCPTauTau.h"
+
+#endif
 
 Selection_Factory::Selection_Factory(){
 }
@@ -86,12 +89,17 @@ Selection_Base* Selection_Factory::Factory(TString Analysis, TString UncertType,
 
 
 #ifdef USE_gbourgat
-  else if(Analysis.Contains("ztautau"))s=new ZTauTau(Analysis,UncertType);
-  else if(Analysis.Contains("zmutau"))s=new ZMuTau(Analysis,UncertType);
-  else if(Analysis.Contains("htautau"))s=new HTauTau(Analysis,UncertType);
-  else if(Analysis.Contains("svfitiphc"))s=new SVFitIPHC(Analysis,UncertType);
-  else if(Analysis.Contains("skimntupleditauhtrigger"))s=new SkimNtupleDiTauHTrigger(Analysis,UncertType);
-  else if(Analysis.Contains("singlemuskim"))s=new SingleMuSkim(Analysis,UncertType);
+
+  //else if(Analysis.Contains("htautau"))s=new HTauTau(Analysis,UncertType);
+  else if(Analysis.Contains("hcptautau"))s=new HCPTauTau(Analysis,UncertType);
+  else if(Analysis.Contains("hcpmutau"))s=new HCPMuTau(Analysis,UncertType);
+  else if(Analysis.Contains("hcppitau"))s=new HCPPiTau(Analysis,UncertType);
+
+#endif
+
+#ifdef USE_msessini
+
+  else if(Analysis.Contains("hcptautau"))s=new HCPTauTau(Analysis,UncertType);
 
 #endif
 
