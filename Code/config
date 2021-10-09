@@ -26,9 +26,10 @@ else
     ## setup variables for make files
     #export ROOTSYS=/libcern/root/5.34.30/sl6.6-x86_64
     #export ROOTSYS=/libcern/root/5.34.18/sl6.3-x86_64
-    export ROOTSYS=/libcern/root/6.06.08/sl6.6-x86_64
-    source /libcern/gcc/4.9.3/sl6.5-x86_64/setup.sh
-    cernlib-use --version 6.06.08 root
+    export ROOTSYS=/libcern/root/6.14.06/centos7.6-x86_64
+    #source /libcern/gcc/4.9.3/sl6.5-x86_64/setup.sh
+    source /libcern/gcc/4.9.3/centos7.6-x86_64/setup.sh
+    cernlib-use --version 6.14.06 root
     #source /libcern/root/6.06.08/sl6.6-x86_64/bin/thisroot.sh
     #source /libcern/gcc/6.2.0/sl6.6-x86_64/setup.sh
     
@@ -55,7 +56,8 @@ else
 	    rm -rf CommonUtils/SVfit_standalone
 	    rm -rf CommonUtils/lib
 	    rm -rf TauSpiner/hepmc
-	    rm -rf TauSpiner/HepMC-2.06.05*
+	    #rm -rf TauSpiner/HepMC-2.06.05*
+	    rm -rf TauSpiner/HepMC-2.06.11*
 	    rm -rf TauSpiner/pythia8*
 	    rm -rf TauSpiner/TAUOLA*
 	    rm -rf TauSpiner/lhapdf
@@ -144,9 +146,10 @@ else
 	hepmc=$(ls TauSpiner/* | grep HepMC | wc -l) 
 	if [ $hepmc == 0 ]; then
 	    cd TauSpiner
-	    wget http://lcgapp.cern.ch/project/simu/HepMC/download/HepMC-2.06.05.tar.gz
-	    tar -xzvf HepMC-2.06.05.tar.gz
-	    rm HepMC-2.06.05.tar.gz
+	    wget http://hepmc.web.cern.ch/hepmc/releases/hepmc2.06.11.tgz
+	    #wget http://lcgapp.cern.ch/project/simu/HepMC/download/HepMC-2.06.05.tar.gz
+	    tar -xzvf hepmc2.06.11.tgz
+	    rm hepmc2.06.11.tgz
 	    mkdir hepmc
 	    cd hepmc/
 	    mkdir build install
@@ -166,8 +169,10 @@ else
 	pythia=$(ls TauSpiner/* | grep pythia8 | wc -l )
 	if [ $pythia == 0 ]; then 
 	    cd TauSpiner
-	    wget http://service-spi.web.cern.ch/service-spi/external/MCGenerators/distribution/pythia8/pythia8-176-src.tgz 
-	    tar -xzvf pythia8-176-src.tgz
+	    wget http://home.thep.lu.se/~torbjorn/pythia8/pythia8303.tgz
+	    #wget http://service-spi.web.cern.ch/service-spi/external/MCGenerators/distribution/pythia8/pythia8-176-src.tgz 
+	    #tar -xzvf pythia8-176-src.tgz
+	    tar xvfz pythia8303.tgz
 	    cd ..
 	fi
 	tauola=$(ls TauSpiner/* | grep TAUOLA | wc -l )
@@ -184,7 +189,8 @@ else
     
     export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/TauSpiner/TAUOLA/lib
     export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/TauSpiner/TAUOLA/TauSpinner/include/TauSpinner/
-    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/TauSpiner/pythia8/176/lib/
+    #export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/TauSpiner/pythia8/176/lib/
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/TauSpiner/pythia8303/
     export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/TauSpiner/lhapdf/lib/
     export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/TauSpiner/hepmc/install/lib/
     

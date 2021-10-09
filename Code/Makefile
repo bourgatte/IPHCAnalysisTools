@@ -58,7 +58,8 @@ TARGETS       =	Ntuple_Controller \
 		RecoilCorrector \
 		MEtSys \
 		TauIDSFTool \
-		BDTClassification
+		BDTClassification \
+		IpCorrection
 
 CINTTARGETS = 
 
@@ -105,7 +106,7 @@ ifdef USE_lebihan
 endif
 
 ifdef USE_gbourgat
-	TARGETS += HCPTauTau
+	TARGETS += HCPTauTau HCPMuTau HCPPiTau
 	DEFS += -DUSE_gbourgat=1
 endif
 

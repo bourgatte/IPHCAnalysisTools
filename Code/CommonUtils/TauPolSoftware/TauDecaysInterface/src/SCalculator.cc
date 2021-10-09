@@ -237,7 +237,7 @@ bool SCalculator::isOk(TString type1, TString type2, TLorentzVector tauMinus, st
   if(type2!="pion") Scalc2.SortPions(sumPionsPlus, sumPionsChargePlus);
   
   bool isgoodcharge=true;
-  if(sumPionsChargeMinus.at(0)==-99 || sumPionsChargeMinus.at(1)==-99 || sumPionsChargeMinus.at(2)==-99 || sumPionsChargePlus.at(0)==-99 || sumPionsChargePlus.at(1)==-99 || sumPionsChargePlus.at(2)==-99)isgoodcharge=false;
+  if(sumPionsChargeMinus.at(0)==0 || sumPionsChargeMinus.at(1)==0 || sumPionsChargeMinus.at(2)==0 || sumPionsChargePlus.at(0)==0 || sumPionsChargePlus.at(1)==0 || sumPionsChargePlus.at(2)==0)isgoodcharge=false;
 
   vector<TLorentzVector> tauandprodminus;
   vector<TLorentzVector> tauandprodplus;

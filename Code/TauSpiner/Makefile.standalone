@@ -24,7 +24,8 @@ clean:
 
 HEPMC:
 	@cd hepmc/build/; \
-	../../HepMC-2.06.05/configure -prefix=${BASE}/hepmc/install -with-momentum=GEV -with-length=CM; \
+	#../../HepMC-2.06.05/configure -prefix=${BASE}/hepmc/install -with-momentum=GEV -with-length=CM; \
+	../../HepMC-2.06.11/configure -prefix=${BASE}/hepmc/install -with-momentum=GEV -with-length=CM; \
 	make; \
 	make check; \
 	make install; \
@@ -88,12 +89,12 @@ LHAPDF:
 	cd ../../../../;
 
 PYTHIA8:
-	@cd pythia8/176/; \
-        ./configure --enable-shared --lcgplatform=x86_64-slc5-gcc43-opt --with-hepmc=${BASE}/hepmc/install/ --with-hepmcversion=2.06.05; \
+	@cd pythia8303/; \
+        ./configure --enable-shared --lcgplatform=x86_64-slc5-gcc43-opt --with-hepmc=${BASE}/hepmc/install/ --with-hepmcversion=2.06.11; \
         make;
 
 
 TAUOLA:
 	@cd TAUOLA/; \
-	 ./configure --with-hepmc=${BASE}/hepmc/install/ --with-pythia8libs=${BASE}/pythia8/176/ --with-lhapdf=${BASE}/lhapdf --with-tau-spinner ; \
+	 ./configure --with-hepmc=${BASE}/hepmc/install/ --with-pythia8libs=${BASE}/pythia8303/ --with-lhapdf=${BASE}/lhapdf --with-tau-spinner ; \
 	make all; make install; 

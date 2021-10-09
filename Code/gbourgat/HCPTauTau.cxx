@@ -4680,19 +4680,7 @@ void  HCPTauTau::doEvent()  { //  Method called on every event
       if (std::isnan(Wspin)!=true)
 	{
 	  if(a1a1MVA)
-	    {
-	      
-	      Tau1PTa1a1.at(1).Fill(pt_1_,FFData*w);
-	      TauTauVisMassa1a1.at(1).Fill(m_vis_,FFData*w);
-	      TauTauFullMassa1a1.at(1).Fill(m_sv_,FFData*w);
-	      TauTauVisPTa1a1.at(1).Fill(pt_vis_,FFData*w);
-	      TauTauFullPTa1a1.at(1).Fill(pt_tt_,FFData*w);
-	      Mjja1a1.at(1).Fill(mjj_,FFData*w);
-	      jdetaa1a1.at(1).Fill(jdeta_,FFData*w);
-	      jpt_1a1a1.at(1).Fill(jpt_1_,FFData*w);
-	      PUPPImetcorra1a1.at(1).Fill(met_,FFData*w);
-	      NbJetsa1a1.at(1).Fill(n_jets_,FFData*w);
-	      
+	    {      
 	      if ((HadRefitPions_minus!=HadRefitPions_plus) && (HadRefitPions_minus!=VectZeroLV) && (HadRefitPions_plus!=VectZeroLV))
 		{
 		  if(TauminusPairConstraintWithTracksBS!=TauplusPairConstraintWithTracksBS && TauminusPairConstraintWithTracksBS!=zeroLV && TauplusPairConstraintWithTracksBS!=zeroLV )
@@ -4700,6 +4688,17 @@ void  HCPTauTau::doEvent()  { //  Method called on every event
 		      if(ScalcPVRefitWithTracksBS.isOk("a1", "a1", TauminusPairConstraintWithTracksBS, HadRefitPions_minus, HadRefitPionsCharge_minus, TauplusPairConstraintWithTracksBS, HadRefitPions_plus, HadRefitPionsCharge_plus)==true){polarimetricAcopAnglePVRefitWithTracksBSMVADM.at(1).Fill(ScalcPVRefitWithTracksBS.AcopAngle("a1", "a1", TauminusPairConstraintWithTracksBS, HadRefitPions_minus, HadRefitPionsCharge_minus, TauplusPairConstraintWithTracksBS, HadRefitPions_plus, HadRefitPionsCharge_plus),FFData);
 			
 			polarimetricAcopAnglePVRefitWithTracksBSMVADM_DP.at(1).Fill(acop,FFData);
+
+			Tau1PTa1a1.at(1).Fill(pt_1_,FFData*w);
+			TauTauVisMassa1a1.at(1).Fill(m_vis_,FFData*w);
+			TauTauFullMassa1a1.at(1).Fill(m_sv_,FFData*w);
+			TauTauVisPTa1a1.at(1).Fill(pt_vis_,FFData*w);
+			TauTauFullPTa1a1.at(1).Fill(pt_tt_,FFData*w);
+			Mjja1a1.at(1).Fill(mjj_,FFData*w);
+			jdetaa1a1.at(1).Fill(jdeta_,FFData*w);
+			jpt_1a1a1.at(1).Fill(jpt_1_,FFData*w);
+			PUPPImetcorra1a1.at(1).Fill(met_,FFData*w);
+			NbJetsa1a1.at(1).Fill(n_jets_,FFData*w);
 		      }
 		      if(max_pair.second==0)
 			{
@@ -5180,16 +5179,6 @@ void  HCPTauTau::doEvent()  { //  Method called on every event
 	  {	  
 	    if(a1a1MVA)
 	      {	  
-		Tau1PTa1a1QCDMC.at(t).Fill(pt_1_,FFMC*w);
-		TauTauVisMassa1a1QCDMC.at(t).Fill(m_vis_,FFMC*w);
-		TauTauFullMassa1a1QCDMC.at(t).Fill(m_sv_,FFMC*w);
-		TauTauVisPTa1a1QCDMC.at(t).Fill(pt_vis_,FFMC*w);
-		TauTauFullPTa1a1QCDMC.at(t).Fill(pt_tt_,FFMC*w);
-		Mjja1a1QCDMC.at(t).Fill(mjj_,FFMC*w);
-		jdetaa1a1QCDMC.at(t).Fill(jdeta_,FFMC*w);
-		jpt_1a1a1QCDMC.at(t).Fill(jpt_1_,FFMC*w);
-		PUPPImetcorra1a1QCDMC.at(t).Fill(met_,FFMC*w);
-		NbJetsa1a1QCDMC.at(t).Fill(n_jets_,FFMC*w);
 		if ((HadRefitPions_minus!=HadRefitPions_plus) && (HadRefitPions_minus!=VectZeroLV) && (HadRefitPions_plus!=VectZeroLV))
 		  {
 		    if(TauminusPairConstraintWithTracksBS!=TauplusPairConstraintWithTracksBS && TauminusPairConstraintWithTracksBS!=zeroLV && TauplusPairConstraintWithTracksBS!=zeroLV )
@@ -5198,6 +5187,18 @@ void  HCPTauTau::doEvent()  { //  Method called on every event
 			if(ScalcPVRefitWithTracksBS.isOk("a1", "a1", TauminusPairConstraintWithTracksBS, HadRefitPions_minus, HadRefitPionsCharge_minus, TauplusPairConstraintWithTracksBS, HadRefitPions_plus, HadRefitPionsCharge_plus)==true){polarimetricAcopAnglePVRefitWithTracksBSMVADMQCDMC.at(t).Fill(ScalcPVRefitWithTracksBS.AcopAngle("a1", "a1", TauminusPairConstraintWithTracksBS, HadRefitPions_minus, HadRefitPionsCharge_minus, TauplusPairConstraintWithTracksBS, HadRefitPions_plus, HadRefitPionsCharge_plus),FFMC*w);
 
 			  polarimetricAcopAnglePVRefitWithTracksBSMVADMQCDMC_DP.at(t).Fill(acop,FFMC*w);
+
+			  Tau1PTa1a1QCDMC.at(t).Fill(pt_1_,FFMC*w);
+			  TauTauVisMassa1a1QCDMC.at(t).Fill(m_vis_,FFMC*w);
+			  TauTauFullMassa1a1QCDMC.at(t).Fill(m_sv_,FFMC*w);
+			  TauTauVisPTa1a1QCDMC.at(t).Fill(pt_vis_,FFMC*w);
+			  TauTauFullPTa1a1QCDMC.at(t).Fill(pt_tt_,FFMC*w);
+			  Mjja1a1QCDMC.at(t).Fill(mjj_,FFMC*w);
+			  jdetaa1a1QCDMC.at(t).Fill(jdeta_,FFMC*w);
+			  jpt_1a1a1QCDMC.at(t).Fill(jpt_1_,FFMC*w);
+			  PUPPImetcorra1a1QCDMC.at(t).Fill(met_,FFMC*w);
+			  NbJetsa1a1QCDMC.at(t).Fill(n_jets_,FFMC*w);
+
 			}
 			if(max_pair.second==0)
 			  {
@@ -5804,18 +5805,6 @@ void  HCPTauTau::doEvent()  { //  Method called on every event
       {
 	if(a1a1MVA)
 	  {
-	   
-	    Tau1PTa1a1.at(t).Fill(pt_1_,w);
-	    TauTauVisMassa1a1.at(t).Fill(m_vis_,w);
-	    TauTauFullMassa1a1.at(t).Fill(m_sv_,w);
-	    TauTauVisPTa1a1.at(t).Fill(pt_vis_,w);
-	    TauTauFullPTa1a1.at(t).Fill(pt_tt_,w);
-	    Mjja1a1.at(t).Fill(mjj_,w);
-	    jdetaa1a1.at(t).Fill(jdeta_,w);
-	    jpt_1a1a1.at(t).Fill(jpt_1_,w);
-	    PUPPImetcorra1a1.at(t).Fill(met_,w);
-	    NbJetsa1a1.at(t).Fill(n_jets_,w);
-
 	    if ((HadPions_minus!=HadPions_plus) && (HadPions_minus!=VectZeroLV) && (HadPions_plus!=VectZeroLV) && (HadRefitPions_minus!=HadRefitPions_plus) && (HadRefitPions_minus!=VectZeroLV) && (HadRefitPions_plus!=VectZeroLV))
 	      {
 		if(TauminusPairConstraintWithTracksBS!=TauplusPairConstraintWithTracksBS && TauminusPairConstraintWithTracksBS!=zeroLV && TauplusPairConstraintWithTracksBS!=zeroLV)
@@ -5823,11 +5812,20 @@ void  HCPTauTau::doEvent()  { //  Method called on every event
 		    if(ScalcPVRefitWithTracksBS.isOk("a1", "a1", TauminusPairConstraintWithTracksBS, HadRefitPions_minus, HadRefitPionsCharge_minus, TauplusPairConstraintWithTracksBS, HadRefitPions_plus, HadRefitPionsCharge_plus)==true){polarimetricAcopAnglePVRefitWithTracksBSMVADM.at(t).Fill(ScalcPVRefitWithTracksBS.AcopAngle("a1", "a1", TauminusPairConstraintWithTracksBS, HadRefitPions_minus, HadRefitPionsCharge_minus, TauplusPairConstraintWithTracksBS, HadRefitPions_plus, HadRefitPionsCharge_plus),Wspin);
 		    
 		      polarimetricAcopAnglePVRefitWithTracksBSMVADM_DP.at(t).Fill(acop,Wspin);
+
+		      Tau1PTa1a1.at(t).Fill(pt_1_,w);
+		      TauTauVisMassa1a1.at(t).Fill(m_vis_,w);
+		      TauTauFullMassa1a1.at(t).Fill(m_sv_,w);
+		      TauTauVisPTa1a1.at(t).Fill(pt_vis_,w);
+		      TauTauFullPTa1a1.at(t).Fill(pt_tt_,w);
+		      Mjja1a1.at(t).Fill(mjj_,w);
+		      jdetaa1a1.at(t).Fill(jdeta_,w);
+		      jpt_1a1a1.at(t).Fill(jpt_1_,w);
+		      PUPPImetcorra1a1.at(t).Fill(met_,w);
+		      NbJetsa1a1.at(t).Fill(n_jets_,w);
 		    }
 		    if(max_pair.second==0)
 		      {
-			
-
 			if(ScalcPVRefitWithTracksBS.isOk("a1", "a1", TauminusPairConstraintWithTracksBS, HadRefitPions_minus, HadRefitPionsCharge_minus, TauplusPairConstraintWithTracksBS, HadRefitPions_plus, HadRefitPionsCharge_plus)==true){
 			  HiggsBDTScorea1a1.at(t).Fill(max_pair.first,w);
 			  HiggsBDTScorea1a1_DP.at(t).Fill(max_pair.first,w);//AC?

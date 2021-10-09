@@ -143,6 +143,9 @@ Ntuple_Controller::Ntuple_Controller(std::vector<TString> RootFiles):
   FES2018=TFile::Open(((std::string)std::getenv("workdir")+"Code/CommonUtils/TauIDSFs/data/TauFES_eta-dm_DeepTau2017v2p1VSe_2018ReReco.root").c_str(),"READ");
   histTES2018 = dynamic_cast<TH1*>((const_cast<TFile*>(TES2018))->Get("tes"));
   histFES2018 = dynamic_cast<TGraph*>((const_cast<TFile*>(FES2018))->Get("fes"));
+
+  if (GetInputNtuplePath().Contains("Embed"))EmbedID=36;
+  else EmbedID=-1;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -841,7 +844,7 @@ TLorentzVector Ntuple_Controller::P4Corrected(unsigned int i, int genmatch,strin
       Shift3Pr    = NomTESCorrDM10 - UncTESCorrDM10;
       Shift3PrPi0  = NomTESCorrDM11 - UncTESCorrDM11;
     }
-  if(GetMCID()==36 && year()==2016){
+  if(EmbedID==36 && year()==2016){
     if(Unc=="Nom")
       {
 	Shift1Pr    = 0.998;
@@ -877,7 +880,7 @@ TLorentzVector Ntuple_Controller::P4Corrected(unsigned int i, int genmatch,strin
       }
   }
 
-  if(GetMCID()==36 && year()==2017){
+  if(EmbedID==36 && year()==2017){
     if(Unc=="Nom")
       {
 	Shift1Pr    = 0.9996;
@@ -913,7 +916,7 @@ TLorentzVector Ntuple_Controller::P4Corrected(unsigned int i, int genmatch,strin
       }
   }
 
-  if(GetMCID()==36 && year()==2018){
+  if(EmbedID==36 && year()==2018){
     if(Unc=="Nom")
       {
 	Shift1Pr    = 0.9967;
@@ -999,7 +1002,7 @@ TLorentzVector Ntuple_Controller::P4Corrected(unsigned int i, int genmatch,strin
 int Ntuple_Controller::GetGenMatch(int tauindex)
 {
   //cout<<"-----------"<<endl;
-  if(isData() && GetMCID()!=36) return 6;
+  if(isData() && EmbedID!=36) return 6;
   int genMatch=6;
   int index=Daughters_genindex(tauindex);
   if (index==-1) return 6;
@@ -1037,7 +1040,7 @@ double Ntuple_Controller::IDSF(int i,int genmatch,string TES,string particle,  s
   auto pt_mvadm = std::vector<double>{t_pt,t_mvadm};
   if(year()==2016)
     {
-      if(GetMCID()!=36){
+      if(EmbedID!=36){
 	if(particle=="tau" && genmatch==5)
 	  {
 	    double result= std::shared_ptr<RooFunctor>(w2016->function("t_deeptauid_mvadm_medium")->functor(w2016->argSet("t_pt,t_mvadm")))->eval(pt_mvadm.data());
@@ -1078,7 +1081,7 @@ double Ntuple_Controller::IDSF(int i,int genmatch,string TES,string particle,  s
     }
   else if(year()==2017)
     {
-      if(GetMCID()!=36){
+      if(EmbedID!=36){
 	if(particle=="tau" && genmatch==5)
 	  {
 	    double result= std::shared_ptr<RooFunctor>(w2017->function("t_deeptauid_mvadm_medium")->functor(w2017->argSet("t_pt,t_mvadm")))->eval(pt_mvadm.data());
@@ -1120,7 +1123,7 @@ double Ntuple_Controller::IDSF(int i,int genmatch,string TES,string particle,  s
     }
   else if(year()==2018)
     {
-      if(GetMCID()!=36){
+      if(EmbedID!=36){
 	if(particle=="tau" && genmatch==5)
 	  {
 	    double result= std::shared_ptr<RooFunctor>(w2018->function("t_deeptauid_mvadm_medium")->functor(w2018->argSet("t_pt,t_mvadm")))->eval(pt_mvadm.data());
@@ -1182,7 +1185,7 @@ double Ntuple_Controller::TriggerSF(int i,int genmatch,string TES,string Unc)
   auto pt_mvadm = std::vector<double>{t_pt,t_mvadm};
   if(year()==2016)
     {
-      if(GetMCID()!=36){
+      if(EmbedID!=36){
 	if(Unc=="Nom")return std::shared_ptr<RooFunctor>(w2016->function("t_trg_ic_deeptau_medium_mvadm_ditau_ratio")->functor(w2016->argSet("t_pt,t_mvadm")))->eval(pt_mvadm.data());
 	else if(Unc=="Up")return std::shared_ptr<RooFunctor>(w2016->function("t_trg_ic_deeptau_medium_mvadm_ditau_ratio_mvadm10_up")->functor(w2016->argSet("t_pt,t_mvadm")))->eval(pt_mvadm.data());
 	else if(Unc=="Down")return std::shared_ptr<RooFunctor>(w2016->function("t_trg_ic_deeptau_medium_mvadm_ditau_ratio_mvadm10_down")->functor(w2016->argSet("t_pt,t_mvadm")))->eval(pt_mvadm.data());
@@ -1196,7 +1199,7 @@ double Ntuple_Controller::TriggerSF(int i,int genmatch,string TES,string Unc)
 
   else if(year()==2017)
     {
-      if(GetMCID()!=36){
+      if(EmbedID!=36){
 	if(Unc=="Nom")return std::shared_ptr<RooFunctor>(w2017->function("t_trg_ic_deeptau_medium_mvadm_ditau_ratio")->functor(w2017->argSet("t_pt,t_mvadm")))->eval(pt_mvadm.data());
 	else if(Unc=="Up")return std::shared_ptr<RooFunctor>(w2017->function("t_trg_ic_deeptau_medium_mvadm_ditau_ratio_mvadm10_up")->functor(w2017->argSet("t_pt,t_mvadm")))->eval(pt_mvadm.data());
 	else if(Unc=="Down")return std::shared_ptr<RooFunctor>(w2017->function("t_trg_ic_deeptau_medium_mvadm_ditau_ratio_mvadm10_down")->functor(w2017->argSet("t_pt,t_mvadm")))->eval(pt_mvadm.data());
@@ -1209,7 +1212,7 @@ double Ntuple_Controller::TriggerSF(int i,int genmatch,string TES,string Unc)
     }
   else if(year()==2018)
     {
-      if(GetMCID()!=36){
+      if(EmbedID!=36){
 	if(Unc=="Nom")return std::shared_ptr<RooFunctor>(w2018->function("t_trg_ic_deeptau_medium_mvadm_ditau_ratio")->functor(w2018->argSet("t_pt,t_mvadm")))->eval(pt_mvadm.data());
 	else if(Unc=="Up")return std::shared_ptr<RooFunctor>(w2018->function("t_trg_ic_deeptau_medium_mvadm_ditau_ratio_mvadm10_up")->functor(w2018->argSet("t_pt,t_mvadm")))->eval(pt_mvadm.data());
 	else if(Unc=="Down")return std::shared_ptr<RooFunctor>(w2018->function("t_trg_ic_deeptau_medium_mvadm_ditau_ratio_mvadm10_down")->functor(w2018->argSet("t_pt,t_mvadm")))->eval(pt_mvadm.data());
@@ -1253,13 +1256,13 @@ void Ntuple_Controller::FillHist(unsigned int t, int idx, bool isOS, bool GenMat
   
   int genmatch1=6;
   int genmatch2=6;
-  if(!isData() || GetMCID()==36){
+  if(!isData() || EmbedID==36){
     genmatch1=gen_match_1(idx);
     genmatch2=gen_match_2(idx);
   }
   //cout<<"value: "<<value<<"  w: "<<w<<endl;
  
-  if(isData() && GetMCID()!=36 && !byMediumDeepTau2017v2p1VSjet_1(idx) && byVVVLooseDeepTau2017v2p1VSjet_1(idx) && byMediumDeepTau2017v2p1VSjet_2(idx)) {
+  if(isData() && EmbedID!=36 && !byMediumDeepTau2017v2p1VSjet_1(idx) && byVVVLooseDeepTau2017v2p1VSjet_1(idx) && byMediumDeepTau2017v2p1VSjet_2(idx)) {
 
     if(max_pair.second==0)histHiggs->at(1).Fill(value,max_pair.first, wData);
     if(max_pair.second==1)histJetFakes->at(1).Fill(value,max_pair.first, wData);	 
@@ -1516,8 +1519,6 @@ std::vector<int>  Ntuple_Controller::SortPair (std::vector<int>  PairIndices,  s
     }
     sortp.push_back(vPairs.at(index).at(6));
   }
-
-
    
   // now sort by iso, then pt criteria
   stable_sort(vPairs.begin(), vPairs.end(), pairSort);
@@ -3092,7 +3093,7 @@ std::string Ntuple_Controller::MCParticleToString(unsigned int par, bool printSt
 	return out.str();
 }
 bool Ntuple_Controller::CheckDecayID(unsigned  int jak1, unsigned int jak2){
-  if(isData() && GetMCID()!=36) return false;
+  if(isData() && EmbedID!=36) return false;
   // jak  = 2 - muon
   // jak  = 3 - pion
   // jak  = 4 - rho

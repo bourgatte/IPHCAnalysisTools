@@ -174,6 +174,8 @@ class Ntuple_Controller{
 
   bool cannotObtainHiggsMass; // avoid repeated printing of warning when running locally
 
+  int EmbedID;
+
   // Ntuple Access Functions
   virtual void Branch_Setup(TString B_Name, int type);
   virtual void Branch_Setup(){}

@@ -62,7 +62,7 @@ $Cleaning ="NO";
 $maxdata=20;
 $maxmc=5;
 $maxemb=20;
-$ARCH="slc6_amd64_gcc530";
+$ARCH="slc7_amd64_gcc820";
 $Queue="cream-pbs-short";
 $QsubQue="cms_local_short";
 
@@ -583,7 +583,7 @@ if( $ARGV[0] eq "--Local" ){
 		{
 		    #$max=12;
 		    #$max=5;
-		    $max=10;
+		    $max=3;
 		}
 
 		#2016
@@ -607,34 +607,39 @@ if( $ARGV[0] eq "--Local" ){
 
 		#2018
 		
-		if( $DS =~ m/WZTo1L1Nu2Q/ || $DS =~ m/WWToLNuQQ/ || $DS =~ m/ZZTo2L2Q/ || $DS =~ m/W4/ || $DS =~ m/WZTo2L2Q/)
-		{
-		   $max=40;
-		}
-		if( $DS =~ m/ZZTo4L/)
-                {
-                    $max=$max/3;
-                }
+		#if( $DS =~ m/WZTo1L1Nu2Q/ || $DS =~ m/WWToLNuQQ/ || $DS =~ m/ZZTo2L2Q/ || $DS =~ m/W4/ || $DS =~ m/WZTo2L2Q/)
+		#{
+		#   $max=40;
+		#}
+		#if( $DS =~ m/ZZTo4L/)
+                #{
+                #    $max=$max/3;
+                #}
 
-		if($DS =~ m/DYJets_ll_all_2018_V3/)
-                {
-                    $max=$max/6;
-                }
+		#if($DS =~ m/DYJets_ll_all_2018_V3/)
+                #{
+                #    $max=$max/6;
+                #}
 
-		#if($DS =~ m/Data_A/ || $DS =~ m/Data_B/)
+		#if($DS =~ m/Data_A/)
                 #{
                 #    $max=$max*2;
                 #}
-		
-		if($DS =~ m/Data_D/ || $DS =~ m/Data_C/)
-                {
-                    $max=20;
-                }
 
-	        if($DS =~ m/DY2JetsToLL/)
-		{
-		    $max=30;
-		}
+		#if($DS =~ m/Data_B/)
+                #{
+                #    $max=15;
+                #}
+		
+		#if($DS =~ m/Data_D/ )
+                #{
+                #    $max=30;
+                #}
+
+	        #if($DS =~ m/DY2JetsToLL/)
+		#{
+		#    $max=30;
+		#}
 		
 
 		print "max  = $max;    maxmc = $maxmc \n";

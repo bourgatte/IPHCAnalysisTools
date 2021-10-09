@@ -3,7 +3,7 @@ Skim: False
 HistoFile: InputData/HistoHCPTauTauInclusive_2017.txt
 Analysis: HCPTauTau
 UncertType: default
-SkimInfo: InputData/SkimSummary_2017_final.log
+SkimInfo: InputData/SkimSummary_2017_final4.log
 Lumi: 41530.000
 PlotStyle: style2
 

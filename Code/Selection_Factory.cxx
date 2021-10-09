@@ -31,6 +31,8 @@
 
 //#include "gbourgat/HTauTau.h"
 #include "gbourgat/HCPTauTau.h"
+#include "gbourgat/HCPMuTau.h"
+#include "gbourgat/HCPPiTau.h"
 
 #endif
 
@@ -90,6 +92,8 @@ Selection_Base* Selection_Factory::Factory(TString Analysis, TString UncertType,
 
   //else if(Analysis.Contains("htautau"))s=new HTauTau(Analysis,UncertType);
   else if(Analysis.Contains("hcptautau"))s=new HCPTauTau(Analysis,UncertType);
+  else if(Analysis.Contains("hcpmutau"))s=new HCPMuTau(Analysis,UncertType);
+  else if(Analysis.Contains("hcppitau"))s=new HCPPiTau(Analysis,UncertType);
 
 #endif
 
